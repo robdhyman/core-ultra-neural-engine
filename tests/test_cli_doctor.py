@@ -82,7 +82,7 @@ def test_report_memory_and_disk(report):
 
 def test_report_lists_usable_ml_dependencies_with_versions(report):
     dependencies = {entry["name"]: entry for entry in report["dependencies"]}
-    assert {"torch", "numpy", "psutil"} <= set(dependencies)
+    assert {"torch", "numpy", "psutil", "pyside6-essentials"} <= set(dependencies)
     for entry in dependencies.values():
         assert entry["usable"] is True, entry
         assert re.match(r"\d+\.\d+", entry["version"]), entry
