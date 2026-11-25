@@ -62,6 +62,43 @@ What the record holds:
 
 The chosen size is recorded in `configs/scene-model/v1.json`, which names the measurement record it came from with its SHA-256.
 
+## Scene session
+
+The scene session is the one interface from application state to a drawn interface. It runs without a window.
+
+```python
+from core_ultra.kernel import Kernel
+from core_ultra.scene_session import Conditioning, RenderingMode, SceneSession
+
+kernel = Kernel("application.sqlite")
+kernel.create_document("Quarterly plan")
+
+frame = SceneSession().frame(kernel.state(), Conditioning(640, 320), RenderingMode.A_REFERENCE, scale=2)
+frame.scene             # the validated scene; frame.scene.to_json() is how it is stored
+frame.image             # RGBA pixels drawn by the runtime renderer, 1280 by 640 here
+frame.hit_test(600, 36) # the bound element at a point in viewport units, or None
+```
+
+| Step | Module | What it does |
+| --- | --- | --- |
+| Application kernel | [kernel.py](src/core_ultra/kernel.py) | Holds documents in SQLite. Commands so far: create and list. |
+| Documents app adapter | [documents_adapter.py](src/core_ultra/documents_adapter.py) | Describes state as bound elements: identity, role, exact text, binding, state, relationships. No coordinates, no style. |
+| Scene writer | [reference_layout.py](src/core_ultra/reference_layout.py) | In A, Reference, the reference layout writes the scene. D, Neural Scene has no scene model yet and says so. |
+| Scene validation | [scene.py](src/core_ultra/scene.py) | Accepts the scene or refuses it with every reason. Nothing is repaired. The schema is at the top of the file. |
+| Runtime renderer | [runtime_renderer.py](src/core_ultra/runtime_renderer.py) | Draws the validated scene as vectors with Qt's painter, off screen, and answers hit tests from the same outlines. |
+
+`SceneSession.frame_from_scene` draws a scene written elsewhere (a stored scene, a hand-written one, later a scene model's output) after validating it against the same state. An invalid scene raises `SceneInvalid`, which lists each problem with a code: a bound element missing, duplicated, invented or altered; a number that is not finite or out of range; a box outside the viewport; a malformed tree; a structural element carrying text or a binding; more than 32 bound or 16 structural elements.
+
+Limits of this first version, the A, Reference tracer:
+
+- One arrangement of the document list in one set of plain style values. Visual presets, design conditions and layout families come with the generator.
+- Text is one line in Helvetica Neue, a system font that is read and never redistributed. It is not elided, wrapped or clipped, and a character the font lacks is refused, not substituted.
+- Where text sits in its box is a rule of the runtime renderer, not a scene value: on the vertical centre, a button's text centred, other text as far from the left edge as from the top.
+- `elevation` is carried by the scene and not drawn yet.
+- Pointer and focus state (`ApplicationState.interaction`) is supplied by the caller; no command changes it yet.
+
+Why Qt's painter: [docs/adr/0002-qt-painter-is-the-runtime-renderer.md](docs/adr/0002-qt-painter-is-the-runtime-renderer.md).
+
 ## What git keeps
 
 | Location | In git | Holds |
@@ -79,4 +116,4 @@ Weight and array files (`*.pt`, `*.safetensors`, `*.npz` and similar) are ignore
 uv run pytest
 ```
 
-The tests run the real commands on the machine at hand; `measure step` is run on a configuration small enough to finish in seconds. `test_report_matches_the_tested_platform` asserts the tested platform above and fails on any other machine on purpose.
+The tests run the real commands on the machine at hand; `measure step` is run on a configuration small enough to finish in seconds. The scene session tests ([tests/test_scene_session.py](tests/test_scene_session.py)) build state in a real kernel and assert on the scene, its validity, the drawn image and hit-test answers; drawn text is judged against Qt's own text-to-path, not against the renderer's code. `test_report_matches_the_tested_platform` asserts the tested platform above and fails on any other machine on purpose.

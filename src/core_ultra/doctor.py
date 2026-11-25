@@ -133,7 +133,7 @@ def to_text(report: dict[str, Any]) -> str:
     for entry in report["dependencies"]:
         status = _usable(entry["usable"])
         detail = f"  {entry['error']}" if entry["error"] else ""
-        lines.append(f"  {entry['name']:<16} {entry['version'] or 'missing':<12} {status}{detail}")
+        lines.append(f"  {entry['name']:<20} {entry['version'] or 'missing':<12} {status}{detail}")
     lines.append("")
     if report["problems"]:
         lines.append("Problems")
@@ -302,6 +302,11 @@ def _import_names(distribution: importlib.metadata.Distribution) -> list[str]:
     top_level = distribution.read_text("top_level.txt")
     if top_level:
         names = [line.strip() for line in top_level.splitlines() if line.strip()]
+        # A distribution may list a name it does not ship (PySide6-Essentials
+        # lists Shiboken, which belongs to shiboken6). Only what it ships is
+        # imported.
+        shipped = {file.parts[0].split(".")[0] for file in distribution.files or []}
+        names = [name for name in names if name in shipped] or names
     else:
         names = sorted(
             {
