@@ -1,0 +1,72 @@
+{
+  "kind": "doctor-report",
+  "schema_version": 1,
+  "created_at": "2026-11-25T19:44:14Z",
+  "project": {
+    "name": "core-ultra",
+    "version": "0.0.1"
+  },
+  "os": {
+    "name": "macOS",
+    "version": "27.0.1",
+    "build": "26A434",
+    "kernel": "27.0.0"
+  },
+  "hardware": {
+    "machine": "arm64",
+    "chip": "Apple M5",
+    "model": "Mac17,2",
+    "cpu_cores_physical": 10,
+    "cpu_cores_logical": 10
+  },
+  "python": {
+    "implementation": "CPython",
+    "version": "3.12.14"
+  },
+  "accelerators": {
+    "default_device": "mps",
+    "mps": {
+      "built": true,
+      "available": true,
+      "forward_ok": true,
+      "backward_ok": true,
+      "agrees_with_cpu": true,
+      "max_abs_difference": 4.76837158203125e-07,
+      "usable": true,
+      "error": null
+    },
+    "cuda": {
+      "available": false
+    }
+  },
+  "memory": {
+    "total_bytes": 17179869184,
+    "available_bytes": 3037052928
+  },
+  "disk": {
+    "total_bytes": 994610155520,
+    "free_bytes": 665614426112
+  },
+  "dependencies": [
+    {
+      "name": "numpy",
+      "version": "2.5.5",
+      "usable": true,
+      "error": null
+    },
+    {
+      "name": "psutil",
+      "version": "7.2.2",
+      "usable": true,
+      "error": null
+    },
+    {
+      "name": "torch",
+      "version": "2.15.0",
+      "usable": true,
+      "error": null
+    }
+  ],
+  "problems": [],
+  "environment_id": "sha256:e160b01f246cda559f78e4495b259c8415f8c41e365d4ec8491fac0e87f9bef3"
+}

@@ -1,0 +1,34 @@
+{
+  "kind": "training-step-measurement-config",
+  "name": "training-step-v1",
+  "version": 1,
+  "note": "Placeholder sizes around the planned 9M to 13M parameters: one below the range, three inside it and one above. Feedforward width is four times d_model.",
+  "planned_parameter_range": [9000000, 13000000],
+  "sizes": [
+    {"name": "d256-l8", "d_model": 256, "layers": 8, "heads": 8, "feedforward": 1024},
+    {"name": "d320-l8", "d_model": 320, "layers": 8, "heads": 8, "feedforward": 1280},
+    {"name": "d384-l6", "d_model": 384, "layers": 6, "heads": 8, "feedforward": 1536},
+    {"name": "d384-l7", "d_model": 384, "layers": 7, "heads": 8, "feedforward": 1536},
+    {"name": "d448-l7", "d_model": 448, "layers": 7, "heads": 8, "feedforward": 1792}
+  ],
+  "batch_sizes": [16, 64, 256],
+  "reference_batch_size": 64,
+  "devices": ["mps", "cpu"],
+  "dtype": "float32",
+  "warmup_steps": 10,
+  "measured_steps": 30,
+  "phase_steps": 10,
+  "seed": 0,
+  "case_timeout_seconds": 900,
+  "optimizer": {"name": "AdamW", "learning_rate": 0.0001, "weight_decay": 0.01},
+  "selection": {
+    "max_peak_footprint_fraction_of_memory": 0.5,
+    "reference_epoch_examples": 20000,
+    "max_seconds_per_reference_epoch": 300
+  },
+  "projection": {
+    "pilot_examples": [200, 500],
+    "full_examples": [5000, 20000],
+    "epochs": [10, 100, 1000]
+  }
+}
