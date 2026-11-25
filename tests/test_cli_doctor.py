@@ -144,6 +144,46 @@ def test_save_never_overwrites_an_existing_record(tmp_path):
     assert target.read_text() == "{}"
 
 
+def run_cli_without(module: str, *args: str) -> subprocess.CompletedProcess[str]:
+    """Run the real command in an interpreter where `module` cannot be imported."""
+    program = (
+        "import sys\n"
+        f"sys.modules[{module!r}] = None\n"
+        "from core_ultra.cli import main\n"
+        "sys.exit(main(sys.argv[1:]))\n"
+    )
+    return subprocess.run(
+        [sys.executable, "-c", program, *args],
+        capture_output=True,
+        text=True,
+        timeout=300,
+    )
+
+
+def test_a_missing_dependency_is_reported_not_a_crash():
+    result = run_cli_without("psutil", "doctor", "--json")
+    assert result.returncode == 1, result.stderr
+    assert "Traceback" not in result.stderr
+    report = json.loads(result.stdout)
+    dependencies = {entry["name"]: entry for entry in report["dependencies"]}
+    assert dependencies["psutil"]["usable"] is False
+    assert dependencies["psutil"]["error"]
+    assert any("psutil" in problem for problem in report["problems"])
+    # What only psutil can measure is recorded as unknown, never guessed.
+    assert report["memory"] == {"total_bytes": None, "available_bytes": None}
+    assert report["hardware"]["cpu_cores_physical"] is None
+    assert report["hardware"]["chip"]
+
+
+def test_a_missing_dependency_still_prints_readable_text():
+    result = run_cli_without("psutil", "doctor")
+    assert result.returncode == 1, result.stderr
+    assert "Traceback" not in result.stderr
+    assert "Memory             unknown" in result.stdout
+    assert "Problems" in result.stdout
+    assert "psutil" in result.stdout
+
+
 def test_later_verbs_are_not_offered_yet():
     result = run_cli("train")
     assert result.returncode != 0

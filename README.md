@@ -28,7 +28,7 @@ uv run core-ultra doctor
 | `--save` | Also write the report to `records/doctor/<time>-<environment id>.json`. |
 | `--save PATH` | Also write the report to `PATH`. An existing file is never overwritten. |
 
-A saved record is what later measurements point at. `--save` prints the record's path, its SHA-256 and the report's `environment_id`, a hash of the fields that identify the environment (OS build, hardware, Python, memory size, accelerators and dependency versions). Time, free memory and free disk are left out of that hash, so two runs on an unchanged machine share one id.
+A saved record is what later measurements point at. `--save` prints the record's path, its SHA-256 and the report's `environment_id`, a hash of the fields that identify the environment (project version, OS build, hardware, Python, memory size, accelerators and dependency versions). Time, free memory and free disk are left out of that hash, so two runs on an unchanged machine share one id.
 
 The report holds no host name, user name, serial number or absolute path, because records are committed to a public repository.
 
