@@ -3,3 +3,5 @@ __pycache__/
 *.pyc
 .venv/
 .env
+# Weights, datasets, evidence and the use log stay on this machine
+artifacts/
