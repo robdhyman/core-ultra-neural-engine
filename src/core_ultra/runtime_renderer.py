@@ -10,16 +10,27 @@ pointer hits is therefore the shape that was filled.
 
 What is drawn, per element, in the scene's drawing order:
 
+- for `elevation` above zero, a shadow (below);
 - the box as a rounded rectangle, filled with `fill`;
 - a border of `border_width` in `border_colour`, inside the outline;
 - for a bound element with text, the text as filled glyph outlines in
-  `text_colour`, on the box's vertical centre. A button's text is centred
-  horizontally; other text starts as far from the left edge as the line is
-  from the top edge.
+  `text_colour`, at `type_size` and `type_weight`, placed by `text_lines`.
 
-`opacity` multiplies the element's own fill, border and text. Text is never
-elided, wrapped or clipped. `elevation` is carried by the scene and not drawn
-yet.
+`opacity` multiplies the element's own shadow, fill, border and text.
+
+Text. Where text sits in its box is a rule of this renderer, not a scene
+value. A text-area's text is one line per line feed, the first line half a
+line height in from the top and left edges, lines `LINE_PITCH` line heights
+apart. Any other text is one line on the box's vertical centre: a button's is
+centred horizontally, the rest starts as far from the left edge as the line is
+from the top edge. Text is never elided, wrapped or clipped.
+
+Shadow. An element of elevation e casts the shape of its own outline moved
+down by e / 2, in black. With d the distance from that moved outline (negative
+inside), the shadow's alpha is `SHADOW_ALPHA` where d <= -e, zero where
+d >= e, and falls between the two as a smoothstep of d. It is drawn as
+`SHADOW_LAYERS` nested outlines, so it is vectors like everything else and is
+the same shadow at every scale. A shadow is not part of the shape that is hit.
 """
 
 from __future__ import annotations
@@ -35,6 +46,10 @@ from core_ultra import typography
 from core_ultra.documents_adapter import BoundElement
 from core_ultra.scene import Element, Scene
 
+LINE_PITCH = 1.25
+SHADOW_ALPHA = 0.24
+SHADOW_LAYERS = 32
+
 
 def outline_of(element: Element) -> QPainterPath:
     """The element's drawn shape, in viewport units."""
@@ -44,17 +59,23 @@ def outline_of(element: Element) -> QPainterPath:
     return path
 
 
-def text_origin(element: Element) -> tuple[float, float]:
-    """Top left corner of the element's line of text, in viewport units."""
-    style = element.style
-    line = typography.shape(element.bound.text, style.type_weight)
+def text_lines(element: Element) -> tuple[tuple[str, float, float], ...]:
+    """Each line of the element's text with the top left corner of that line, in viewport units."""
+    style, bound = element.style, element.bound
     scale = typography.reference_scale(style.type_size)
-    inset = (element.height - (line.ascent + line.descent) * scale) / 2
-    if element.bound.role == "button":
-        x = element.x + (element.width - line.advance * scale) / 2
+    line_height = typography.line_height(style.type_size, style.type_weight)
+    if bound.role == "text-area":
+        inset = line_height / 2
+        return tuple(
+            (text, element.x + inset, element.y + inset + index * LINE_PITCH * line_height)
+            for index, text in enumerate(bound.text.split("\n"))
+        )
+    inset = (element.height - line_height) / 2
+    if bound.role == "button":
+        x = element.x + (element.width - typography.shape(bound.text, style.type_weight).advance * scale) / 2
     else:
         x = element.x + max(inset, 0.0)
-    return x, element.y + inset
+    return ((bound.text, x, element.y + inset),)
 
 
 def draw(scene: Scene, scale: float = 1.0) -> np.ndarray:
@@ -126,6 +147,9 @@ def _draw_element(painter: QPainter, element: Element) -> None:
     style = element.style
     painter.setOpacity(style.opacity)
 
+    if style.elevation > 0:
+        _draw_shadow(painter, element)
+
     if style.fill[3] > 0:
         painter.fillPath(outline_of(element), _colour(style.fill))
 
@@ -143,11 +167,37 @@ def _draw_element(painter: QPainter, element: Element) -> None:
         painter.strokePath(centre_line, QPen(_colour(style.border_colour), style.border_width))
 
     if element.bound is not None and element.bound.text:
-        line = typography.shape(element.bound.text, style.type_weight)
-        x, y = text_origin(element)
         scale = typography.reference_scale(style.type_size)
-        painter.save()
-        painter.translate(x, y)
-        painter.scale(scale, scale)
-        painter.fillPath(line.outline, _colour(style.text_colour))
-        painter.restore()
+        for text, x, y in text_lines(element):
+            if not text:
+                continue
+            painter.save()
+            painter.translate(x, y)
+            painter.scale(scale, scale)
+            painter.fillPath(typography.shape(text, style.type_weight).outline, _colour(style.text_colour))
+            painter.restore()
+
+
+def _draw_shadow(painter: QPainter, element: Element) -> None:
+    """The shadow described at the top of this file, outermost outline first.
+
+    Each outline is given the alpha that brings what has been painted so far
+    to the shadow's alpha at that outline's distance.
+    """
+    elevation = element.style.elevation
+    painted = 0.0
+    for layer in range(SHADOW_LAYERS):
+        distance = elevation - (layer + 0.5) * 2 * elevation / SHADOW_LAYERS
+        along = (elevation - distance) / (2 * elevation)
+        wanted = SHADOW_ALPHA * along * along * (3 - 2 * along)
+        alpha = 1 - (1 - wanted) / (1 - painted)
+        painted = wanted
+        width, height = element.width + 2 * distance, element.height + 2 * distance
+        if width <= 0 or height <= 0:
+            continue
+        radius = max(element.style.corner_radius + distance, 0.0)
+        outline = QPainterPath()
+        outline.addRoundedRect(
+            QRectF(element.x - distance, element.y + elevation / 2 - distance, width, height), radius, radius
+        )
+        painter.fillPath(outline, QColor.fromRgbF(0.0, 0.0, 0.0, alpha))

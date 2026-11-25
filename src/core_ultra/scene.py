@@ -26,10 +26,16 @@ unchanged. A structural element carries none of that.
 `validate` is the only way to obtain a `Scene`, and the runtime renderer draws
 and hit-tests nothing else. Validation never repairs: a candidate with any
 problem is refused with every problem listed.
+
+`project` is the one place a value is ever changed, and only when a caller asks
+for it: it returns a copy in which each finite number outside a closed bound
+sits on that bound, with a `Projection` for every value it moved. It moves
+nothing else, so a scene with any other problem is still refused.
 """
 
 from __future__ import annotations
 
+import copy
 import json
 import math
 from collections.abc import Sequence
@@ -108,6 +114,22 @@ class Element:
     height: float
     style: Style
     bound: BoundElement | None
+
+
+@dataclass(frozen=True)
+class Projection:
+    """One value that `project` moved into its allowed bounds.
+
+    `field` names the value, as in `box.x`, `style.opacity` or `style.fill[1]`.
+    """
+
+    element: str
+    field: str
+    given: float
+    used: float
+
+    def __str__(self) -> str:
+        return f"{self.element}: {self.field} {self.given} projected to {self.used}"
 
 
 _PROOF = object()
@@ -278,6 +300,80 @@ def validate(candidate: Any, bound_elements: Sequence[BoundElement], viewport: t
     return Scene(_PROOF, float(width), float(height), tuple(elements))
 
 
+def project(candidate: Any, viewport: tuple[float, float]) -> tuple[Any, tuple[Projection, ...]]:
+    """A copy of the candidate with out-of-bounds values moved onto their bounds, and what was moved.
+
+    Projected: a box wider or taller than the viewport, or lying partly outside
+    it (the box is moved, not resized, unless it is larger than the viewport);
+    a colour channel or an opacity outside 0 to 1; a border width or corner
+    radius outside 0 to half the box's shorter side; a negative elevation; a
+    type weight outside 100 to 900.
+
+    Never projected: a value that is not a finite number, a box without area
+    and a type size that is not above zero, which have no nearest allowed
+    value, and anything about the tree or the bound elements. The candidate
+    passed in is not modified.
+    """
+    projected = copy.deepcopy(candidate)
+    moved: list[Projection] = []
+    width, height = viewport
+    items = projected.get("elements") if isinstance(projected, dict) else None
+    if not isinstance(items, list):
+        return projected, ()
+
+    for index, item in enumerate(items):
+        if not isinstance(item, dict):
+            continue
+        label = item["id"] if isinstance(item.get("id"), str) and item.get("id") else f"element {index}"
+
+        def move(holder: Any, key: Any, name: str, low: float, high: float, slack: tuple[float, float] = (0.0, 0.0)) -> None:
+            # `slack` is what validation tolerates below and above the bounds.
+            value = holder[key]
+            if not _is_finite_number(value) or low - slack[0] <= value <= high + slack[1]:
+                return
+            holder[key] = min(max(value, low), high)
+            moved.append(Projection(label, name, float(value), float(holder[key])))
+
+        box = item.get("box")
+        has_area = (
+            isinstance(box, dict)
+            and set(box) == set(BOX_FIELDS)
+            and all(_is_finite_number(box[name]) for name in BOX_FIELDS)
+            and box["width"] > 0
+            and box["height"] > 0
+        )
+        if has_area:
+            edge = (_EDGE_TOLERANCE, _EDGE_TOLERANCE)
+            move(box, "width", "box.width", 0.0, width, edge)
+            move(box, "height", "box.height", 0.0, height, edge)
+            move(box, "x", "box.x", 0.0, max(width - box["width"], 0.0), edge)
+            move(box, "y", "box.y", 0.0, max(height - box["height"], 0.0), edge)
+
+        style = item.get("style")
+        if not isinstance(style, dict):
+            continue
+        for name in COLOUR_FIELDS:
+            colour = style.get(name)
+            if isinstance(colour, list) and len(colour) == 4:
+                for channel in range(4):
+                    move(colour, channel, f"style.{name}[{channel}]", *_UNIT)
+        for name, (low, high) in _STYLE_BOUNDS.items():
+            if name in style:
+                move(style, name, f"style.{name}", low, high)
+        if has_area:
+            half = min(box["width"], box["height"]) / 2
+            for name in _WITHIN_HALF:
+                if name in style:
+                    move(style, name, f"style.{name}", 0.0, half, (0.0, _EDGE_TOLERANCE))
+    return projected, tuple(moved)
+
+
+# Closed bounds, shared by validation and projection.
+_UNIT = (0.0, 1.0)
+_STYLE_BOUNDS = {"opacity": _UNIT, "elevation": (0.0, math.inf), "type_weight": (100.0, 900.0)}
+_WITHIN_HALF = ("border_width", "corner_radius")
+
+
 @dataclass
 class _Parsed:
     id: str
@@ -291,6 +387,10 @@ class _Parsed:
 
 def _is_number(value: Any) -> bool:
     return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
+def _is_finite_number(value: Any) -> bool:
+    return _is_number(value) and math.isfinite(value)
 
 
 def _parse_element(item: Any, index: int, problems: list[Problem]) -> _Parsed | None:
@@ -444,19 +544,21 @@ def _check_ranges(item: _Parsed, width: float, height: float, problems: list[Pro
             f"box x {box['x']}, y {box['y']}, {box['width']} by {box['height']} leaves the {width} by {height} viewport",
         )
     for name in COLOUR_FIELDS:
-        if any(not 0 <= channel <= 1 for channel in style[name]):
+        if any(not _UNIT[0] <= channel <= _UNIT[1] for channel in style[name]):
             problem("out_of_range", f"style.{name} has a channel outside 0 to 1")
-    if not 0 <= style["opacity"] <= 1:
+    low, high = _STYLE_BOUNDS["opacity"]
+    if not low <= style["opacity"] <= high:
         problem("out_of_range", f"style.opacity is {style['opacity']}; it lies in 0 to 1")
     half = min(box["width"], box["height"]) / 2
-    for name in ("border_width", "corner_radius"):
+    for name in _WITHIN_HALF:
         if not 0 <= style[name] <= half + _EDGE_TOLERANCE:
             problem("out_of_range", f"style.{name} is {style[name]}; it lies in 0 to half the box's shorter side ({half})")
-    if style["elevation"] < 0:
+    if style["elevation"] < _STYLE_BOUNDS["elevation"][0]:
         problem("out_of_range", f"style.elevation is {style['elevation']}; it is zero or more")
     if style["type_size"] <= 0:
         problem("out_of_range", f"style.type_size is {style['type_size']}; it is above zero")
-    if not 100 <= style["type_weight"] <= 900:
+    low, high = _STYLE_BOUNDS["type_weight"]
+    if not low <= style["type_weight"] <= high:
         problem("out_of_range", f"style.type_weight is {style['type_weight']}; it lies in 100 to 900")
 
 
