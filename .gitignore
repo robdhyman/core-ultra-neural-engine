@@ -3,5 +3,31 @@ __pycache__/
 *.pyc
 .venv/
 .env
-# Weights, datasets, evidence and the use log stay on this machine
-artifacts/
+.pytest_cache/
+
+# Weights, datasets, run artifacts, evidence and the use log stay on this
+# machine, under artifacts/. Only the manifests and hashes that describe them
+# are committed.
+artifacts/**
+!artifacts/**/
+!artifacts/**/manifest.json
+!artifacts/**/*.manifest.json
+!artifacts/**/*.sha256
+!artifacts/**/SHA256SUMS
+
+# Safety net: weight and array files are ignored wherever they land.
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.onnx
+*.mlmodel
+*.mlpackage/
+*.npy
+*.npz
+*.h5
+*.hdf5
+*.parquet
+
+# Committed evidence (doctor records, measurement and comparison reports)
+# lives in records/ and is never ignored.
