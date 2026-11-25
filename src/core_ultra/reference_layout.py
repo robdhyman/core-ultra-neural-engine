@@ -1,10 +1,11 @@
 """The reference layout: the deterministic function that writes the true scene.
 
-One arrangement of the document workspace in one set of plain style values: a
-toolbar across the top, the document list on the left, the editor filling the
-rest, and the notification over the lower right corner. Visual presets, design
-conditions and layout families replace the constants below when the generator
-is built.
+One arrangement of the document workspace: a toolbar across the top, the
+document list on the left, the editor filling the rest, and the notification
+over the lower right corner. Every style value and every size comes from the
+visual preset it is given (`core_ultra.design`); nothing about how the
+workspace looks is decided here. Design conditions and layout families join
+the arrangement when the generator is built.
 
 The layout knows the bound elements only by what the adapter says of them: the
 part of the workspace each belongs to, its role and the command its binding
@@ -25,77 +26,34 @@ from collections.abc import Sequence
 from typing import Any
 
 from core_ultra import typography
+from core_ultra.design import Component, VisualPreset
 from core_ultra.documents_adapter import BoundElement
 from core_ultra.scene import SCHEMA_VERSION
 
-_MARGIN = 16.0
-_GAP = 8.0
-_TOOLBAR_HEIGHT = 56.0
-_CONTROL_HEIGHT = 36.0
-_BUTTON_PADDING = 14.0
-_FILTER_WIDTH = (96.0, 240.0)
-_LIST_SHARE = 0.34
-_LIST_WIDTH = (220.0, 320.0)
-_ROW_HEIGHT = 40.0
-_ROW_INSET = 4.0
-_PANEL_PADDING = 12.0
-_EDITOR_PADDING = 16.0
-_TITLE_HEIGHT = 40.0
-_NOTIFICATION_HEIGHT = 40.0
-
 _CLEAR = [0.0, 0.0, 0.0, 0.0]
-_PAGE = [0.95, 0.95, 0.96, 1.0]
-_SURFACE = [1.0, 1.0, 1.0, 1.0]
-_WELL = [0.98, 0.98, 0.99, 1.0]
-_LINE = [0.85, 0.85, 0.88, 1.0]
-_FIELD_LINE = [0.72, 0.74, 0.79, 1.0]
-_FIELD_LINE_HOVER = [0.48, 0.51, 0.58, 1.0]
-_FIELD_PRESSED = [0.94, 0.96, 0.99, 1.0]
-_INK = [0.10, 0.11, 0.13, 1.0]
-_MUTED = [0.40, 0.42, 0.47, 1.0]
-_ON_ACCENT = [1.0, 1.0, 1.0, 1.0]
-_ACCENT = [0.14, 0.37, 0.86, 1.0]
-_ACCENT_HOVER = [0.24, 0.46, 0.92, 1.0]
-_ACCENT_PRESSED = [0.09, 0.28, 0.70, 1.0]
-_QUIET = [0.93, 0.94, 0.96, 1.0]
-_QUIET_HOVER = [0.88, 0.90, 0.93, 1.0]
-_QUIET_PRESSED = [0.82, 0.84, 0.89, 1.0]
-_FOCUS_RING = [0.04, 0.16, 0.48, 1.0]
-_ROW_OPEN = [0.90, 0.93, 0.99, 1.0]
-_ROW_HOVER = [0.93, 0.95, 0.99, 1.0]
-_ROW_PRESSED = [0.84, 0.88, 0.97, 1.0]
-_NOTIFICATION = [0.13, 0.14, 0.17, 1.0]
-_DISABLED_OPACITY = 0.4
-
-_HEADING_TYPE = (20.0, 700.0)
-_BUTTON_TYPE = (14.0, 500.0)
-_ROW_TYPE = (15.0, 400.0)
-_ROW_OPEN_WEIGHT = 500.0
-_TITLE_TYPE = (18.0, 500.0)
-_LABEL_TYPE = (13.0, 400.0)
-_BODY_TYPE = (15.0, 400.0)
-_NOTIFICATION_TYPE = (14.0, 500.0)
-
-_PANEL = {"fill": _SURFACE, "border_colour": _LINE, "border_width": 1, "corner_radius": 12, "elevation": 2}
 
 
-def write_scene(bound_elements: Sequence[BoundElement], viewport: tuple[float, float]) -> dict[str, Any]:
-    """The true scene for these bound elements at this viewport size."""
+def write_scene(bound_elements: Sequence[BoundElement], viewport: tuple[float, float], preset: VisualPreset) -> dict[str, Any]:
+    """The true scene for these bound elements at this viewport size, in this visual preset."""
     width, height = viewport
+    writer = _Writer(preset)
     parts = _Parts(bound_elements)
-    top = _TOOLBAR_HEIGHT + _MARGIN
-    list_width = min(max(_LIST_SHARE * width, _LIST_WIDTH[0]), _LIST_WIDTH[1])
+    toolbar, divider = preset.component("toolbar"), preset.component("divider")
+    margin = preset.spacing["margin"]
+    top = toolbar.height + margin
+    sizes = preset.dimensions
+    list_width = min(max(sizes["list-share"] * width, sizes["list-width-min"]), sizes["list-width-max"])
 
     elements = [
-        _element("s.root", "surface", None, 0, 0, width, height, fill=_PAGE),
-        _element("s.toolbar", "container", "s.root", 0, 0, width, _TOOLBAR_HEIGHT, fill=_SURFACE),
-        _element("s.divider", "divider", "s.root", 0, _TOOLBAR_HEIGHT, width, 1, fill=_LINE),
+        writer.structural("s.root", "surface", None, "page", 0, 0, width, height),
+        writer.structural("s.toolbar", "container", "s.root", "toolbar", 0, 0, width, toolbar.height),
+        writer.structural("s.divider", "divider", "s.root", "divider", 0, toolbar.height, width, divider.height),
     ]
-    elements += _toolbar(parts, width)
-    elements += _list(parts, top, list_width)
-    editor_x = 2 * _MARGIN + list_width
-    elements += _editor(parts, editor_x, top, width - editor_x - _MARGIN, height - top - _MARGIN)
-    elements += _notification(parts, width, height)
+    elements += writer.toolbar(parts, width)
+    elements += writer.list(parts, top, list_width)
+    editor_x = 2 * margin + list_width
+    elements += writer.editor(parts, editor_x, top, width - editor_x - margin, height - top - margin)
+    elements += writer.notification(parts, width, height)
     parts.require_all_placed()
 
     return {
@@ -135,226 +93,172 @@ class _Parts:
             raise ValueError(f"the reference layout has no place for: {names}")
 
 
-def _toolbar(parts: _Parts, width: float) -> list[dict[str, Any]]:
-    create = parts.one("toolbar", "button", "create")
-    sort = parts.one("toolbar", "button", "sort")
-    label = parts.one("toolbar", "label")
-    field = parts.one("toolbar", "text-field", "filter")
-    save = parts.one("toolbar", "button", "save")
-    undo = parts.one("toolbar", "button", "undo")
+class _Writer:
+    """Writes the workspace's elements in one visual preset."""
 
-    y = (_TOOLBAR_HEIGHT - _CONTROL_HEIGHT) / 2
-    size, weight = _BUTTON_TYPE
+    def __init__(self, preset: VisualPreset) -> None:
+        self.preset = preset
+        self.margin = preset.spacing["margin"]
+        self.gap = preset.spacing["gap"]
 
-    def button_width(element: BoundElement) -> float:
-        return typography.measure(element.text, size, weight) + 2 * _BUTTON_PADDING
+    def toolbar(self, parts: _Parts, width: float) -> list[dict[str, Any]]:
+        create = parts.one("toolbar", "button", "create")
+        sort = parts.one("toolbar", "button", "sort")
+        label = parts.one("toolbar", "label")
+        field = parts.one("toolbar", "text-field", "filter")
+        save = parts.one("toolbar", "button", "save")
+        undo = parts.one("toolbar", "button", "undo")
+        bar = self.preset.component("toolbar").height
 
-    placed = []
-    x = _MARGIN
-    for element in (create, sort):
-        placed.append(_button(element, x, y, button_width(element)))
-        x += button_width(element) + _GAP
+        def button(element: BoundElement) -> Component:
+            return self.preset.component("button-primary" if element.binding["command"] == "create" else "button-quiet")
 
-    label_size, label_weight = _LABEL_TYPE
-    line = typography.line_height(label_size, label_weight)
-    label_width = typography.measure(label.text, label_size, label_weight)
-    placed.append(
-        _bound(
-            label, "s.toolbar", x, (_TOOLBAR_HEIGHT - line) / 2, label_width, line,
-            text_colour=_MUTED, type_size=label_size, type_weight=label_weight,
-        )
-    )
-    x += label_width + _GAP
+        def button_width(element: BoundElement) -> float:
+            return typography.measure(element.text, *button(element).type) + 2 * button(element).padding
 
-    # The filter field takes the room left before Save and Undo, within its
-    # limits. Save and Undo sit at the right edge when there is room to spare.
-    trailing = button_width(save) + _GAP + button_width(undo)
-    field_width = min(max(width - _MARGIN - trailing - _GAP - x, _FILTER_WIDTH[0]), _FILTER_WIDTH[1])
-    placed.append(_field(field, "s.toolbar", x, y, field_width, _CONTROL_HEIGHT, _ROW_TYPE))
-    x = max(x + field_width + _GAP, width - _MARGIN - trailing)
-    placed.append(_button(save, x, y, button_width(save)))
-    placed.append(_button(undo, x + button_width(save) + _GAP, y, button_width(undo)))
-    return placed
+        def place_button(element: BoundElement, x: float) -> dict[str, Any]:
+            component = button(element)
+            return self.bound(element, component, "s.toolbar", x, (bar - component.height) / 2, button_width(element), component.height)
 
+        placed = []
+        x = self.margin
+        for element in (create, sort):
+            placed.append(place_button(element, x))
+            x += button_width(element) + self.gap
 
-def _button(element: BoundElement, x: float, y: float, width: float) -> dict[str, Any]:
-    size, weight = _BUTTON_TYPE
-    if element.binding["command"] == "create":
-        style = {"fill": _ACCENT, "text_colour": _ON_ACCENT}
-        states = {"hover": {"fill": _ACCENT_HOVER}, "pressed": {"fill": _ACCENT_PRESSED}}
-    else:
-        style = {"fill": _QUIET, "border_colour": _LINE, "border_width": 1}
-        states = {"hover": {"fill": _QUIET_HOVER}, "pressed": {"fill": _QUIET_PRESSED}}
-    return _bound(
-        element, "s.toolbar", x, y, width, _CONTROL_HEIGHT, states,
-        corner_radius=8, type_size=size, type_weight=weight, **style,
-    )
+        text = self.preset.component("label")
+        line = typography.line_height(*text.type)
+        label_width = typography.measure(label.text, *text.type)
+        placed.append(self.bound(label, text, "s.toolbar", x, (bar - line) / 2, label_width, line))
+        x += label_width + self.gap
 
+        # The filter field takes the room left before Save and Undo, within its
+        # limits. Save and Undo sit at the right edge when there is room to spare.
+        box = self.preset.component("field")
+        sizes = self.preset.dimensions
+        trailing = button_width(save) + self.gap + button_width(undo)
+        field_width = min(max(width - self.margin - trailing - self.gap - x, sizes["filter-width-min"]), sizes["filter-width-max"])
+        placed.append(self.bound(field, box, "s.toolbar", x, (bar - box.height) / 2, field_width, box.height))
+        x = max(x + field_width + self.gap, width - self.margin - trailing)
+        placed.append(place_button(save, x))
+        placed.append(place_button(undo, x + button_width(save) + self.gap))
+        return placed
 
-def _field(
-    element: BoundElement, parent: str, x: float, y: float, width: float, height: float, type_: tuple[float, float], fill: list[float] = _SURFACE
-) -> dict[str, Any]:
-    return _bound(
-        element, parent, x, y, width, height,
-        {"hover": {"border_colour": _FIELD_LINE_HOVER}, "pressed": {"fill": _FIELD_PRESSED}},
-        fill=fill, border_colour=_FIELD_LINE, border_width=1, corner_radius=8, type_size=type_[0], type_weight=type_[1],
-    )
+    def list(self, parts: _Parts, top: float, list_width: float) -> list[dict[str, Any]]:
+        heading = parts.one("list", "heading")
+        rows = parts.take("list", "list-item", "open")
+        empty = parts.take("list", "label")
+        row, row_open = self.preset.component("row"), self.preset.component("row-open")
+        inset, padding = self.preset.spacing["row-inset"], self.preset.spacing["panel-padding"]
 
+        row_x = self.margin + inset
+        # Headings and labels start where a row's text starts.
+        text_x = row_x + (row.height - typography.line_height(*row.type)) / 2
 
-def _list(parts: _Parts, top: float, list_width: float) -> list[dict[str, Any]]:
-    heading = parts.one("list", "heading")
-    rows = parts.take("list", "list-item", "open")
-    empty = parts.take("list", "label")
+        title = self.preset.component("heading")
+        line = typography.line_height(*title.type)
+        y = top + padding
+        placed = [self.bound(heading, title, "s.list", text_x, y, typography.measure(heading.text, *title.type), line)]
+        y += line + self.gap
 
-    row_size, row_weight = _ROW_TYPE
-    row_x = _MARGIN + _ROW_INSET
-    # Headings and labels start where a row's text starts.
-    text_x = row_x + (_ROW_HEIGHT - typography.line_height(row_size, row_weight)) / 2
+        for element in rows:
+            is_open = any(relationship["relation"] == "shown_in" for relationship in element.relationships)
+            component = row_open if is_open else row
+            placed.append(self.bound(element, component, "s.list", row_x, y, list_width - 2 * inset, component.height))
+            y += component.height
+        if rows:
+            y += inset
 
-    size, weight = _HEADING_TYPE
-    line = typography.line_height(size, weight)
-    y = top + _PANEL_PADDING
-    placed = [
-        _bound(
-            heading, "s.list", text_x, y, typography.measure(heading.text, size, weight), line,
-            type_size=size, type_weight=weight,
-        )
-    ]
-    y += line + _GAP
+        text = self.preset.component("label")
+        for label in empty:
+            line = typography.line_height(*text.type)
+            placed.append(self.bound(label, text, "s.list", text_x, y, typography.measure(label.text, *text.type), line))
+            y += line + padding
 
-    for row in rows:
-        style: dict[str, Any] = {"fill": _CLEAR, "type_weight": row_weight}
-        if any(relationship["relation"] == "shown_in" for relationship in row.relationships):
-            style = {"fill": _ROW_OPEN, "type_weight": _ROW_OPEN_WEIGHT}
-        placed.append(
-            _bound(
-                row, "s.list", row_x, y, list_width - 2 * _ROW_INSET, _ROW_HEIGHT,
-                {"hover": {"fill": _ROW_HOVER}, "pressed": {"fill": _ROW_PRESSED}},
-                corner_radius=8, type_size=row_size, **style,
-            )
-        )
-        y += _ROW_HEIGHT
-    if rows:
-        y += _ROW_INSET
+        panel = self.structural("s.list", "panel", "s.root", "panel", self.margin, top, list_width, y - top)
+        return [panel, *placed]
 
-    size, weight = _LABEL_TYPE
-    for label in empty:
-        line = typography.line_height(size, weight)
-        placed.append(
-            _bound(
-                label, "s.list", text_x, y, typography.measure(label.text, size, weight), line,
-                text_colour=_MUTED, type_size=size, type_weight=weight,
-            )
-        )
-        y += line + _PANEL_PADDING
+    def editor(self, parts: _Parts, x: float, y: float, width: float, height: float) -> list[dict[str, Any]]:
+        panel = self.structural("s.editor", "panel", "s.root", "panel", x, y, width, height)
+        areas = parts.take("editor", "text-area", "edit")
+        text = self.preset.component("label")
+        line = typography.line_height(*text.type)
 
-    panel = _element("s.list", "panel", "s.root", _MARGIN, top, list_width, y - top, **_PANEL)
-    return [panel, *placed]
+        if not areas:
+            label = parts.one("editor", "label")
+            label_width = typography.measure(label.text, *text.type)
+            return [panel, self.bound(label, text, "s.editor", x + (width - label_width) / 2, y + (height - line) / 2, label_width, line)]
 
-
-def _editor(parts: _Parts, x: float, y: float, width: float, height: float) -> list[dict[str, Any]]:
-    panel = _element("s.editor", "panel", "s.root", x, y, width, height, **_PANEL)
-    areas = parts.take("editor", "text-area", "edit")
-    size, weight = _LABEL_TYPE
-    line = typography.line_height(size, weight)
-
-    if not areas:
-        label = parts.one("editor", "label")
-        label_width = typography.measure(label.text, size, weight)
+        (body,) = areas
+        title = parts.one("editor", "text-field", "rename")
+        revision = parts.one("editor", "label")
+        title_field = self.preset.component("title-field")
+        padding = self.preset.spacing["editor-padding"]
+        inner_x = x + padding
+        inner_width = width - 2 * padding
+        revision_y = y + padding + title_field.height + self.gap
+        body_y = revision_y + line + self.gap
         return [
             panel,
-            _bound(
-                label, "s.editor", x + (width - label_width) / 2, y + (height - line) / 2, label_width, line,
-                text_colour=_MUTED, type_size=size, type_weight=weight,
+            self.bound(title, title_field, "s.editor", inner_x, y + padding, inner_width, title_field.height),
+            self.bound(revision, text, "s.editor", inner_x, revision_y, typography.measure(revision.text, *text.type), line),
+            self.bound(
+                body, self.preset.component("editor-body"), "s.editor", inner_x, body_y, inner_width, y + height - padding - body_y
             ),
         ]
 
-    (body,) = areas
-    title = parts.one("editor", "text-field", "rename")
-    revision = parts.one("editor", "label")
-    inner_x = x + _EDITOR_PADDING
-    inner_width = width - 2 * _EDITOR_PADDING
-    revision_y = y + _EDITOR_PADDING + _TITLE_HEIGHT + _GAP
-    body_y = revision_y + line + _GAP
-    return [
-        panel,
-        _field(title, "s.editor", inner_x, y + _EDITOR_PADDING, inner_width, _TITLE_HEIGHT, _TITLE_TYPE),
-        _bound(
-            revision, "s.editor", inner_x, revision_y, typography.measure(revision.text, size, weight), line,
-            text_colour=_MUTED, type_size=size, type_weight=weight,
-        ),
-        _field(
-            body, "s.editor", inner_x, body_y, inner_width, y + height - _EDITOR_PADDING - body_y, _BODY_TYPE, fill=_WELL
-        ),
-    ]
-
-
-def _notification(parts: _Parts, width: float, height: float) -> list[dict[str, Any]]:
-    size, weight = _NOTIFICATION_TYPE
-    placed = []
-    for status in parts.take("notification", "status"):
-        # As wide as its text plus the inset the runtime renderer gives a line
-        # of text: as far from the left edge as from the top.
-        inset = (_NOTIFICATION_HEIGHT - typography.line_height(size, weight)) / 2
-        box_width = typography.measure(status.text, size, weight) + 2 * inset
-        placed.append(
-            _bound(
-                status, "s.root", width - 3 * _MARGIN - box_width, height - 3 * _MARGIN - _NOTIFICATION_HEIGHT,
-                box_width, _NOTIFICATION_HEIGHT,
-                fill=_NOTIFICATION, text_colour=_ON_ACCENT, corner_radius=10, elevation=8,
-                type_size=size, type_weight=weight,
+    def notification(self, parts: _Parts, width: float, height: float) -> list[dict[str, Any]]:
+        component = self.preset.component("notification")
+        placed = []
+        for status in parts.take("notification", "status"):
+            # As wide as its text plus the inset the runtime renderer gives a
+            # line of text: as far from the left edge as from the top.
+            inset = (component.height - typography.line_height(*component.type)) / 2
+            box_width = typography.measure(status.text, *component.type) + 2 * inset
+            placed.append(
+                self.bound(
+                    status, component, "s.root",
+                    width - 3 * self.margin - box_width, height - 3 * self.margin - component.height, box_width, component.height,
+                )
             )
-        )
-    return placed
+        return placed
 
+    def structural(
+        self, element_id: str, element_type: str, parent: str | None, component: str, x: float, y: float, width: float, height: float
+    ) -> dict[str, Any]:
+        return self._element(element_id, element_type, parent, x, y, width, height, self.preset.component(component).style())
 
-def _element(
-    element_id: str,
-    element_type: str,
-    parent: str | None,
-    x: float,
-    y: float,
-    width: float,
-    height: float,
-    **style: Any,
-) -> dict[str, Any]:
-    values = {
-        "fill": _CLEAR,
-        "text_colour": _INK,
-        "border_colour": _CLEAR,
-        "border_width": 0.0,
-        "corner_radius": 0.0,
-        "elevation": 0.0,
-        "opacity": 1.0,
-        "type_size": _ROW_TYPE[0],
-        "type_weight": _ROW_TYPE[1],
-    }
-    values.update(style)
-    return {
-        "id": element_id,
-        "type": element_type,
-        "parent": parent,
-        "box": {"x": float(x), "y": float(y), "width": float(width), "height": float(height)},
-        "style": {name: list(value) if isinstance(value, list) else float(value) for name, value in values.items()},
-    }
+    def bound(
+        self, element: BoundElement, component: Component, parent: str, x: float, y: float, width: float, height: float
+    ) -> dict[str, Any]:
+        """A bound element's entry. Its state changes style values only."""
+        item = self._element(f"b.{element.identity}", "bound", parent, x, y, width, height, component.style(element.state))
+        item["bound"] = element.to_json()
+        return item
 
-
-def _bound(
-    element: BoundElement,
-    parent: str,
-    x: float,
-    y: float,
-    width: float,
-    height: float,
-    states: dict[str, dict[str, Any]] | None = None,
-    **style: Any,
-) -> dict[str, Any]:
-    """A bound element's entry. Its state changes style values only."""
-    style.update((states or {}).get(element.state, {}))
-    if element.state == "focused":
-        style.update(border_colour=_FOCUS_RING, border_width=2)
-    if element.state == "disabled":
-        style.update(opacity=_DISABLED_OPACITY)
-    item = _element(f"b.{element.identity}", "bound", parent, x, y, width, height, **style)
-    item["bound"] = element.to_json()
-    return item
+    def _element(
+        self, element_id: str, element_type: str, parent: str | None, x: float, y: float, width: float, height: float, style: dict[str, Any]
+    ) -> dict[str, Any]:
+        """An element with every style value: what its component states, and
+        for the rest no fill, no border, no shadow, full opacity and the
+        preset's body text."""
+        size, weight = self.preset.type["body"]
+        values = {
+            "fill": _CLEAR,
+            "text_colour": list(self.preset.colours["ink"]),
+            "border_colour": _CLEAR,
+            "border_width": 0.0,
+            "corner_radius": 0.0,
+            "elevation": 0.0,
+            "opacity": 1.0,
+            "type_size": size,
+            "type_weight": weight,
+        }
+        values.update(style)
+        return {
+            "id": element_id,
+            "type": element_type,
+            "parent": parent,
+            "box": {"x": float(x), "y": float(y), "width": float(width), "height": float(height)},
+            "style": {name: list(value) if isinstance(value, list) else float(value) for name, value in values.items()},
+        }

@@ -1,0 +1,635 @@
+{
+  "kind": "design-config",
+  "name": "core-ultra-design-v1",
+  "version": 1,
+  "note": "The generator's machine-readable design configuration. It says the same things as DESIGN.md in the generator's own vocabulary; `core-ultra design check` fails when the two disagree. Lengths are viewport units, colours are #RRGGBB, type weights are 100 to 900. A value in braces names a token of the visual preset in use. A changed design is a new version of this file, never an edit to this one once a dataset has been generated from it.",
+  "default_preset": "calm-blue",
+  "font": {
+    "family": "Inter",
+    "version": "4.001",
+    "file": "src/core_ultra/assets/fonts/inter/Inter[opsz,wght].ttf",
+    "sha256": "29160a80ff49ddcab2c97711247e08b1fab27a484a329ce8b813d820dc559031",
+    "optical_size": 16,
+    "licence": "SIL Open Font License, Version 1.1",
+    "licence_file": "src/core_ultra/assets/fonts/inter/OFL.txt",
+    "licence_sha256": "5b9321a4298cfeb6b34354164a1c3afc3db114569984c502b9b35d988fd58c57",
+    "copyright": "Copyright 2020 The Inter Project Authors (https://github.com/rsms/inter)",
+    "designer": "Rasmus Andersson",
+    "source": "https://github.com/google/fonts/tree/0b58fb370093f9a9f4ff785d94405710b79de67c/ofl/inter",
+    "upstream": "https://github.com/rsms/inter/commit/66647c0bbbe41a850d79d9c76fb13add3378940f",
+    "retrieved": "2026-11-25"
+  },
+  "states": [
+    "default",
+    "hover",
+    "pressed",
+    "focused",
+    "disabled"
+  ],
+  "components": {
+    "page": {
+      "fill": "{colours.page}"
+    },
+    "toolbar": {
+      "fill": "{colours.surface}",
+      "height": "{density.toolbar-height}"
+    },
+    "divider": {
+      "fill": "{colours.line}",
+      "height": "{borders.divider}"
+    },
+    "panel": {
+      "fill": "{colours.surface}",
+      "border_colour": "{colours.line}",
+      "border_width": "{borders.panel}",
+      "corner_radius": "{radii.panel}",
+      "elevation": "{elevation.panel}"
+    },
+    "heading": {
+      "text_colour": "{colours.ink}",
+      "type": "{type.heading}"
+    },
+    "label": {
+      "text_colour": "{colours.muted}",
+      "type": "{type.label}"
+    },
+    "notification": {
+      "fill": "{colours.notification}",
+      "text_colour": "{colours.on-notification}",
+      "type": "{type.notification}",
+      "corner_radius": "{radii.notification}",
+      "elevation": "{elevation.notification}",
+      "height": "{density.notification-height}"
+    },
+    "button-primary": {
+      "fill": "{colours.primary}",
+      "text_colour": "{colours.on-primary}",
+      "type": "{type.button}",
+      "corner_radius": "{radii.control}",
+      "height": "{density.control-height}",
+      "padding": "{spacing.button-padding}"
+    },
+    "button-primary-hover": {
+      "fill": "{colours.primary-hover}"
+    },
+    "button-primary-pressed": {
+      "fill": "{colours.primary-pressed}"
+    },
+    "button-primary-focused": {
+      "border_colour": "{colours.focus-ring}",
+      "border_width": "{borders.focus}"
+    },
+    "button-primary-disabled": {
+      "opacity": "{opacity.disabled}"
+    },
+    "button-quiet": {
+      "fill": "{colours.quiet}",
+      "text_colour": "{colours.ink}",
+      "border_colour": "{colours.line}",
+      "border_width": "{borders.control}",
+      "type": "{type.button}",
+      "corner_radius": "{radii.control}",
+      "height": "{density.control-height}",
+      "padding": "{spacing.button-padding}"
+    },
+    "button-quiet-hover": {
+      "fill": "{colours.quiet-hover}"
+    },
+    "button-quiet-pressed": {
+      "fill": "{colours.quiet-pressed}"
+    },
+    "button-quiet-focused": {
+      "border_colour": "{colours.focus-ring}",
+      "border_width": "{borders.focus}"
+    },
+    "button-quiet-disabled": {
+      "opacity": "{opacity.disabled}"
+    },
+    "field": {
+      "fill": "{colours.surface}",
+      "text_colour": "{colours.ink}",
+      "border_colour": "{colours.field-line}",
+      "border_width": "{borders.field}",
+      "type": "{type.body}",
+      "corner_radius": "{radii.field}",
+      "height": "{density.control-height}"
+    },
+    "field-hover": {
+      "border_colour": "{colours.field-line-hover}"
+    },
+    "field-pressed": {
+      "fill": "{colours.field-pressed}"
+    },
+    "field-focused": {
+      "border_colour": "{colours.focus-ring}",
+      "border_width": "{borders.focus}"
+    },
+    "field-disabled": {
+      "opacity": "{opacity.disabled}"
+    },
+    "title-field": {
+      "fill": "{colours.surface}",
+      "text_colour": "{colours.ink}",
+      "border_colour": "{colours.field-line}",
+      "border_width": "{borders.field}",
+      "type": "{type.title}",
+      "corner_radius": "{radii.field}",
+      "height": "{density.title-height}"
+    },
+    "title-field-hover": {
+      "border_colour": "{colours.field-line-hover}"
+    },
+    "title-field-pressed": {
+      "fill": "{colours.field-pressed}"
+    },
+    "title-field-focused": {
+      "border_colour": "{colours.focus-ring}",
+      "border_width": "{borders.focus}"
+    },
+    "title-field-disabled": {
+      "opacity": "{opacity.disabled}"
+    },
+    "editor-body": {
+      "fill": "{colours.well}",
+      "text_colour": "{colours.ink}",
+      "border_colour": "{colours.field-line}",
+      "border_width": "{borders.field}",
+      "type": "{type.body}",
+      "corner_radius": "{radii.field}"
+    },
+    "editor-body-hover": {
+      "border_colour": "{colours.field-line-hover}"
+    },
+    "editor-body-pressed": {
+      "fill": "{colours.field-pressed}"
+    },
+    "editor-body-focused": {
+      "border_colour": "{colours.focus-ring}",
+      "border_width": "{borders.focus}"
+    },
+    "editor-body-disabled": {
+      "opacity": "{opacity.disabled}"
+    },
+    "row": {
+      "text_colour": "{colours.ink}",
+      "type": "{type.row}",
+      "corner_radius": "{radii.row}",
+      "height": "{density.row-height}"
+    },
+    "row-hover": {
+      "fill": "{colours.row-hover}"
+    },
+    "row-pressed": {
+      "fill": "{colours.row-pressed}"
+    },
+    "row-focused": {
+      "border_colour": "{colours.focus-ring}",
+      "border_width": "{borders.focus}"
+    },
+    "row-disabled": {
+      "opacity": "{opacity.disabled}"
+    },
+    "row-open": {
+      "fill": "{colours.row-open}",
+      "text_colour": "{colours.ink}",
+      "type": "{type.row-open}",
+      "corner_radius": "{radii.row}",
+      "height": "{density.row-height}"
+    },
+    "row-open-hover": {
+      "fill": "{colours.row-hover}"
+    },
+    "row-open-pressed": {
+      "fill": "{colours.row-pressed}"
+    },
+    "row-open-focused": {
+      "border_colour": "{colours.focus-ring}",
+      "border_width": "{borders.focus}"
+    },
+    "row-open-disabled": {
+      "opacity": "{opacity.disabled}"
+    }
+  },
+  "presets": {
+    "calm-blue": {
+      "title": "Calm Blue",
+      "summary": "Cool light greys, white panels, one blue accent, medium corners, soft shadows, regular density.",
+      "colours": {
+        "page": "#F2F2F5",
+        "surface": "#FFFFFF",
+        "well": "#FAFAFC",
+        "line": "#D9D9E0",
+        "field-line": "#B8BDC9",
+        "field-line-hover": "#7A8294",
+        "field-pressed": "#F0F5FC",
+        "ink": "#1A1C21",
+        "muted": "#666B78",
+        "primary": "#245EDB",
+        "primary-hover": "#2F68E0",
+        "primary-pressed": "#1747B3",
+        "on-primary": "#FFFFFF",
+        "quiet": "#EDF0F5",
+        "quiet-hover": "#E0E6ED",
+        "quiet-pressed": "#D1D6E3",
+        "focus-ring": "#0A297A",
+        "row-open": "#E6EDFC",
+        "row-hover": "#EDF2FC",
+        "row-pressed": "#D6E0F7",
+        "notification": "#21242B",
+        "on-notification": "#FFFFFF"
+      },
+      "type": {
+        "heading": {
+          "size": 20,
+          "weight": 700
+        },
+        "title": {
+          "size": 18,
+          "weight": 500
+        },
+        "body": {
+          "size": 15,
+          "weight": 400
+        },
+        "row": {
+          "size": 15,
+          "weight": 400
+        },
+        "row-open": {
+          "size": 15,
+          "weight": 500
+        },
+        "button": {
+          "size": 14,
+          "weight": 500
+        },
+        "label": {
+          "size": 13,
+          "weight": 400
+        },
+        "notification": {
+          "size": 14,
+          "weight": 500
+        }
+      },
+      "spacing": {
+        "margin": 16,
+        "gap": 8,
+        "button-padding": 14,
+        "row-inset": 4,
+        "panel-padding": 12,
+        "editor-padding": 16
+      },
+      "dimensions": {
+        "filter-width-min": 96,
+        "filter-width-max": 240,
+        "list-width-min": 220,
+        "list-width-max": 320,
+        "list-share": 0.34
+      },
+      "borders": {
+        "panel": 1,
+        "control": 1,
+        "field": 1,
+        "focus": 2,
+        "divider": 1
+      },
+      "radii": {
+        "control": 8,
+        "field": 8,
+        "row": 8,
+        "panel": 12,
+        "notification": 10
+      },
+      "elevation": {
+        "panel": 2,
+        "notification": 8
+      },
+      "density": {
+        "toolbar-height": 56,
+        "control-height": 36,
+        "row-height": 40,
+        "title-height": 40,
+        "notification-height": 40
+      },
+      "opacity": {
+        "disabled": 0.4
+      }
+    },
+    "warm-paper": {
+      "title": "Warm Paper",
+      "summary": "Warm off-whites, brown-black ink, a rust accent, small corners, almost flat, larger type, comfortable density.",
+      "colours": {
+        "page": "#F4EFE6",
+        "surface": "#FBF8F2",
+        "well": "#FFFDF9",
+        "line": "#DDD3C3",
+        "field-line": "#BFB29D",
+        "field-line-hover": "#8A7C66",
+        "field-pressed": "#F3ECDF",
+        "ink": "#2B2620",
+        "muted": "#6A5F50",
+        "primary": "#9A4A2B",
+        "primary-hover": "#A65331",
+        "primary-pressed": "#7E3A20",
+        "on-primary": "#FFFAF3",
+        "quiet": "#EEE7DA",
+        "quiet-hover": "#E4DBCB",
+        "quiet-pressed": "#D6CBB7",
+        "focus-ring": "#5A2A14",
+        "row-open": "#F1E4D6",
+        "row-hover": "#F5ECE0",
+        "row-pressed": "#E7D5C3",
+        "notification": "#3A3128",
+        "on-notification": "#FBF6EC"
+      },
+      "type": {
+        "heading": {
+          "size": 22,
+          "weight": 600
+        },
+        "title": {
+          "size": 20,
+          "weight": 500
+        },
+        "body": {
+          "size": 16,
+          "weight": 400
+        },
+        "row": {
+          "size": 16,
+          "weight": 400
+        },
+        "row-open": {
+          "size": 16,
+          "weight": 600
+        },
+        "button": {
+          "size": 15,
+          "weight": 500
+        },
+        "label": {
+          "size": 14,
+          "weight": 400
+        },
+        "notification": {
+          "size": 15,
+          "weight": 500
+        }
+      },
+      "spacing": {
+        "margin": 20,
+        "gap": 10,
+        "button-padding": 18,
+        "row-inset": 6,
+        "panel-padding": 16,
+        "editor-padding": 22
+      },
+      "dimensions": {
+        "filter-width-min": 110,
+        "filter-width-max": 260,
+        "list-width-min": 240,
+        "list-width-max": 340,
+        "list-share": 0.34
+      },
+      "borders": {
+        "panel": 1,
+        "control": 1,
+        "field": 1,
+        "focus": 2,
+        "divider": 1
+      },
+      "radii": {
+        "control": 4,
+        "field": 4,
+        "row": 4,
+        "panel": 6,
+        "notification": 4
+      },
+      "elevation": {
+        "panel": 0,
+        "notification": 3
+      },
+      "density": {
+        "toolbar-height": 64,
+        "control-height": 40,
+        "row-height": 46,
+        "title-height": 46,
+        "notification-height": 46
+      },
+      "opacity": {
+        "disabled": 0.45
+      }
+    },
+    "night-teal": {
+      "title": "Night Teal",
+      "summary": "Dark blue-greys, raised panels, a light teal accent with dark text on it, large corners, deep shadows, regular density.",
+      "colours": {
+        "page": "#14181F",
+        "surface": "#1D232D",
+        "well": "#171C24",
+        "line": "#2F3846",
+        "field-line": "#46536A",
+        "field-line-hover": "#7286A6",
+        "field-pressed": "#232B38",
+        "ink": "#E8ECF2",
+        "muted": "#9AA6B8",
+        "primary": "#5FD4C0",
+        "primary-hover": "#7DE0CF",
+        "primary-pressed": "#45B8A5",
+        "on-primary": "#0B2420",
+        "quiet": "#283140",
+        "quiet-hover": "#323D50",
+        "quiet-pressed": "#3D4A61",
+        "focus-ring": "#B6F2E7",
+        "row-open": "#223A40",
+        "row-hover": "#232C39",
+        "row-pressed": "#2C3848",
+        "notification": "#E8ECF2",
+        "on-notification": "#14181F"
+      },
+      "type": {
+        "heading": {
+          "size": 20,
+          "weight": 600
+        },
+        "title": {
+          "size": 18,
+          "weight": 600
+        },
+        "body": {
+          "size": 15,
+          "weight": 400
+        },
+        "row": {
+          "size": 15,
+          "weight": 400
+        },
+        "row-open": {
+          "size": 15,
+          "weight": 600
+        },
+        "button": {
+          "size": 14,
+          "weight": 600
+        },
+        "label": {
+          "size": 13,
+          "weight": 500
+        },
+        "notification": {
+          "size": 14,
+          "weight": 600
+        }
+      },
+      "spacing": {
+        "margin": 16,
+        "gap": 8,
+        "button-padding": 16,
+        "row-inset": 4,
+        "panel-padding": 12,
+        "editor-padding": 18
+      },
+      "dimensions": {
+        "filter-width-min": 96,
+        "filter-width-max": 240,
+        "list-width-min": 220,
+        "list-width-max": 320,
+        "list-share": 0.34
+      },
+      "borders": {
+        "panel": 1,
+        "control": 1,
+        "field": 1,
+        "focus": 2,
+        "divider": 1
+      },
+      "radii": {
+        "control": 10,
+        "field": 10,
+        "row": 10,
+        "panel": 14,
+        "notification": 12
+      },
+      "elevation": {
+        "panel": 4,
+        "notification": 12
+      },
+      "density": {
+        "toolbar-height": 56,
+        "control-height": 36,
+        "row-height": 40,
+        "title-height": 40,
+        "notification-height": 40
+      },
+      "opacity": {
+        "disabled": 0.38
+      }
+    },
+    "dense-ink": {
+      "title": "Dense Ink",
+      "summary": "White with black rules, a violet accent, square corners, no shadows, small heavy type, compact density.",
+      "colours": {
+        "page": "#ECECEC",
+        "surface": "#FFFFFF",
+        "well": "#FFFFFF",
+        "line": "#111111",
+        "field-line": "#111111",
+        "field-line-hover": "#4A2FC9",
+        "field-pressed": "#EEEAFB",
+        "ink": "#0D0D0D",
+        "muted": "#4F4F4F",
+        "primary": "#4A2FC9",
+        "primary-hover": "#5B41D6",
+        "primary-pressed": "#38219E",
+        "on-primary": "#FFFFFF",
+        "quiet": "#FFFFFF",
+        "quiet-hover": "#E9E9E9",
+        "quiet-pressed": "#D4D4D4",
+        "focus-ring": "#C2410C",
+        "row-open": "#E4DEFA",
+        "row-hover": "#F1EEFC",
+        "row-pressed": "#D3CAF6",
+        "notification": "#0D0D0D",
+        "on-notification": "#FFFFFF"
+      },
+      "type": {
+        "heading": {
+          "size": 16,
+          "weight": 800
+        },
+        "title": {
+          "size": 15,
+          "weight": 700
+        },
+        "body": {
+          "size": 13,
+          "weight": 400
+        },
+        "row": {
+          "size": 13,
+          "weight": 500
+        },
+        "row-open": {
+          "size": 13,
+          "weight": 700
+        },
+        "button": {
+          "size": 12,
+          "weight": 700
+        },
+        "label": {
+          "size": 11,
+          "weight": 600
+        },
+        "notification": {
+          "size": 12,
+          "weight": 600
+        }
+      },
+      "spacing": {
+        "margin": 8,
+        "gap": 6,
+        "button-padding": 10,
+        "row-inset": 2,
+        "panel-padding": 8,
+        "editor-padding": 10
+      },
+      "dimensions": {
+        "filter-width-min": 80,
+        "filter-width-max": 200,
+        "list-width-min": 180,
+        "list-width-max": 260,
+        "list-share": 0.3
+      },
+      "borders": {
+        "panel": 1.5,
+        "control": 1.5,
+        "field": 1.5,
+        "focus": 3,
+        "divider": 1.5
+      },
+      "radii": {
+        "control": 2,
+        "field": 2,
+        "row": 0,
+        "panel": 0,
+        "notification": 2
+      },
+      "elevation": {
+        "panel": 0,
+        "notification": 0
+      },
+      "density": {
+        "toolbar-height": 40,
+        "control-height": 26,
+        "row-height": 28,
+        "title-height": 30,
+        "notification-height": 30
+      },
+      "opacity": {
+        "disabled": 0.35
+      }
+    }
+  }
+}

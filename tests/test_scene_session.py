@@ -24,7 +24,7 @@ import sys
 
 import numpy as np
 import pytest
-from PySide6.QtCore import QPointF
+from PySide6.QtCore import QPointF, Qt
 from PySide6.QtGui import QColor, QFont, QFontMetricsF, QGuiApplication, QImage, QPainter, QPainterPath
 
 from core_ultra.kernel import Kernel, KernelError
@@ -698,9 +698,10 @@ def text_drawn_by_qt(frame, identity: str, text: str) -> np.ndarray:
     centred, the rest as far from the left edge as from the top."""
     element = frame.scene.element_for(identity)
     style = element.style
-    font = QFont("Helvetica Neue")
+    font = QFont("Inter")
+    font.setVariableAxis(QFont.Tag("wght"), style.type_weight)
+    font.setVariableAxis(QFont.Tag("opsz"), 16)
     font.setPixelSize(100)
-    font.setWeight(QFont.Weight(int(style.type_weight)))
     font.setHintingPreference(QFont.HintingPreference.PreferNoHinting)
     metrics = QFontMetricsF(font)
     size = style.type_size / 100
@@ -726,6 +727,8 @@ def text_drawn_by_qt(frame, identity: str, text: str) -> np.ndarray:
     painter.setOpacity(style.opacity)
     for line, x, y in lines:
         path = QPainterPath()
+        # The font's contours overlap; an overlap is ink, as in any text Qt draws.
+        path.setFillRule(Qt.FillRule.WindingFill)
         path.addText(QPointF(0, metrics.ascent()), font, line)
         painter.resetTransform()
         painter.scale(frame.scale, frame.scale)

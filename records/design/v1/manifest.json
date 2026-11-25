@@ -1,0 +1,49 @@
+{
+  "kind": "preset-images",
+  "design": {
+    "name": "core-ultra-design-v1",
+    "version": 1,
+    "sha256": "161f52ecc0f49022a56e07dbcc88ddc62b4289aad8027d60243aee28e8915004"
+  },
+  "font": {
+    "family": "Inter",
+    "sha256": "29160a80ff49ddcab2c97711247e08b1fab27a484a329ce8b813d820dc559031"
+  },
+  "rendering_mode": "A, Reference",
+  "state": "Three documents; the second opened, edited and saved. The first row hovered, the sort button pressed, the filter field focused; Save disabled by the application.",
+  "viewport": {
+    "width": 960,
+    "height": 540
+  },
+  "pixels_per_viewport_unit": 2.0,
+  "images": [
+    {
+      "visual_preset": "calm-blue",
+      "file": "calm-blue.png",
+      "sha256": "d51f7f5f605ab78eed13a1eb7a5b1e2f41ab8230cec643bdb35fef61be75042c",
+      "scene_sha256": "6f0a60d726f08e88fb61fee6567d3e91459f8774a51bd33b72e976fbbdc317d4"
+    },
+    {
+      "visual_preset": "warm-paper",
+      "file": "warm-paper.png",
+      "sha256": "66b758d142a151962ee2a1401bea8ba6172c9693d413ed218f48b7433fb51527",
+      "scene_sha256": "3931f49dd2d7bb11cd70745925e25ffe5ca6316379c752182a06c07f116bb285"
+    },
+    {
+      "visual_preset": "night-teal",
+      "file": "night-teal.png",
+      "sha256": "f521f420219604323a8478bf44d976203b2bce2bfc9f1a774d8480fe90aad077",
+      "scene_sha256": "b85721b929ee3fc17159f6b37b92a9cf6a8c4d130dc920122eb6d009c0dda304"
+    },
+    {
+      "visual_preset": "dense-ink",
+      "file": "dense-ink.png",
+      "sha256": "e1566ec24a0950dce40433b2603e2d51df1a7e47c4de8041f36402d8be2282f8",
+      "scene_sha256": "4eb6089cbd6878d5f54f7342d72e8cb667b7e139a94dbb22f752d08bfc9991b4"
+    }
+  ],
+  "sheet": {
+    "file": "all-presets.png",
+    "sha256": "165c065b71ef5ca09fb247dc3392d4d0721103ec92b1f218788f09ad2723dfd4"
+  }
+}

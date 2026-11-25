@@ -1,6 +1,7 @@
 """The project's single command-line entry point.
 
-`doctor` and `measure step` exist so far. The spec's later verbs
+`doctor`, `measure step`, `design check` and `design draw` exist so far. The
+spec's later verbs
 (`data generate`, `data gallery`, `renderer check`, `train`, `evaluate`,
 `report`) are added by the issues that build them.
 """
@@ -91,6 +92,41 @@ def _parser() -> argparse.ArgumentParser:
         help="print the measurement record as JSON instead of text",
     )
     step.set_defaults(run=_measure_step)
+
+    design = verbs.add_parser(
+        "design",
+        help="check the design source and draw its visual presets",
+        description="The design source: DESIGN.md, the generator configuration and the visual presets.",
+    )
+    actions = design.add_subparsers(dest="what", required=True, metavar="WHAT")
+    check = actions.add_parser(
+        "check",
+        help="fail when DESIGN.md and the generator configuration disagree",
+        description=(
+            "Compare DESIGN.md with the generator configuration: every token of every visual "
+            "preset, every component and the states. Exits 1 and lists each disagreement when "
+            "they differ or either file is malformed."
+        ),
+    )
+    check.add_argument("--design-md", type=Path, default=None, metavar="PATH", help="the written design (default: DESIGN.md)")
+    check.add_argument(
+        "--config", type=Path, default=None, metavar="PATH", help="generator configuration (default: configs/design/v1.json)"
+    )
+    check.set_defaults(run=_design_check)
+    draw = actions.add_parser(
+        "draw",
+        help="draw one application state in A, Reference in every visual preset",
+        description=(
+            "Draw the same application state in A, Reference in every visual preset and save one "
+            "PNG per preset, a sheet of all of them and a manifest of hashes. Exits 2 when a file "
+            "exists with other contents; nothing is overwritten."
+        ),
+    )
+    draw.add_argument(
+        "--out", type=Path, default=None, metavar="DIR", help="folder the images are written to (default: records/design/v<version>)"
+    )
+    draw.add_argument("--scale", type=float, default=2.0, metavar="N", help="pixels per viewport unit (default: 2)")
+    draw.set_defaults(run=_design_draw)
     return parser
 
 
@@ -166,3 +202,37 @@ def _measure_step(args: argparse.Namespace) -> int:
     print(f"Doctor record      {saved['doctor']['path']}", file=notice)
     print(f"Doctor SHA-256     {saved['doctor']['sha256']}", file=notice)
     return 0 if record["selection"]["chosen"] else 1
+
+
+def _design_check(args: argparse.Namespace) -> int:
+    from core_ultra import design
+
+    problems = design.check(args.design_md, args.config)
+    if problems:
+        print(f"core-ultra: DESIGN.md and the generator configuration do not agree ({len(problems)}):", file=sys.stderr)
+        for problem in problems:
+            print(f"  - {problem}", file=sys.stderr)
+        return 1
+    print(f"DESIGN.md and the generator configuration agree: {design.summary(args.config)}.")
+    return 0
+
+
+def _design_draw(args: argparse.Namespace) -> int:
+    from core_ultra import design, preset_sheet
+
+    try:
+        version = design.load().version
+    except design.DesignError as error:
+        print(f"core-ultra: the generator configuration cannot be used: {error}", file=sys.stderr)
+        return 2
+    out = args.out or Path("records") / "design" / f"v{version}"
+    try:
+        manifest = preset_sheet.write(out, args.scale)
+    except FileExistsError as error:
+        print(f"core-ultra: {error} already exists with other contents; nothing was written", file=sys.stderr)
+        return 2
+    for image in manifest["images"]:
+        print(f"{image['visual_preset']:<16} {out / image['file']}  {image['sha256']}")
+    print(f"{'every preset':<16} {out / manifest['sheet']['file']}  {manifest['sheet']['sha256']}")
+    print(f"{'manifest':<16} {out / preset_sheet.MANIFEST_NAME}")
+    return 0
