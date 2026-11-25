@@ -72,30 +72,75 @@ from core_ultra.scene_session import Conditioning, RenderingMode, SceneSession
 
 kernel = Kernel("application.sqlite")
 kernel.create_document("Quarterly plan")
+kernel.open_document(1)
+kernel.edit("First line\nSecond line")
+kernel.save()
 
-frame = SceneSession().frame(kernel.state(), Conditioning(640, 320), RenderingMode.A_REFERENCE, scale=2)
-frame.scene             # the validated scene; frame.scene.to_json() is how it is stored
-frame.image             # RGBA pixels drawn by the runtime renderer, 1280 by 640 here
-frame.hit_test(600, 36) # the bound element at a point in viewport units, or None
+session = SceneSession()
+frame = session.frame(kernel.state(), Conditioning(960, 540), RenderingMode.A_REFERENCE, scale=2)
+frame.scene              # the validated scene; frame.scene.to_json() is how it is stored
+frame.image              # RGBA pixels drawn by the runtime renderer, 1920 by 1080 here
+hit = frame.hit_test(70, 28)   # the bound element at a point in viewport units, or None
+kernel.execute(hit.binding, "A second document")   # run the command its binding names
+session.report.summary() # scenes seen, invalid scenes by reason, values projected
 ```
+
+![The document workspace in A, Reference](records/milestones/S1-workspace.png)
 
 | Step | Module | What it does |
 | --- | --- | --- |
-| Application kernel | [kernel.py](src/core_ultra/kernel.py) | Holds documents in SQLite. Commands so far: create and list. |
-| Documents app adapter | [documents_adapter.py](src/core_ultra/documents_adapter.py) | Describes state as bound elements: identity, role, exact text, binding, state, relationships. No coordinates, no style. |
+| Application kernel | [kernel.py](src/core_ultra/kernel.py) | Holds the documents app in one SQLite file. Commands: create, open, rename, edit, save, list, sort, filter and undo. |
+| Documents app adapter | [documents_adapter.py](src/core_ultra/documents_adapter.py) | Describes the whole workspace (document list, editor, toolbar, notification) as bound elements: identity, role, exact text, binding, state, relationships. No coordinates, no style. |
 | Scene writer | [reference_layout.py](src/core_ultra/reference_layout.py) | In A, Reference, the reference layout writes the scene. D, Neural Scene has no scene model yet and says so. |
 | Scene validation | [scene.py](src/core_ultra/scene.py) | Accepts the scene or refuses it with every reason. Nothing is repaired. The schema is at the top of the file. |
 | Runtime renderer | [runtime_renderer.py](src/core_ultra/runtime_renderer.py) | Draws the validated scene as vectors with Qt's painter, off screen, and answers hit tests from the same outlines. |
 
+### Application kernel
+
+Everything the app knows is in the store: documents, every revision of each, unsaved drafts, the open document, the sort order, the filter, the notification and the undo log. A kernel opened on the same file again reports the same state. A command happens whole or is refused with `KernelError` and changes nothing.
+
+| Command | Method | Notes |
+| --- | --- | --- |
+| create | `create_document(title, body="")` | Revision 1. A title is one line, not blank, with no control characters. |
+| open | `open_document(id)` | The open document is the one `edit` and `save` act on. |
+| rename | `rename_document(id, title)` | Committed at once, as the next revision. |
+| edit | `edit(body)` | Changes the open document's draft. Lines end with a line feed; no other control character. |
+| save | `save()` | Commits the draft as the next revision. Refused when nothing is unsaved. |
+| list | `list_documents()` | The documents whose titles match the filter, in the sort order. |
+| sort | `sort_documents(key, descending=False)` | `created`, `title` or `modified`. |
+| filter | `filter_documents(text)` | Title contains the text. Sorting and filtering ignore case and the accents Unicode can separate from a letter. |
+| undo | `undo()` | Reverses the latest create, rename, edit or save, without limit. It is the exact inverse: undoing a save or a rename removes the revision it committed. Open, sort and filter are not undone. |
+
+`execute(binding, text=None)` runs the command a bound element's binding names. There is no wall clock anywhere in the kernel: "last changed" is a counter, so the same commands always give the same state. A store written by the first version of the kernel (schema version 1) is upgraded when opened.
+
+### Bound elements
+
+The adapter's module docstring lists every element. Each belongs to one part of the workspace (`part_of`), and further relationships say that a row is an item of the list its heading names, that sort and filter control that list, that Save controls the editor body, what a label names, and which row is shown in the editor.
+
+The application decides `disabled`: Save while nothing is unsaved, Undo while there is nothing to undo. The caller supplies hover, pressed and focused through `ApplicationState.with_interaction`, only for elements that have a binding. A state changes style values and nothing else.
+
+### Validation, counting and projection
+
 `SceneSession.frame_from_scene` draws a scene written elsewhere (a stored scene, a hand-written one, later a scene model's output) after validating it against the same state. An invalid scene raises `SceneInvalid`, which lists each problem with a code: a bound element missing, duplicated, invented or altered; a number that is not finite or out of range; a box outside the viewport; a malformed tree; a structural element carrying text or a binding; more than 32 bound or 16 structural elements.
 
-Limits of this first version, the A, Reference tracer:
+The session counts what it sees. `session.report` holds the number of candidate scenes, each invalid scene with its problems, and each projected value; `report.summary()` prints the counts by reason. Both also go to the `core_ultra.scene_session` logger.
 
-- One arrangement of the document list in one set of plain style values. Visual presets, design conditions and layout families come with the generator.
-- Text is one line in Helvetica Neue, a system font that is read and never redistributed. It is not elided, wrapped or clipped, and a character the font lacks is refused, not substituted.
-- Where text sits in its box is a rule of the runtime renderer, not a scene value: on the vertical centre, a button's text centred, other text as far from the left edge as from the top.
-- `elevation` is carried by the scene and not drawn yet.
-- Pointer and focus state (`ApplicationState.interaction`) is supplied by the caller; no command changes it yet.
+Projection happens only when asked for: `frame_from_scene(..., project=True)` moves each out-of-bounds value onto its nearest bound before validating, and lists every value it moved in `frame.projections` and in the report, counted apart from invalid scenes. It moves a box into the viewport, colour channels and opacity into 0 to 1, border width and corner radius into 0 to half the shorter side, elevation up to zero, and type weight into 100 to 900. A value with no nearest allowed value (not a finite number, a box without area, a type size at or below zero) and anything about the tree or the bound elements is never projected; that scene stays invalid. A, Reference is never projected.
+
+### What the runtime renderer draws
+
+Every style value: fill, text colour, border colour and width, corner radius, elevation, opacity, type size and type weight. The module docstring gives the exact rules, which the training renderer will have to match:
+
+- **Text.** A text-area draws one line per line feed. Any other text is one line on the box's vertical centre; a button's is centred. Where text sits is a rule of the renderer, not a scene value.
+- **Elevation.** A shadow: the element's own outline moved down by half the elevation, in black at alpha 0.24, fading to nothing over a band two elevations wide. It is drawn as vectors, so it is the same shadow at every scale.
+- **Scale.** `scale` is pixels per viewport unit. A scene is drawn at that size, never drawn small and enlarged, and `hit_test` takes viewport units whatever the scale.
+
+Limits of this version:
+
+- One arrangement of the workspace in one set of plain style values. Visual presets, design conditions and layout families come with the generator.
+- Text is in Helvetica Neue, a system font that is read and never redistributed. It is not elided, wrapped or clipped, and a character the font lacks is refused, not substituted. Text wider than its box runs over it; nothing checks text fit yet.
+- Nothing scrolls. A list too long for the viewport, or a workspace with more than 32 bound elements (21 rows while a document is open and a notification shows), is reported as an invalid scene, never clipped or dropped.
+- No command dismisses the notification; the next command replaces or clears it.
 
 Why Qt's painter: [docs/adr/0002-qt-painter-is-the-runtime-renderer.md](docs/adr/0002-qt-painter-is-the-runtime-renderer.md).
 
@@ -116,4 +161,4 @@ Weight and array files (`*.pt`, `*.safetensors`, `*.npz` and similar) are ignore
 uv run pytest
 ```
 
-The tests run the real commands on the machine at hand; `measure step` is run on a configuration small enough to finish in seconds. The scene session tests ([tests/test_scene_session.py](tests/test_scene_session.py)) build state in a real kernel and assert on the scene, its validity, the drawn image and hit-test answers; drawn text is judged against Qt's own text-to-path, not against the renderer's code. `test_report_matches_the_tested_platform` asserts the tested platform above and fails on any other machine on purpose.
+The tests run the real commands on the machine at hand; `measure step` is run on a configuration small enough to finish in seconds. The kernel tests ([tests/test_kernel.py](tests/test_kernel.py)) run commands against a real SQLite file and assert on what the kernel then reports, including after the store is closed and reopened. The scene session tests ([tests/test_scene_session.py](tests/test_scene_session.py)) build state in a real kernel and assert on the scene, its validity, the drawn image and hit-test answers; drawn text is judged against Qt's own text-to-path and a drawn shadow against its documented formula, not against the renderer's code. `test_report_matches_the_tested_platform` asserts the tested platform above and fails on any other machine on purpose.
