@@ -1,0 +1,18 @@
+{
+  "kind": "scene-model-config",
+  "name": "scene-model-v1",
+  "version": 1,
+  "note": "Starting size of the scene model, chosen from the S0 training-step measurement by the rule recorded in that measurement. It is a starting configuration: later milestones may replace it with a new version, never by editing this one.",
+  "model": {"d_model": 384, "layers": 6, "heads": 8, "feedforward": 1536},
+  "positions": {"bound": 32, "structural": 16},
+  "dtype": "float32",
+  "placeholder_parameters": 10732109,
+  "placeholder_parameters_note": "Counted on the placeholder, whose input vocabulary is a guess. The real scene model's count will differ slightly once the adapter and generator set the vocabulary.",
+  "chosen_from": {
+    "size": "d384-l6",
+    "measurement_record": "records/measurements/training-step/20261125T195658Z-e160b01f246c.json",
+    "measurement_sha256": "12920bd4663409c80bc86bc8ba45874e301d58417183d22e8030d244e402e9d0",
+    "measurement_config": "configs/measure/training-step-v1.json",
+    "statement": "d384-l6 (10.73M parameters) is the eligible size nearest the middle of the planned range. Neither memory nor time was the limit for it at batch 64."
+  }
+}
