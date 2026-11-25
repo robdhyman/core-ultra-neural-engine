@@ -111,10 +111,9 @@ def to_text(report: dict[str, Any]) -> str:
         "",
         f"OS                 {os_['name']} {os_['version']} ({os_['build']}), kernel {os_['kernel']}",
         f"Hardware           {hardware['chip']}, {hardware['model']}, {hardware['machine']}, "
-        f"{hardware['cpu_cores_physical']} cores",
+        f"{_count(hardware['cpu_cores_physical'])} cores",
         f"Python             {python['implementation']} {python['version']}",
-        f"Memory             {_gib(memory['total_bytes'])} total, "
-        f"{_gib(memory['available_bytes'])} available",
+        f"Memory             {_memory_text(memory)}",
         f"Disk               {_gib(disk['free_bytes'])} free of {_gib(disk['total_bytes'])}",
         "",
         "Accelerators",
@@ -165,14 +164,13 @@ def _os() -> dict[str, Any]:
 
 
 def _hardware() -> dict[str, Any]:
-    import psutil
-
+    psutil = _psutil()
     return {
         "machine": platform.machine(),
         "chip": _command("sysctl", "-n", "machdep.cpu.brand_string"),
         "model": _command("sysctl", "-n", "hw.model"),
-        "cpu_cores_physical": psutil.cpu_count(logical=False),
-        "cpu_cores_logical": psutil.cpu_count(logical=True),
+        "cpu_cores_physical": psutil.cpu_count(logical=False) if psutil else None,
+        "cpu_cores_logical": psutil.cpu_count(logical=True) if psutil else None,
     }
 
 
@@ -184,8 +182,9 @@ def _python() -> dict[str, Any]:
 
 
 def _memory() -> dict[str, Any]:
-    import psutil
-
+    psutil = _psutil()
+    if psutil is None:
+        return {"total_bytes": None, "available_bytes": None}
     memory = psutil.virtual_memory()
     return {"total_bytes": memory.total, "available_bytes": memory.available}
 
@@ -338,6 +337,20 @@ def _problems(report: dict[str, Any]) -> list[str]:
 # --- helpers ----------------------------------------------------------------
 
 
+def _psutil() -> Any:
+    """psutil, or None when it cannot be imported.
+
+    Doctor exists to report a broken environment, so a missing dependency must
+    not stop the report. Its absence is listed under dependencies and problems;
+    the fields only it can measure are recorded as unknown.
+    """
+    try:
+        import psutil
+    except Exception:
+        return None
+    return psutil
+
+
 def _project_version() -> str | None:
     try:
         return importlib.metadata.version(PROJECT)
@@ -360,8 +373,18 @@ def _describe(error: BaseException) -> str:
     return text.replace(str(Path.home()), "~")
 
 
-def _gib(count: int) -> str:
-    return f"{count / 1024**3:.1f} GiB"
+def _gib(count: int | None) -> str:
+    return "unknown" if count is None else f"{count / 1024**3:.1f} GiB"
+
+
+def _count(value: int | None) -> str:
+    return "unknown" if value is None else str(value)
+
+
+def _memory_text(memory: dict[str, Any]) -> str:
+    if memory["total_bytes"] is None:
+        return "unknown"
+    return f"{_gib(memory['total_bytes'])} total, {_gib(memory['available_bytes'])} available"
 
 
 def _yes(value: bool) -> str:
