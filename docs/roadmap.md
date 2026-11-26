@@ -43,7 +43,7 @@ flowchart TD
         i7["#7 Data generate tracer"]:::done
         i8["#8 Layout families and validators"]:::ready
         i9["#9 Pilot dataset and gallery"]:::waiting
-        i32["#32 Scene export as editable SVG"]:::ready
+        i32["#32 Scene export as editable SVG"]:::done
         i10["#10 Rob reviews the pilot gallery"]:::rob
         i11["#11 Frozen splits and full dataset"]:::waiting
     end
@@ -97,6 +97,7 @@ Green is done. Blue can start now. Grey is waiting on something. Pink is a decis
 | #5 | The whole documents app (list, editor, toolbar, notification, undo) drawn in A, Reference, with 250 tests | PR #29, [S1 record](../records/milestones/S1.md) |
 | #6 | The original design system (`DESIGN.md`), its machine-readable twin, the check that keeps them in sync, four visual presets and the Inter font, with 360 tests | PR #30, merged 2026-11-26, [S2 record so far](../records/milestones/S2.md) |
 | #7 | `data generate`: scripted sessions drive the app and every screen they reach is saved as a traceable training example. A tiny dataset of 82 examples, a check that nothing the network is given contains the answer, and `data check`, with 415 tests | [S2 record so far](../records/milestones/S2.md) |
+| #32 | `scene export`: any scene written as an SVG of separate named objects, with text as text, made to be opened in a design tool. No design tool has been tried yet. `scene compare` measures the SVG against the runtime renderer: on the tiny dataset the mean difference is 0.43 levels of 255, nearly all of it text. Eight SVGs were handed to Rob with a note for #10 that lists what the scene schema cannot express | [S2 record so far](../records/milestones/S2.md), [hand-off note](../.scratch/scene-export/handoff-scene-as-svg.md) |
 
 ## Next
 
@@ -106,7 +107,7 @@ In the order they unlock:
 2. **#12, training renderer stage 1.** Ready now. It depends only on #4. The first piece of the renderer the network learns through: rounded rectangles, with proof that its learning signal is correct.
 3. **#15, the scene model fits a tiny set.** Ready now. The first network, taught to reproduce the tiny dataset that #7 left.
 4. **#9, pilot dataset and gallery.** 200 to 500 examples across every preset and layout family, in a gallery made for review.
-5. **#32, scene export as editable SVG.** Ready now. Any scene written as an SVG that opens in a design tool as separate objects, with text as text. It trains nothing and changes no schema. It exists so that Rob sees the scene as an editable vector document before #10, and so that the gaps in the scene schema are known before #11 freezes the dataset.
+5. **#32, scene export as editable SVG.** Done; see the table above. It trained nothing and changed no schema. It exists so that Rob sees the scene as an editable vector document before #10, and so that the gaps in the scene schema are known before #11 freezes the dataset.
 6. **#10, Rob's go.** Nothing is scaled up until Rob has looked at the gallery and said go. He also opens the exported SVGs here and revisits the questions under "After this spec".
 
 The spec lets S3 proceed alongside S2, so #8, #12, #15 and #32 can run side by side.

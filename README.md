@@ -16,6 +16,8 @@ uv sync --locked
 
 There is one entry point, `core-ultra` (also `python -m core_ultra`). Its verbs so far are `doctor`, `measure step`, `design check`, `design draw`, `data generate` and `data check`.
 
+`scene export` and `scene compare` are described under [Scene export](#scene-export).
+
 ### `doctor`
 
 ```bash
@@ -261,6 +263,70 @@ Limits of this version:
 
 Why Qt's painter: [docs/adr/0002-qt-painter-is-the-runtime-renderer.md](docs/adr/0002-qt-painter-is-the-runtime-renderer.md).
 
+## Scene export
+
+```bash
+uv run core-ultra scene export artifacts/datasets/tiny-v1/records/first-documents-0.015.json --out first-documents.svg
+```
+
+`scene export` writes a validated scene as an SVG of separate, editable objects, made to be opened in a design tool. It takes a dataset record, whose true scene it exports, or a scene file (stored scene JSON, as `frame.scene.to_json()` gives it). It reads that one file and the bundled font, by which text is placed, and never calls a network. The same scene always gives the same bytes.
+
+The SVG is an export. The runtime renderer stays the only thing visual results are measured with.
+
+| Flag | Effect |
+| --- | --- |
+| `--out FILE` | The SVG to write. Default: the input's name with `.svg`, in the current folder. |
+
+It exits 1, writing nothing, when the scene is invalid, and lists every problem as the scene session does; text the font has no glyph for is refused too, as the runtime renderer refuses it. A dataset record's scene is validated against the bound elements and viewport the record holds. A scene file names no application state, so it is validated against the bound elements it carries: every problem of shape, tree, range, viewport and limit is found, and a bound element that is missing, invented or altered from what the application supplied cannot be. It exits 2 when the file holds no scene or the SVG already exists with other contents.
+
+What the SVG holds ([scene_export.py](src/core_ultra/scene_export.py)):
+
+| Scene | SVG |
+| --- | --- |
+| Element | One `<g>` with the element's id, `data-type` and, for a bound element, `data-role`. It holds the element's own `<rect>`, then its `<text>`, then the groups of the elements inside it. |
+| Parent link | Nesting of the groups. Document order is the scene's drawing order. |
+| Box and corner radius | The `<rect>` and its `rx`. |
+| Fill | `fill` as #RRGGBB, `fill-opacity` when the alpha is below 1, `fill="none"` when it is 0. |
+| Border | `stroke` and `stroke-width`. SVG strokes along the middle of an outline and the scene's border lies inside it, so a bordered rectangle is written half a border in from the box, with its radius smaller by the same amount. |
+| Opacity | `opacity` on the element's own rectangle and text, never on its group. |
+| Elevation | A filter on the rectangle: a blur of half the elevation, moved down by half the elevation, black at alpha 0.24. One filter for each elevation in the scene. |
+| Text, type size, type weight | One `<text>` in Inter with `font-size` and `font-weight`, never outlines, on the baseline the runtime renderer uses. The weight is written at the nearest hundred, which is the weight the runtime renderer draws. A button's is anchored at the middle of its box. Text on several lines is one `<tspan>` for each line that says anything. |
+
+The application's binding, state and relationships are not written: SVG has no place for them.
+
+### `scene compare`
+
+```bash
+uv run core-ultra scene compare artifacts/datasets/tiny-v1
+```
+
+`scene compare` measures how far the export is from the runtime renderer. For every record of a written dataset it exports the true scene, rasterises the SVG with Qt's SVG module (`QSvgRenderer`, part of PySide6-Essentials) at the record's pixels per viewport unit, and compares the result pixel by pixel with the runtime renderer's image of the same scene. Each scene is compared whole and with every text emptied.
+
+| Flag | Effect |
+| --- | --- |
+| `--out FILE` | Also write the comparison as a JSON record. An existing file with other contents is never overwritten. |
+| `--json` | Print the comparison as JSON instead of text. |
+
+Measured on the tiny dataset, 82 records at one pixel per viewport unit, with Qt 6.12.0 ([the record](records/measurements/scene-export/tiny-v1.json)). The mean absolute difference is in levels of 255, over every channel of every pixel; each cell is the mean over records, then the largest record.
+
+| | Records | Mean absolute difference | Pixels differing by more than 16 levels |
+| --- | --- | --- | --- |
+| Whole scene | 82 | 0.433, 1.121 | 0.73%, 1.54% |
+| The same, every text emptied | 82 | 0.015, 0.046 | 0.0006%, 0.0027% |
+| Whole, text on one line only | 75 | 0.374, 0.606 | 0.66%, 0.97% |
+| Whole, text on several lines | 7 | 1.058, 1.121 | 1.44%, 1.54% |
+
+Nearly all of the difference is text. The runtime renderer fills glyph outlines shaped once at a pinned optical size; an SVG rasteriser draws the font its own way. Qt's SVG module also ignores the position of a `<tspan>`, so it draws text on several lines as one line at the top left corner. A browser places those lines correctly.
+
+Limits of this version:
+
+- The numbers say how Qt's SVG module draws the export. No design tool was opened to check what it makes of the file.
+- A shadow is a blur, the nearest thing SVG has to the runtime renderer's shadow, and it is cast by the rectangle's own paint. An element with elevation and a fill alpha of 0 would get no shadow in the SVG; the tiny dataset has none.
+- A border with an alpha below 1, or an element with a border and an opacity below 1, is drawn slightly differently in the border's band, because the SVG has no fill under the outer half of the stroke.
+- A colour is written to the nearest of 256 levels a channel.
+- The font is named, not embedded. A machine without Inter draws the text in another font.
+- A character XML cannot hold (a control character other than tab and line feed) is refused, not dropped.
+
 ## What git keeps
 
 | Location | In git | Holds |
@@ -280,3 +346,5 @@ uv run pytest
 ```
 
 The tests run the real commands on the machine at hand; `measure step` is run on a configuration small enough to finish in seconds. The kernel tests ([tests/test_kernel.py](tests/test_kernel.py)) run commands against a real SQLite file and assert on what the kernel then reports, including after the store is closed and reopened. The scene session tests ([tests/test_scene_session.py](tests/test_scene_session.py)) build state in a real kernel and assert on the scene, its validity, the drawn image and hit-test answers; drawn text is judged against Qt's own text-to-path and a drawn shadow against its documented formula, not against the renderer's code. The design tests ([tests/test_design.py](tests/test_design.py)) draw one state in every visual preset and compare the scene with the values DESIGN.md writes, read from its YAML and not through the code that loads the configuration; they also change one value at a time in a copy of either file and assert that `design check` names it. The data tests ([tests/test_cli_data_generate.py](tests/test_cli_data_generate.py)) run `data generate` on the tiny configuration and judge what it wrote without the generator: each record's state is reached again in a kernel of the test's own from the commands the record lists, its scene is asked of the scene session, its image is drawn again, and ten ways of putting the target or diagnostic metadata into the model inputs must each fail `data check`. `test_report_matches_the_tested_platform` asserts the tested platform above and fails on any other machine on purpose.
+
+The scene export tests ([tests/test_cli_scene_export.py](tests/test_cli_scene_export.py)) run `scene export` on every record of the tiny dataset and judge each SVG by parsing it with the standard library and comparing it with the record's true scene, read from the record's JSON; a refused scene is compared with the scene session refusing the same scene for the same application state; and the numbers `scene compare` reports are computed again from the dataset's own reference images.
