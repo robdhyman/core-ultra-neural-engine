@@ -181,7 +181,7 @@ S1 built the app and the full path from "what the app knows" to "a picture on sc
 
 ## S2 so far: an original design system in four looks
 
-*Covers issue #6 only. S2 is not finished, and issue #6 is still open.*
+*Covers issue #6 only, which was merged on 2026-11-26. S2 is not finished: issues #7 to #11 remain.*
 
 S1 had its colours and sizes typed straight into the layout code. S2 replaces those with a real design source.
 

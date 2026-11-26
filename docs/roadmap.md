@@ -12,12 +12,12 @@ The spec has six milestones and 23 work issues. It ends in one document: a repor
 | --- | --- | --- | --- |
 | S0, environment and measurement | Proof that this Mac can train the planned network | #2, #3 | **Done** |
 | S1, kernel, scene and runtime renderer | The documents app, drawn from a scene with no network | #4, #5 | **Done** |
-| S2, generator and pilot | Design system, training data, a pilot gallery, the full dataset | #6 to #11 | **Started.** 1 of 6 in review |
+| S2, generator and pilot | Design system, training data, a pilot gallery, the full dataset | #6 to #11 | **Started.** 1 of 6 done. #7 can start now |
 | S3, training renderer | A second renderer the network can learn through | #12 to #14 | Not started. #12 can start now |
 | S4, structure-only baseline | The first trained network, and the baseline result | #15 to #17, #19, #20 | Not started |
 | S5, comparison | The second training method, the hand-written test set, the report | #18, #21 to #24 | Not started |
 
-Counted by issue: 4 done, 1 in review, 18 not started. No network has been trained yet.
+Counted by issue: 5 done, 18 not started. No network has been trained yet.
 
 ## The map
 
@@ -26,7 +26,6 @@ Arrows mean "must finish before". Issues #17 and #19 serve both S4 and S5; they 
 ```mermaid
 flowchart TD
     classDef done fill:#d7f0dd,stroke:#2e7d4f,color:#12301f
-    classDef review fill:#fff0c2,stroke:#a67c00,color:#3d2e00
     classDef ready fill:#d6e6ff,stroke:#2457a6,color:#0f2547
     classDef waiting fill:#eeeeee,stroke:#888888,color:#222222
     classDef rob fill:#f6d9ef,stroke:#8e3a7c,color:#3a1232
@@ -40,8 +39,8 @@ flowchart TD
         i5["#5 Full document workspace"]:::done
     end
     subgraph S2["S2 Generator and pilot"]
-        i6["#6 Design source and presets"]:::review
-        i7["#7 Data generate tracer"]:::waiting
+        i6["#6 Design source and presets"]:::done
+        i7["#7 Data generate tracer"]:::ready
         i8["#8 Layout families and validators"]:::waiting
         i9["#9 Pilot dataset and gallery"]:::waiting
         i10["#10 Rob reviews the pilot gallery"]:::rob
@@ -84,7 +83,7 @@ flowchart TD
     i21 --> i24
 ```
 
-Green is done. Yellow is in review. Blue can start now. Grey is waiting on something. Pink is a decision only Rob can make.
+Green is done. Blue can start now. Grey is waiting on something. Pink is a decision only Rob can make.
 
 ## Done
 
@@ -94,23 +93,17 @@ Green is done. Yellow is in review. Blue can start now. Grey is waiting on somet
 | #3 | `measure step`: one training step timed across 30 cases. The planned network fits this Mac with room to spare, and a starting size of 10.73 million parameters was chosen | PR #27, [S0 record](../records/milestones/S0.md) |
 | #4 | The first working path from app state to a drawn screen and a click target, with no window | PR #28 |
 | #5 | The whole documents app (list, editor, toolbar, notification, undo) drawn in A, Reference, with 250 tests | PR #29, [S1 record](../records/milestones/S1.md) |
-
-## In review
-
-| Issue | What it is | State |
-| --- | --- | --- |
-| #6 | The original design system (`DESIGN.md`), its machine-readable twin, the check that keeps them in sync, four visual presets and the Inter font | [PR #30](https://github.com/robdhyman/core-ultra-neural-engine/pull/30) is open and mergeable. The issue stays open until it merges. [S2 record so far](../records/milestones/S2.md) |
+| #6 | The original design system (`DESIGN.md`), its machine-readable twin, the check that keeps them in sync, four visual presets and the Inter font, with 360 tests | PR #30, merged 2026-11-26, [S2 record so far](../records/milestones/S2.md) |
 
 ## Next
 
 In the order they unlock:
 
-1. **Merge PR #30** to close #6. This unblocks #7.
+1. **#7, the `data generate` tracer.** Ready now. Scripted sessions drive the app and each screen is saved as a training example.
 2. **#12, training renderer stage 1.** Ready now. It depends only on #4. The first piece of the renderer the network learns through: rounded rectangles, with proof that its learning signal is correct.
-3. **#7, the `data generate` tracer.** Ready once #6 closes. Scripted sessions drive the app and each screen is saved as a training example.
-4. **#8, layout families and validators.** More than one arrangement of the screen, with checks that reject broken samples. This is also where text fit gets checked.
-5. **#9, pilot dataset and gallery.** 200 to 500 examples across every preset and layout family, in a gallery made for review.
-6. **#10, Rob's go.** Nothing is scaled up until Rob has looked at the gallery and said go.
+3. **#8, layout families and validators.** More than one arrangement of the screen, with checks that reject broken samples. This is also where text fit gets checked.
+4. **#9, pilot dataset and gallery.** 200 to 500 examples across every preset and layout family, in a gallery made for review.
+5. **#10, Rob's go.** Nothing is scaled up until Rob has looked at the gallery and said go.
 
 The spec lets S3 proceed alongside S2, so #12 and #7 can run side by side.
 
@@ -130,10 +123,10 @@ The spec lets S3 proceed alongside S2, so #12 and #7 can run side by side.
 
 ## The longest chains
 
-Two chains are nine issues long, and both start at #6 and end at #24:
+With #6 done, two chains of eight issues remain. Both start at #7 and end at #24:
 
-- **Data:** #6 → #7 → #8 → #9 → #10 → #11 → #20 → #21 → #24
-- **Model:** #6 → #7 → #15 → #16 → #17 → #19 → #20 → #21 → #24
+- **Data:** #7 → #8 → #9 → #10 → #11 → #20 → #21 → #24
+- **Model:** #7 → #15 → #16 → #17 → #19 → #20 → #21 → #24
 
 They meet at #20, the first full training run, which needs both the full dataset (#11) and the smoke test (#19). The second full run (#21) also needs the finished training renderer (#14).
 
