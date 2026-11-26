@@ -14,7 +14,7 @@ uv sync --locked
 
 ## Command line
 
-There is one entry point, `core-ultra` (also `python -m core_ultra`). Its verbs so far are `doctor` and `measure step`.
+There is one entry point, `core-ultra` (also `python -m core_ultra`). Its verbs so far are `doctor`, `measure step`, `design check` and `design draw`.
 
 ### `doctor`
 
@@ -62,6 +62,53 @@ What the record holds:
 
 The chosen size is recorded in `configs/scene-model/v1.json`, which names the measurement record it came from with its SHA-256.
 
+### `design check`
+
+```bash
+uv run core-ultra design check
+```
+
+`design check` compares [DESIGN.md](DESIGN.md) with the generator configuration, `configs/design/v1.json`: every token of every visual preset, every component, the states and the font family. It exits 1 and lists each disagreement by name when the two differ, when DESIGN.md breaks the format rules this project relies on, or when the configuration cannot be used. The tests run the same check, so a change to one file without the other fails `uv run pytest`.
+
+| Flag | Effect |
+| --- | --- |
+| `--design-md PATH` | The written design. Default: `DESIGN.md`. |
+| `--config PATH` | The generator configuration. Default: `configs/design/v1.json`. |
+
+### `design draw`
+
+```bash
+uv run core-ultra design draw
+```
+
+`design draw` draws one application state in A, Reference in every visual preset and writes one PNG per preset, a sheet of all of them and a manifest with the SHA-256 of each image, each scene, the configuration and the font. It exits 2, writing nothing, when a file exists with other contents.
+
+| Flag | Effect |
+| --- | --- |
+| `--out DIR` | Folder the images are written to. Default: `records/design/v1`. |
+| `--scale N` | Pixels per viewport unit. Default: 2. |
+
+## Design source
+
+The design is original and is held twice. [DESIGN.md](DESIGN.md) is the written one, in the Google Labs DESIGN.md format (version alpha): tokens as YAML, then prose. `configs/design/v1.json` is the generator configuration, the machine-readable one the reference layout reads. `design check` keeps them the same.
+
+Both cover semantic colours, typography, spacing, dimensions, borders, radii, elevation, density, the styling of each element and the five states (default, hover, pressed, focused, disabled). The format has no place for some of that, so DESIGN.md uses extension keys, which the format allows; its Overview lists them. Google's own linter for the format is not run by this project.
+
+There are four visual presets. Each is a complete set of values for the same tokens, so a preset changes how every element looks and never what an element says or does.
+
+| Preset | Character |
+| --- | --- |
+| `calm-blue` (default) | Cool light greys, white panels, one blue accent, medium corners, soft shadows, regular density. |
+| `warm-paper` | Warm off-whites, brown-black ink, a rust accent, small corners, almost flat, larger type, comfortable density. |
+| `night-teal` | Dark blue-greys, raised panels, a light teal accent with dark text on it, large corners, deep shadows, regular density. |
+| `dense-ink` | White with black rules, a violet accent, square corners, no shadows, small heavy type, compact density. |
+
+The same application state in A, Reference in each ([one image per preset](records/design/v1)):
+
+![One application state in A, Reference in every visual preset](records/design/v1/all-presets.png)
+
+All text is drawn in Inter, kept in this repository under the SIL Open Font License. [ASSETS.md](ASSETS.md) records its source, version, hashes and attribution.
+
 ## Scene session
 
 The scene session is the one interface from application state to a drawn interface. It runs without a window.
@@ -78,6 +125,7 @@ kernel.save()
 
 session = SceneSession()
 frame = session.frame(kernel.state(), Conditioning(960, 540), RenderingMode.A_REFERENCE, scale=2)
+# Conditioning(960, 540, visual_preset="warm-paper") draws the same state in another preset
 frame.scene              # the validated scene; frame.scene.to_json() is how it is stored
 frame.image              # RGBA pixels drawn by the runtime renderer, 1920 by 1080 here
 hit = frame.hit_test(70, 28)   # the bound element at a point in viewport units, or None
@@ -91,7 +139,8 @@ session.report.summary() # scenes seen, invalid scenes by reason, values project
 | --- | --- | --- |
 | Application kernel | [kernel.py](src/core_ultra/kernel.py) | Holds the documents app in one SQLite file. Commands: create, open, rename, edit, save, list, sort, filter and undo. |
 | Documents app adapter | [documents_adapter.py](src/core_ultra/documents_adapter.py) | Describes the whole workspace (document list, editor, toolbar, notification) as bound elements: identity, role, exact text, binding, state, relationships. No coordinates, no style. |
-| Scene writer | [reference_layout.py](src/core_ultra/reference_layout.py) | In A, Reference, the reference layout writes the scene. D, Neural Scene has no scene model yet and says so. |
+| Design | [design.py](src/core_ultra/design.py) | Reads the generator configuration and resolves every component in the visual preset the conditioning names. |
+| Scene writer | [reference_layout.py](src/core_ultra/reference_layout.py) | In A, Reference, the reference layout writes the scene in that preset. D, Neural Scene has no scene model yet and says so. |
 | Scene validation | [scene.py](src/core_ultra/scene.py) | Accepts the scene or refuses it with every reason. Nothing is repaired. The schema is at the top of the file. |
 | Runtime renderer | [runtime_renderer.py](src/core_ultra/runtime_renderer.py) | Draws the validated scene as vectors with Qt's painter, off screen, and answers hit tests from the same outlines. |
 
@@ -137,8 +186,8 @@ Every style value: fill, text colour, border colour and width, corner radius, el
 
 Limits of this version:
 
-- One arrangement of the workspace in one set of plain style values. Visual presets, design conditions and layout families come with the generator.
-- Text is in Helvetica Neue, a system font that is read and never redistributed. It is not elided, wrapped or clipped, and a character the font lacks is refused, not substituted. Text wider than its box runs over it; nothing checks text fit yet.
+- One arrangement of the workspace, in four visual presets. Design conditions and layout families come with the generator.
+- Text is in one font, Inter, in every preset; the scene schema has no value for a font family. It is not elided, wrapped or clipped, and a character the font lacks is refused, not substituted. Text wider than its box runs over it; nothing checks text fit yet.
 - Nothing scrolls. A list too long for the viewport, or a workspace with more than 32 bound elements (21 rows while a document is open and a notification shows), is reported as an invalid scene, never clipped or dropped.
 - No command dismisses the notification; the next command replaces or clears it.
 
@@ -151,7 +200,8 @@ Why Qt's painter: [docs/adr/0002-qt-painter-is-the-runtime-renderer.md](docs/adr
 | `artifacts/` | No | Weights, datasets, run artifacts and anything else that stays on this machine. |
 | `artifacts/**/manifest.json`, `*.manifest.json`, `*.sha256`, `SHA256SUMS` | Yes | The manifests and hashes that describe those artifacts. |
 | `records/` | Yes | Doctor records, measurement records, milestone records and reports. |
-| `configs/` | Yes | Versioned configurations: what was measured and the model size chosen from it. |
+| `configs/` | Yes | Versioned configurations: what was measured, the model size chosen from it, and the design the generator draws. |
+| `src/core_ultra/assets/` | Yes | The font, with its licence. Recorded in `ASSETS.md`. |
 
 Weight and array files (`*.pt`, `*.safetensors`, `*.npz` and similar) are ignored wherever they land.
 
@@ -161,4 +211,4 @@ Weight and array files (`*.pt`, `*.safetensors`, `*.npz` and similar) are ignore
 uv run pytest
 ```
 
-The tests run the real commands on the machine at hand; `measure step` is run on a configuration small enough to finish in seconds. The kernel tests ([tests/test_kernel.py](tests/test_kernel.py)) run commands against a real SQLite file and assert on what the kernel then reports, including after the store is closed and reopened. The scene session tests ([tests/test_scene_session.py](tests/test_scene_session.py)) build state in a real kernel and assert on the scene, its validity, the drawn image and hit-test answers; drawn text is judged against Qt's own text-to-path and a drawn shadow against its documented formula, not against the renderer's code. `test_report_matches_the_tested_platform` asserts the tested platform above and fails on any other machine on purpose.
+The tests run the real commands on the machine at hand; `measure step` is run on a configuration small enough to finish in seconds. The kernel tests ([tests/test_kernel.py](tests/test_kernel.py)) run commands against a real SQLite file and assert on what the kernel then reports, including after the store is closed and reopened. The scene session tests ([tests/test_scene_session.py](tests/test_scene_session.py)) build state in a real kernel and assert on the scene, its validity, the drawn image and hit-test answers; drawn text is judged against Qt's own text-to-path and a drawn shadow against its documented formula, not against the renderer's code. The design tests ([tests/test_design.py](tests/test_design.py)) draw one state in every visual preset and compare the scene with the values DESIGN.md writes, read from its YAML and not through the code that loads the configuration; they also change one value at a time in a copy of either file and assert that `design check` names it. `test_report_matches_the_tested_platform` asserts the tested platform above and fails on any other machine on purpose.

@@ -77,18 +77,23 @@ class ModeUnavailable(Exception):
 class Conditioning:
     """What the scene writer is told besides application state.
 
-    Only the viewport size so far. The design condition and the visual preset
-    join it when the generator is built.
+    The viewport size, and the visual preset by its name in the generator
+    configuration (`core_ultra.design`); without a name it is the
+    configuration's default preset. The design condition joins them when the
+    generator is built.
     """
 
     viewport_width: float
     viewport_height: float
+    visual_preset: str | None = None
 
     def __post_init__(self) -> None:
         for name in ("viewport_width", "viewport_height"):
             value = getattr(self, name)
             if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or value <= 0:
                 raise ValueError(f"{name} is {value!r}; it is a finite number above zero")
+        if self.visual_preset is not None and not isinstance(self.visual_preset, str):
+            raise ValueError(f"visual_preset is {self.visual_preset!r}; it is a preset's name")
 
     @property
     def viewport(self) -> tuple[float, float]:
@@ -201,9 +206,10 @@ class SceneSession:
         bound_elements = documents_adapter.describe(state)
         if mode is RenderingMode.A_REFERENCE:
             # Imported here so that no other rendering mode loads the teacher.
-            from core_ultra import reference_layout
+            from core_ultra import design, reference_layout
 
-            candidate = reference_layout.write_scene(bound_elements, conditioning.viewport)
+            preset = design.load().preset(conditioning.visual_preset)
+            candidate = reference_layout.write_scene(bound_elements, conditioning.viewport, preset)
         else:
             raise ModeUnavailable(f"{mode.value} has no scene model yet")
         return self._frame(bound_elements, conditioning, candidate, scale, mode.value, project=False)
