@@ -114,8 +114,8 @@ def write(out: str | Path, scale: float = 2.0) -> dict[str, Any]:
     out = Path(out)
     design = design_source.load()
     drawn = frames(scale)
-    files = {f"{name}.png": _png(frame.image) for name, frame in drawn.items()}
-    files[SHEET_NAME] = _png(sheet({name: frame.image for name, frame in drawn.items()}, scale))
+    files = {f"{name}.png": runtime_renderer.png_bytes(frame.image) for name, frame in drawn.items()}
+    files[SHEET_NAME] = runtime_renderer.png_bytes(sheet({name: frame.image for name, frame in drawn.items()}, scale))
 
     manifest = {
         "kind": "preset-images",
@@ -155,18 +155,6 @@ def _text(painter: QPainter, text: str, x: float, y: float, size: float, weight:
     painter.scale(factor, factor)
     painter.fillPath(typography.shape(text, weight).outline, QColor.fromRgbF(*colour))
     painter.restore()
-
-
-def _png(image: np.ndarray) -> bytes:
-    from PySide6.QtCore import QBuffer, QIODevice
-
-    pixels = np.ascontiguousarray(image)
-    picture = QImage(pixels.data, image.shape[1], image.shape[0], 4 * image.shape[1], QImage.Format.Format_RGBA8888)
-    buffer = QBuffer()
-    buffer.open(QIODevice.OpenModeFlag.WriteOnly)
-    if not picture.save(buffer, "PNG"):
-        raise OSError("could not encode a PNG")
-    return bytes(buffer.data())
 
 
 def _sha256(data: bytes) -> str:

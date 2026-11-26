@@ -1,23 +1,23 @@
 # Roadmap
 
-Written 2026-11-26, from the spec ([issue #1](https://github.com/robdhyman/core-ultra-neural-engine/issues/1)), the state of issues #2 to #24 and their blocked-by links on GitHub, and the milestone records in `records/milestones/`. Terms are explained in [the designers' guide to S0 to S2](milestones-s0-s2-for-designers.md).
+Written 2026-11-26, from the spec ([issue #1](https://github.com/robdhyman/core-ultra-neural-engine/issues/1)), the state of issues #2 to #24 and #32 and their blocked-by links on GitHub, and the milestone records in `records/milestones/`. Terms are explained in [the designers' guide to S0 to S2](milestones-s0-s2-for-designers.md).
 
 This roadmap gives order, not dates. The spec makes no time estimate that is not backed by a measurement, and the only one so far is the training step in S0.
 
 ## Where things stand
 
-The spec has six milestones and 23 work issues. It ends in one document: a report on whether teaching the network with pictures as well as with scene data makes it better on layouts it has never seen.
+The spec has six milestones and 23 work issues, and one issue (#32) was added on 2026-11-26. It ends in one document: a report on whether teaching the network with pictures as well as with scene data makes it better on layouts it has never seen.
 
 | Milestone | What it delivers | Issues | Status |
 | --- | --- | --- | --- |
 | S0, environment and measurement | Proof that this Mac can train the planned network | #2, #3 | **Done** |
 | S1, kernel, scene and runtime renderer | The documents app, drawn from a scene with no network | #4, #5 | **Done** |
-| S2, generator and pilot | Design system, training data, a pilot gallery, the full dataset | #6 to #11 | **Started.** 1 of 6 done. #7 can start now |
+| S2, generator and pilot | Design system, training data, a pilot gallery, the full dataset | #6 to #11, #32 | **Started.** 2 of 7 done. #8 and #32 can start now |
 | S3, training renderer | A second renderer the network can learn through | #12 to #14 | Not started. #12 can start now |
-| S4, structure-only baseline | The first trained network, and the baseline result | #15 to #17, #19, #20 | Not started |
+| S4, structure-only baseline | The first trained network, and the baseline result | #15 to #17, #19, #20 | Not started. #15 can start now |
 | S5, comparison | The second training method, the hand-written test set, the report | #18, #21 to #24 | Not started |
 
-Counted by issue: 5 done, 18 not started. No network has been trained yet.
+Counted by issue: 6 done, 18 not started. No network has been trained yet.
 
 ## The map
 
@@ -40,9 +40,10 @@ flowchart TD
     end
     subgraph S2["S2 Generator and pilot"]
         i6["#6 Design source and presets"]:::done
-        i7["#7 Data generate tracer"]:::ready
-        i8["#8 Layout families and validators"]:::waiting
+        i7["#7 Data generate tracer"]:::done
+        i8["#8 Layout families and validators"]:::ready
         i9["#9 Pilot dataset and gallery"]:::waiting
+        i32["#32 Scene export as editable SVG"]:::ready
         i10["#10 Rob reviews the pilot gallery"]:::rob
         i11["#11 Frozen splits and full dataset"]:::waiting
     end
@@ -52,7 +53,7 @@ flowchart TD
         i14["#14 Stage 3: shadows"]:::waiting
     end
     subgraph S4["S4 Structure-only baseline"]
-        i15["#15 Scene model fits a tiny set"]:::waiting
+        i15["#15 Scene model fits a tiny set"]:::ready
         i16["#16 D, Neural Scene in the scene session"]:::waiting
         i17["#17 Evaluate"]:::waiting
         i19["#19 Smoke configuration"]:::waiting
@@ -69,6 +70,7 @@ flowchart TD
     i4 --> i6
     i5 --> i7
     i6 --> i7 --> i8 --> i9 --> i10 --> i11
+    i5 --> i32 --> i10
     i4 --> i12 --> i13 --> i14
     i5 --> i13
     i3 --> i15
@@ -94,18 +96,20 @@ Green is done. Blue can start now. Grey is waiting on something. Pink is a decis
 | #4 | The first working path from app state to a drawn screen and a click target, with no window | PR #28 |
 | #5 | The whole documents app (list, editor, toolbar, notification, undo) drawn in A, Reference, with 250 tests | PR #29, [S1 record](../records/milestones/S1.md) |
 | #6 | The original design system (`DESIGN.md`), its machine-readable twin, the check that keeps them in sync, four visual presets and the Inter font, with 360 tests | PR #30, merged 2026-11-26, [S2 record so far](../records/milestones/S2.md) |
+| #7 | `data generate`: scripted sessions drive the app and every screen they reach is saved as a traceable training example. A tiny dataset of 82 examples, a check that nothing the network is given contains the answer, and `data check`, with 415 tests | [S2 record so far](../records/milestones/S2.md) |
 
 ## Next
 
 In the order they unlock:
 
-1. **#7, the `data generate` tracer.** Ready now. Scripted sessions drive the app and each screen is saved as a training example.
+1. **#8, layout families and validators.** Ready now. More than one arrangement of the screen, with checks that reject broken samples. This is also where text fit gets checked.
 2. **#12, training renderer stage 1.** Ready now. It depends only on #4. The first piece of the renderer the network learns through: rounded rectangles, with proof that its learning signal is correct.
-3. **#8, layout families and validators.** More than one arrangement of the screen, with checks that reject broken samples. This is also where text fit gets checked.
+3. **#15, the scene model fits a tiny set.** Ready now. The first network, taught to reproduce the tiny dataset that #7 left.
 4. **#9, pilot dataset and gallery.** 200 to 500 examples across every preset and layout family, in a gallery made for review.
-5. **#10, Rob's go.** Nothing is scaled up until Rob has looked at the gallery and said go.
+5. **#32, scene export as editable SVG.** Ready now. Any scene written as an SVG that opens in a design tool as separate objects, with text as text. It trains nothing and changes no schema. It exists so that Rob sees the scene as an editable vector document before #10, and so that the gaps in the scene schema are known before #11 freezes the dataset.
+6. **#10, Rob's go.** Nothing is scaled up until Rob has looked at the gallery and said go. He also opens the exported SVGs here and revisits the questions under "After this spec".
 
-The spec lets S3 proceed alongside S2, so #12 and #7 can run side by side.
+The spec lets S3 proceed alongside S2, so #8, #12, #15 and #32 can run side by side.
 
 ## Later
 
@@ -118,15 +122,15 @@ The spec lets S3 proceed alongside S2, so #12 and #7 can run side by side.
 
 | Issue | Decision | What it holds up |
 | --- | --- | --- |
-| #10 | Do the pilot examples look coherent enough to scale? | #11 (full dataset), and through it every full training run |
+| #10 | Do the pilot examples look coherent enough to scale? Seen as SVG, is the scene the editable document Rob expected? | #11 (full dataset), and through it every full training run |
 | #23 | Is the hand-authored evaluation set acceptable? | #24 (the comparison report) |
 
 ## The longest chains
 
-With #6 done, two chains of eight issues remain. Both start at #7 and end at #24:
+With #7 done, two chains of seven issues remain. Both end at #24:
 
-- **Data:** #7 → #8 → #9 → #10 → #11 → #20 → #21 → #24
-- **Model:** #7 → #15 → #16 → #17 → #19 → #20 → #21 → #24
+- **Data:** #8 → #9 → #10 → #11 → #20 → #21 → #24
+- **Model:** #15 → #16 → #17 → #19 → #20 → #21 → #24
 
 They meet at #20, the first full training run, which needs both the full dataset (#11) and the smoke test (#19). The second full run (#21) also needs the finished training renderer (#14).
 
@@ -134,12 +138,25 @@ They meet at #20, the first full training run, which needs both the full dataset
 
 The spec stops at the comparison report. Left for the next spec: the interactive native app in a real window. Outside this spec altogether: networks that paint pixels (B, Neural Raw and C, Neural Exact Text), any recording of real use, platforms other than macOS 27 on Apple silicon, and any claim about design taste, usability, accessibility or production readiness.
 
+### Questions held for later
+
+Recorded 2026-11-26. These are questions, not milestones: none has a ticket, and none is to be designed toward until Rob opens it. Rob chose to finish the report first and test the editor idea cheaply through #32.
+
+| Question | What would open it | Known cost |
+| --- | --- | --- |
+| Should the scene become a full design document (free paths, groups, image assets, constraints)? | #32 shows, at #10, that the exported scene is too thin to edit usefully | A new scene schema version. The dataset frozen at #11 and the training renderer from S3 would both have to be redone for it |
+| Is a scene with real bindings the base of an editor that joins a design canvas with working interactions? | Rob asks for it after #10 or after the first network runs at #16 | A throwaway prototype on its own branch (move an element, its bound action still works). It needs no network, and it needs the real window the next spec owns |
+| How does D, Neural Scene compare with a language model that writes HTML, CSS and JavaScript for the same application states? | D, Neural Scene runs (#16) and `evaluate` exists (#17) | A browser to measure in, kept outside the product path (ADR 0002), and API spend |
+| Can a rendered page be turned into a scene (browser to design tool)? | Only as a new spec | The model here runs the other way, from application state to a scene. Design tools already ship the deterministic part of this conversion |
+
 ## Known limits that later issues must deal with
 
 These come from the S1 and S2 records and are not yet assigned beyond what is noted:
 
 - **Nothing scrolls**, and a screen holds at most 32 bound elements (21 list rows). The generator must stay inside that or the limit must rise.
 - **Text fit is unchecked** until #8.
-- **Roomier presets need larger windows.** The generator has to pick window sizes with the preset in mind (#7, #8).
+- **Roomier presets need larger windows.** The tiny dataset uses two sizes that fit every preset. A screen that does not fit is rejected with its reason, never written. Choosing sizes with the preset in mind is #8's.
+- **One layout family so far**, and one value for each design factor. #8 adds the rest.
+- **The network is told a text's width at one font weight.** Text drawn at another weight is not exactly that width scaled, so a small error in such widths is built in.
 - **Whether each preset looks intentional** is judged at #9 and #10.
 - **The cost of the picture-based training step is unknown** until #18 measures it.

@@ -39,7 +39,7 @@ import math
 from pathlib import Path
 
 import numpy as np
-from PySide6.QtCore import QPointF, QRectF
+from PySide6.QtCore import QBuffer, QIODevice, QPointF, QRectF
 from PySide6.QtGui import QColor, QImage, QPainter, QPainterPath, QPen
 
 from core_ultra import typography
@@ -132,6 +132,17 @@ def write_png(image: np.ndarray, path: str | Path) -> None:
     data = np.ascontiguousarray(image)
     if not QImage(data.data, width, height, 4 * width, QImage.Format.Format_RGBA8888).save(str(path), "PNG"):
         raise OSError(f"could not write {path}")
+
+
+def png_bytes(image: np.ndarray) -> bytes:
+    """Pixels returned by `draw` as the bytes of a PNG file."""
+    height, width, _ = image.shape
+    data = np.ascontiguousarray(image)
+    buffer = QBuffer()
+    buffer.open(QIODevice.OpenModeFlag.WriteOnly)
+    if not QImage(data.data, width, height, 4 * width, QImage.Format.Format_RGBA8888).save(buffer, "PNG"):
+        raise OSError("could not encode a PNG")
+    return bytes(buffer.data())
 
 
 def _require_scene(scene: object) -> None:

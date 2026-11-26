@@ -6,7 +6,7 @@ Written 2026-11-26. This merges the three milestone records ([S0](../records/mil
 
 - **S0 (done).** We checked that one MacBook can train the planned neural network. It can, with room to spare, so nothing was rented in the cloud.
 - **S1 (done).** We built a small documents app and a way to draw its whole interface from a structured description, with no neural network involved yet. This hand-built version is the answer key the network will later be graded against.
-- **S2 (started, not finished).** We wrote an original design system as tokens, kept it in sync with the code automatically, and drew the same screen in four different looks. The rest of S2 (generating training data and a pilot gallery) is still to come.
+- **S2 (started, not finished).** We wrote an original design system as tokens, kept it in sync with the code automatically, and drew the same screen in four different looks. We then built the first working path for training data: simulated sessions use the app, and every screen they reach is saved as a training example. The rest of S2 (more layouts, a pilot gallery, the full dataset) is still to come.
 
 No neural network has been trained yet. Everything here is groundwork.
 
@@ -181,7 +181,7 @@ S1 built the app and the full path from "what the app knows" to "a picture on sc
 
 ## S2 so far: an original design system in four looks
 
-*Covers issue #6 only, which was merged on 2026-11-26. S2 is not finished: issues #7 to #11 remain.*
+*Covers issue #6, which was merged on 2026-11-26. Issue #7 has its own section below. S2 is not finished: issues #8 to #11 remain.*
 
 S1 had its colours and sizes typed straight into the layout code. S2 replaces those with a real design source.
 
@@ -253,6 +253,55 @@ Every value was written for this project, starting from the S1 values. Nothing w
 - **The images depend on this Mac's text rendering.** A different version of macOS or of the drawing library may shift them slightly.
 - **Drawing speed and memory were not measured.**
 
+## S2, continued: the first training examples
+
+*Covers issue #7.*
+
+A network learns from examples. Each example here is a pair: what the network is told, and the scene it should have written. Issue #7 builds the machine that makes those pairs, and makes 82 of them as a first, tiny set.
+
+### How an example is made
+
+1. **A scripted session uses the app.** A script is a short list of actions, such as create, open, edit, save. The session carries each one out the way a person would: the pointer moves onto a button, presses it, and the app does what that button is bound to do. No shortcut puts the app into a state by hand, so every screen in the data is one a person could reach.
+2. **Each step is three screens.** The element hovered, the element pressed (or focused, for a text field), and the app after the action. Each screen becomes one example. This is how hover, pressed and focused states get into the data.
+3. **The layout rules write the correct scene** for that screen, in one visual preset and one window size. They always write the same scene for the same screen. Nothing about the answer is random.
+4. **The scene is drawn** and the picture is saved beside it.
+
+The titles and text the sessions type are made from a short list of invented words and lines with Latin accents. A session keeps one preset and one window size from start to finish, like one sitting at one app.
+
+### What the network is told, and what it is not
+
+For each element the network is told its role (button, list row, text field), what kind of action it has, its current state, how long its text is and how wide that text measures, and what it relates to (this row belongs to that list). It is also told the window size, the preset's token values, and five layout settings called the design condition: navigation position, panel arrangement, density, spacing and notification location.
+
+It is not told the text itself. It is not shown the picture. It is never given the preset's name, the layout's name or anything about how the example was made. If any of that leaked in, the network could look the answer up instead of learning layout. A check refuses to save an example whose inputs contain the answer, and it was tried against ten different leaks, each caught.
+
+### Layout families
+
+A **layout family** is one arrangement of the screen, described by those five layout settings. There is one so far: toolbar across the top, list on the left, notification at the lower right. More arrive in issue #8. Later, whole families are held back from training to see how the network does on an arrangement it has never met.
+
+### Traceable and repeatable
+
+Every example records the session it came from, each action taken up to that screen, the random seed, the versions of the design and layout files, and the font. Run the generator again with the same settings and every file comes out identical, byte for byte. A second command, `data check`, proves that for a saved dataset by making it again and comparing.
+
+The examples stay on this Mac. Git keeps one small file, the manifest, which lists a fingerprint for every example and picture.
+
+### How it was checked
+
+415 automated tests pass in 59 seconds, 55 of them new.
+
+- **Every screen is reachable.** The test replays each example's actions in a fresh copy of the app and arrives at the same screen, 82 times.
+- **Every answer is the layout rules' answer.** The test asks for each scene again, without the generator, and compares.
+- **Every picture is the scene.** All 82 are drawn again and compared pixel for pixel.
+- **State changes are clean.** Across the hover, pressed and focused versions of one screen, text, actions and positions stay the same. Only the pointed-at element's styling changes.
+- **Testing the tests.** 18 deliberate breakages. 17 were caught. The 18th turned out to change nothing.
+
+### Known limits
+
+- **One layout family, and a tiny set.** 82 examples show that the path works. They are not a dataset to train on for real.
+- **Text width is given at one font weight.** A button drawn in a heavier weight is slightly wider than that figure scaled, so the network cannot get such widths exactly right.
+- **Text that overflows is still not caught.** That check comes with issue #8.
+- **A screen that does not fit its window is rejected**, with the reason recorded. Nothing picks a better window size yet.
+- **The files are tied to this Mac's text rendering**, as the pictures in S2 were.
+
 ## Where a designer's eye is needed
 
 These come straight from the limits above. They are the open questions closest to design work:
@@ -266,6 +315,7 @@ These come straight from the limits above. They are the open questions closest t
 
 ## What comes next
 
-- **Issue #7.** Scripted, simulated sessions drive the app, and each resulting screen is saved as a training example: the inputs the network will see, the correct scene in one of the presets, and its picture.
-- **Issue #12** can start alongside it: the first stage of the training renderer, covering rounded rectangles.
-- **After that:** more layout arrangements and checks (#8), a pilot dataset with a review gallery (#9), and Rob's go or no-go on that gallery (#10).
+- **Issue #8.** More layout arrangements, variation in content and density, and checks that reject broken examples, text overflow among them.
+- **Issue #12** can run alongside it: the first stage of the training renderer, covering rounded rectangles.
+- **Issue #15** can also start: the first network, taught to reproduce the tiny set.
+- **After that:** a pilot dataset with a review gallery (#9), and Rob's go or no-go on that gallery (#10).
