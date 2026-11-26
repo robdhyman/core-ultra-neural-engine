@@ -84,7 +84,7 @@ import random
 import re
 import shutil
 from collections import Counter
-from collections.abc import Iterator, Mapping, Sequence
+from collections.abc import Iterable, Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -517,6 +517,30 @@ def _judged(
     if broken is not None:
         candidate = _break(candidate, broken, where)
     return (candidate, *validators.judge(candidate, bound_elements, viewport, preset))
+
+
+def rejected_scene(config: Config, session_id: str, moment: int, viewport: tuple[float, float]) -> scene_schema.Scene | None:
+    """The scene the reference layout writes for one state of one scripted
+    session in one viewport size, made again so that a person can be shown a
+    state the validators rejected: one the manifest lists under `rejected`, or
+    the first state a refused viewport size was refused for.
+
+    None when scene validation refuses the scene or the font cannot draw a
+    text, because such a state cannot be drawn. The reasons a state was
+    rejected for are the manifest's; this gives the picture only.
+    `ConfigError` when the configuration has no such session or the session
+    no such moment.
+    """
+    session = next((session for session in sessions(config) if session.id == session_id), None)
+    if session is None:
+        raise ConfigError([f"{session_id!r} is not a scripted session of the configuration"])
+    content = config.content_lengths.get(session.content_length, config.content)
+    moments = list(scripted_session.run(session.script, content, random.Random(session.seed)))
+    if not 0 <= moment < len(moments):
+        raise ConfigError([f"session {session_id} has no moment {moment}"])
+    family = config.layout.family(session.layout_family)
+    preset = config.design.preset(session.visual_preset)
+    return _judged(moments[moment].bound_elements, viewport, preset, family)[1]
 
 
 # --- generating ------------------------------------------------------------------
@@ -1026,26 +1050,53 @@ def write(config: Config, out: str | Path) -> dict[str, Any]:
     for byte, nothing changes. If it holds anything else, `DatasetDiffers` is
     raised and nothing changes: a dataset is never overwritten.
     """
+    try:
+        return json.loads(write_folder(generate(config), out)[MANIFEST_NAME])
+    except FolderDiffers as differs:
+        raise DatasetDiffers(f"{out} already holds a different dataset ({differs})") from None
+
+
+class FolderDiffers(Exception):
+    """The folder already holds files that are not the ones made. Says the first difference."""
+
+
+class UnsafeName(ValueError):
+    """A file was named with a path that leaves the folder it is written into."""
+
+
+def write_folder(files: Iterable[tuple[str, bytes]], out: str | Path, keep: Sequence[str] = (MANIFEST_NAME,)) -> dict[str, bytes]:
+    """Write files given as (path inside the folder, bytes) into `out`, whole
+    or not at all, and return the bytes of those named in `keep`.
+
+    The files are written beside `out` and moved into place together. If `out`
+    already holds these very files, byte for byte, nothing changes. If it
+    holds anything else, `FolderDiffers` is raised and nothing changes. A name
+    that is absolute or steps out of the folder raises `UnsafeName`, and
+    nothing is written anywhere.
+    """
     out = Path(out)
     partial = out.with_name(f".{out.name}.partial-{os.getpid()}")
     if partial.exists():
         shutil.rmtree(partial)
     partial.mkdir(parents=True)
     try:
-        manifest_bytes = b""
-        for name, data in generate(config):
-            path = partial / name
+        kept: dict[str, bytes] = {}
+        for name, data in files:
+            inside = Path(name)
+            if not name or inside.is_absolute() or ".." in inside.parts:
+                raise UnsafeName(f"{name!r} is not a path inside the folder")
+            path = partial / inside
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(data)
-            if name == MANIFEST_NAME:
-                manifest_bytes = data
+            if name in keep:
+                kept[name] = data
         if out.exists():
             difference = _first_difference(partial, out)
             if difference:
-                raise DatasetDiffers(f"{out} already holds a different dataset ({difference})")
+                raise FolderDiffers(difference)
         else:
             partial.rename(out)
-        return json.loads(manifest_bytes)
+        return kept
     finally:
         if partial.exists():
             shutil.rmtree(partial)
@@ -1060,7 +1111,7 @@ def _first_difference(made: Path, existing: Path) -> str | None:
         if name not in theirs:
             return f"{name} is missing from it"
         if name not in ours:
-            return f"{name} is not part of the generated dataset"
+            return f"{name} is not part of what was generated"
         if (made / name).read_bytes() != (existing / name).read_bytes():
             return f"{name} has other contents"
     return None

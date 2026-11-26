@@ -1,0 +1,158 @@
+{
+  "kind": "generation-measurement",
+  "schema_version": 1,
+  "created_at": "2026-11-26T22:24:14Z",
+  "project": {
+    "name": "core-ultra",
+    "version": "0.0.1"
+  },
+  "doctor": {
+    "environment_id": "sha256:6b5d299af418a80202b1eafa91dbc1789f7df3cf640eddea7286f9138290ce58",
+    "sha256": "1fb63361a65a68770fe4bf544834a47bb7f6f80161b765350245370d149e1e3a",
+    "record": "doctor/20261126T222341Z-6b5d299af418.json"
+  },
+  "command": "core-ultra data generate --config <configuration> --out <a new folder>",
+  "configuration": {
+    "name": "pilot",
+    "version": 1,
+    "sha256": "5acee9b52aaef3784ae50156681b156aa9eb477cf441d685263594a5c89329ab",
+    "seed": 20261128
+  },
+  "generator": {
+    "name": "core-ultra data generate",
+    "version": 2
+  },
+  "dataset": {
+    "sessions": 32,
+    "records": 476,
+    "images": 476,
+    "application_states": 180,
+    "rejected": 0,
+    "stress_tests": 20,
+    "manifest_sha256": "da785bac6c5f955bf6673aaf838b10a5b6edaa765c6f1715a25c61250ee3b222"
+  },
+  "definitions": {
+    "time": "Wall-clock seconds from starting `core-ultra data generate` as a process of its own to its exit, writing a dataset that did not exist into a new folder: Python and Qt starting, the scripted sessions, the reference layout, the validators, viewport fitting, drawing and encoding every image, writing every file, the stress-test set and the manifest.",
+    "disk": "`bytes` is the sum of the sizes of the files; `allocated_bytes` is the sum of the blocks the file system gave them. Per example is the records, the images and the manifest divided by the number of dataset records; the stress-test set and the configuration do not grow with the dataset and are left out.",
+    "per_example": "divided by the number of dataset records"
+  },
+  "not_measured": [
+    "A dataset of the projected sizes. The projections are the per-example figures multiplied out.",
+    "Generation with other scenarios, content lengths or viewport sizes than the configuration's.",
+    "The time `data check` and `data gallery` take, and the disk a gallery uses.",
+    "Disk use on a file system with another block size, or with compression."
+  ],
+  "conditions": [
+    {
+      "memory_available_bytes": 4053729280,
+      "swap_used_bytes": 3008299008,
+      "power_source": "AC Power",
+      "low_power_mode": false
+    },
+    {
+      "memory_available_bytes": 4137664512,
+      "swap_used_bytes": 3008299008,
+      "power_source": "AC Power",
+      "low_power_mode": false
+    },
+    {
+      "memory_available_bytes": 4146757632,
+      "swap_used_bytes": 3008299008,
+      "power_source": "AC Power",
+      "low_power_mode": false
+    }
+  ],
+  "runs": [
+    {
+      "seconds": 10.46967229200527,
+      "processor_seconds": {
+        "user": 10.337367,
+        "system": 1.400692
+      },
+      "peak_resident_bytes": 166985728,
+      "manifest_sha256": "da785bac6c5f955bf6673aaf838b10a5b6edaa765c6f1715a25c61250ee3b222"
+    },
+    {
+      "seconds": 10.534804707858711,
+      "processor_seconds": {
+        "user": 10.402355,
+        "system": 1.400098
+      },
+      "peak_resident_bytes": 166772736,
+      "manifest_sha256": "da785bac6c5f955bf6673aaf838b10a5b6edaa765c6f1715a25c61250ee3b222"
+    },
+    {
+      "seconds": 10.569978707935661,
+      "processor_seconds": {
+        "user": 10.428038,
+        "system": 1.387696
+      },
+      "peak_resident_bytes": 166510592,
+      "manifest_sha256": "da785bac6c5f955bf6673aaf838b10a5b6edaa765c6f1715a25c61250ee3b222"
+    }
+  ],
+  "runs_wrote_the_same_manifest": true,
+  "time": {
+    "seconds": {
+      "median": 10.534804707858711,
+      "least": 10.46967229200527,
+      "most": 10.569978707935661
+    },
+    "seconds_per_example": 0.022131942663568722,
+    "examples_per_second": 45.18356184096279
+  },
+  "peak_resident_bytes": 166985728,
+  "disk": {
+    "bytes": {
+      "records": 18314522,
+      "images": 14854582,
+      "stress": 1123420,
+      "manifest": 396416,
+      "config": 14725,
+      "total": 34703665
+    },
+    "allocated_bytes": {
+      "records": 19292160,
+      "images": 15835136,
+      "stress": 1183744,
+      "manifest": 397312,
+      "config": 16384,
+      "total": 36724736
+    },
+    "files": {
+      "records": 476,
+      "images": 476,
+      "stress": 30,
+      "manifest": 1,
+      "config": 1,
+      "total": 984
+    },
+    "per_example": {
+      "record_bytes": 38475.88655462185,
+      "image_bytes": 31207.105042016807,
+      "manifest_bytes": 832.8067226890756,
+      "bytes": 70515.79831932773,
+      "allocated_bytes": 74631.5294117647
+    }
+  },
+  "projections": {
+    "basis": "The measured seconds per example and bytes per example multiplied by the number of examples, plus the stress-test set and the configuration once. Arithmetic on this measurement, not a measurement: no dataset of these sizes was generated, and a larger one has other scenarios and content.",
+    "examples": {
+      "5000": {
+        "seconds": 110.65971331784361,
+        "bytes": 353717136.5966387,
+        "allocated_bytes": 374357775.05882347
+      },
+      "10000": {
+        "seconds": 221.31942663568722,
+        "bytes": 706296128.1932774,
+        "allocated_bytes": 747515422.1176469
+      },
+      "20000": {
+        "seconds": 442.63885327137444,
+        "bytes": 1411454111.3865547,
+        "allocated_bytes": 1493830716.2352939
+      }
+    }
+  }
+}

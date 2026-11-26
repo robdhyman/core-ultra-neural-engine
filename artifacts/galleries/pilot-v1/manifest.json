@@ -1,0 +1,1487 @@
+{
+  "kind": "dataset-gallery",
+  "schema_version": 1,
+  "dataset": {
+    "name": "pilot",
+    "version": 1,
+    "manifest_sha256": "da785bac6c5f955bf6673aaf838b10a5b6edaa765c6f1715a25c61250ee3b222",
+    "generator": {
+      "name": "core-ultra data generate",
+      "version": 2
+    },
+    "rendering_mode": "A, Reference"
+  },
+  "page": "index.html",
+  "counts": {
+    "records": 476,
+    "rejected": 0,
+    "viewports_refused": 2,
+    "sessions_refused": 0,
+    "stress_tests": 20,
+    "rejected_states_drawn": 2,
+    "rejected_states_not_drawn": 0
+  },
+  "labels": [
+    "layout family",
+    "visual preset",
+    "design condition",
+    "state"
+  ],
+  "coverage_summary": {
+    "records": 476,
+    "sessions": 32,
+    "by": {
+      "layout family": {
+        "values": {
+          "top-bar-list-left": {
+            "records": 58,
+            "sessions": 4
+          },
+          "top-bar-list-right": {
+            "records": 61,
+            "sessions": 4
+          },
+          "top-bar-list-top": {
+            "records": 61,
+            "sessions": 4
+          },
+          "left-rail-list-left": {
+            "records": 61,
+            "sessions": 4
+          },
+          "left-rail-list-right": {
+            "records": 58,
+            "sessions": 4
+          },
+          "left-rail-list-top": {
+            "records": 58,
+            "sessions": 4
+          },
+          "bottom-bar-list-left": {
+            "records": 61,
+            "sessions": 4
+          },
+          "bottom-bar-list-right": {
+            "records": 58,
+            "sessions": 4
+          }
+        },
+        "not_shown": []
+      },
+      "visual preset": {
+        "values": {
+          "calm-blue": {
+            "records": 119,
+            "sessions": 8
+          },
+          "warm-paper": {
+            "records": 119,
+            "sessions": 8
+          },
+          "night-teal": {
+            "records": 119,
+            "sessions": 8
+          },
+          "dense-ink": {
+            "records": 119,
+            "sessions": 8
+          }
+        },
+        "not_shown": []
+      },
+      "density": {
+        "values": {
+          "compact": {
+            "records": 180,
+            "sessions": 12
+          },
+          "preset": {
+            "records": 116,
+            "sessions": 8
+          },
+          "roomy": {
+            "records": 180,
+            "sessions": 12
+          }
+        },
+        "not_shown": []
+      },
+      "content length": {
+        "values": {
+          "brief": {
+            "records": 158,
+            "sessions": 11
+          },
+          "medium": {
+            "records": 157,
+            "sessions": 10
+          },
+          "long": {
+            "records": 161,
+            "sessions": 11
+          }
+        },
+        "not_shown": []
+      },
+      "element state": {
+        "values": {
+          "default": {
+            "records": 476,
+            "sessions": 32,
+            "elements": 4329
+          },
+          "hover": {
+            "records": 148,
+            "sessions": 32,
+            "elements": 148
+          },
+          "pressed": {
+            "records": 116,
+            "sessions": 32,
+            "elements": 116
+          },
+          "focused": {
+            "records": 32,
+            "sessions": 24,
+            "elements": 32
+          },
+          "disabled": {
+            "records": 444,
+            "sessions": 32,
+            "elements": 540
+          }
+        },
+        "not_shown": []
+      },
+      "viewport": {
+        "values": {
+          "960 by 540": {
+            "records": 103,
+            "sessions": 7
+          },
+          "1024 by 768": {
+            "records": 90,
+            "sessions": 6
+          },
+          "1120 by 630": {
+            "records": 93,
+            "sessions": 6
+          },
+          "1280 by 720": {
+            "records": 109,
+            "sessions": 7
+          },
+          "1440 by 900": {
+            "records": 81,
+            "sessions": 6
+          }
+        },
+        "not_shown": []
+      }
+    },
+    "layout_family_by_visual_preset": {
+      "top-bar-list-left": {
+        "calm-blue": {
+          "records": 16,
+          "sessions": 1
+        },
+        "warm-paper": {
+          "records": 13,
+          "sessions": 1
+        },
+        "night-teal": {
+          "records": 16,
+          "sessions": 1
+        },
+        "dense-ink": {
+          "records": 13,
+          "sessions": 1
+        }
+      },
+      "top-bar-list-right": {
+        "calm-blue": {
+          "records": 10,
+          "sessions": 1
+        },
+        "warm-paper": {
+          "records": 13,
+          "sessions": 1
+        },
+        "night-teal": {
+          "records": 13,
+          "sessions": 1
+        },
+        "dense-ink": {
+          "records": 25,
+          "sessions": 1
+        }
+      },
+      "top-bar-list-top": {
+        "calm-blue": {
+          "records": 25,
+          "sessions": 1
+        },
+        "warm-paper": {
+          "records": 13,
+          "sessions": 1
+        },
+        "night-teal": {
+          "records": 10,
+          "sessions": 1
+        },
+        "dense-ink": {
+          "records": 13,
+          "sessions": 1
+        }
+      },
+      "left-rail-list-left": {
+        "calm-blue": {
+          "records": 13,
+          "sessions": 1
+        },
+        "warm-paper": {
+          "records": 25,
+          "sessions": 1
+        },
+        "night-teal": {
+          "records": 13,
+          "sessions": 1
+        },
+        "dense-ink": {
+          "records": 10,
+          "sessions": 1
+        }
+      },
+      "left-rail-list-right": {
+        "calm-blue": {
+          "records": 16,
+          "sessions": 1
+        },
+        "warm-paper": {
+          "records": 13,
+          "sessions": 1
+        },
+        "night-teal": {
+          "records": 13,
+          "sessions": 1
+        },
+        "dense-ink": {
+          "records": 16,
+          "sessions": 1
+        }
+      },
+      "left-rail-list-top": {
+        "calm-blue": {
+          "records": 13,
+          "sessions": 1
+        },
+        "warm-paper": {
+          "records": 16,
+          "sessions": 1
+        },
+        "night-teal": {
+          "records": 13,
+          "sessions": 1
+        },
+        "dense-ink": {
+          "records": 16,
+          "sessions": 1
+        }
+      },
+      "bottom-bar-list-left": {
+        "calm-blue": {
+          "records": 13,
+          "sessions": 1
+        },
+        "warm-paper": {
+          "records": 10,
+          "sessions": 1
+        },
+        "night-teal": {
+          "records": 25,
+          "sessions": 1
+        },
+        "dense-ink": {
+          "records": 13,
+          "sessions": 1
+        }
+      },
+      "bottom-bar-list-right": {
+        "calm-blue": {
+          "records": 13,
+          "sessions": 1
+        },
+        "warm-paper": {
+          "records": 16,
+          "sessions": 1
+        },
+        "night-teal": {
+          "records": 16,
+          "sessions": 1
+        },
+        "dense-ink": {
+          "records": 13,
+          "sessions": 1
+        }
+      }
+    },
+    "pairs_not_shown": []
+  },
+  "shown_apart": {
+    "rejected": [],
+    "viewports_refused": [
+      {
+        "id": "two-documents-0.012 at 1024 by 768",
+        "session": "two-documents-0",
+        "layout_family": "left-rail-list-right",
+        "visual_preset": "night-teal",
+        "viewport": "1024 by 768",
+        "given": "1440 by 900",
+        "reason": "viewport_refused",
+        "problems": [
+          {
+            "validator": "text fit",
+            "code": "text_overflows",
+            "element": "b.editor.body",
+            "detail": "'A longer line, to see how far a sentence runs before the editor ends.' runs from x 298.6 to 775.0; the box runs from 289.5 to 728.1"
+          }
+        ],
+        "image": {
+          "file": "rejected/two-documents-0.012-1024x768.png",
+          "sha256": "68ab7cd3bd5a79b9899fcfcae3ba86aebf66918b3779fda55ce1a592947bdff6",
+          "width": 1024,
+          "height": 768
+        },
+        "not_drawn": null
+      },
+      {
+        "id": "revise-and-save-1.009 at 960 by 540",
+        "session": "revise-and-save-1",
+        "layout_family": "left-rail-list-top",
+        "visual_preset": "warm-paper",
+        "viewport": "960 by 540",
+        "given": "1280 by 720",
+        "reason": "viewport_refused",
+        "problems": [
+          {
+            "validator": "text fit",
+            "code": "text_too_tall",
+            "element": "b.editor.body",
+            "detail": "8 lines of text run from y 301.5 to 490.3; the box runs from 291.9 to 487.5"
+          }
+        ],
+        "image": {
+          "file": "rejected/revise-and-save-1.009-960x540.png",
+          "sha256": "b6d84c168343ed1acb57922b49049837a669b4f034967f8547ede0c605325eb4",
+          "width": 960,
+          "height": 540
+        },
+        "not_drawn": null
+      }
+    ],
+    "sessions_refused": [],
+    "stress_tests": [
+      {
+        "id": "stress.viewport-too-small",
+        "set": "stress-test",
+        "training_target": false,
+        "why": "Difficult: the roomiest visual preset in a viewport too small for its toolbar, so buttons fall outside it.",
+        "layout_family": "top-bar-list-left",
+        "visual_preset": "warm-paper",
+        "viewport": "480 by 300",
+        "broken_by": null,
+        "reason": "scene_invalid",
+        "problems": [
+          {
+            "validator": "scene validation",
+            "code": "outside_viewport",
+            "element": "b.toolbar.filter",
+            "detail": "box x 376.42171875, y 12.0, 110.0 by 40.0 leaves the 480.0 by 300.0 viewport"
+          },
+          {
+            "validator": "scene validation",
+            "code": "outside_viewport",
+            "element": "b.toolbar.save",
+            "detail": "box x 496.42171875, y 12.0, 70.865625 by 40.0 leaves the 480.0 by 300.0 viewport"
+          },
+          {
+            "validator": "scene validation",
+            "code": "outside_viewport",
+            "element": "b.toolbar.undo",
+            "detail": "box x 577.28734375, y 12.0, 74.1796875 by 40.0 leaves the 480.0 by 300.0 viewport"
+          }
+        ],
+        "image": null,
+        "not_drawn": "scene validation refuses this scene, or the font cannot draw a text in it, so the runtime renderer cannot draw it"
+      },
+      {
+        "id": "stress.titles-too-long",
+        "set": "stress-test",
+        "training_target": false,
+        "why": "Difficult: titles of nine words, which run out of their rows and under the editor.",
+        "layout_family": "top-bar-list-left",
+        "visual_preset": "calm-blue",
+        "viewport": "960 by 540",
+        "broken_by": null,
+        "reason": "rejected_by_validators",
+        "problems": [
+          {
+            "validator": "text fit",
+            "code": "text_overflows",
+            "element": "b.document:1",
+            "detail": "'Résumé garden jaźń år façade übung größe budget map' runs from x 30.9 to 430.6; the box runs from 20.0 to 332.0"
+          },
+          {
+            "validator": "text fit",
+            "code": "text_covered",
+            "element": "b.document:1",
+            "detail": "s.editor is drawn over 'Résumé garden jaźń år façade übung größe budget map'"
+          },
+          {
+            "validator": "text fit",
+            "code": "text_covered",
+            "element": "b.document:1",
+            "detail": "b.editor.title is drawn over 'Résumé garden jaźń år façade übung größe budget map'"
+          },
+          {
+            "validator": "text fit",
+            "code": "text_covered",
+            "element": "b.document:1",
+            "detail": "b.editor.revision is drawn over 'Résumé garden jaźń år façade übung größe budget map'"
+          },
+          {
+            "validator": "text fit",
+            "code": "text_overflows",
+            "element": "b.document:2",
+            "detail": "'Août atlas façade café trio recipe jaźń señal correspondence' runs from x 30.9 to 457.5; the box runs from 20.0 to 332.0"
+          },
+          {
+            "validator": "text fit",
+            "code": "text_covered",
+            "element": "b.document:2",
+            "detail": "s.editor is drawn over 'Août atlas façade café trio recipe jaźń señal correspondence'"
+          },
+          {
+            "validator": "text fit",
+            "code": "text_covered",
+            "element": "b.document:2",
+            "detail": "b.editor.body is drawn over 'Août atlas façade café trio recipe jaźń señal correspondence'"
+          }
+        ],
+        "image": {
+          "file": "stress/titles-too-long.png",
+          "sha256": "856fa5dd808e37872e236ea94124f146663eda43db77a9d18addb93add8d3cbf",
+          "width": 960,
+          "height": 540
+        },
+        "not_drawn": null
+      },
+      {
+        "id": "stress.too-many-documents",
+        "set": "stress-test",
+        "training_target": false,
+        "why": "Difficult: twenty-four documents, more bound elements than a scene may hold.",
+        "layout_family": "top-bar-list-left",
+        "visual_preset": "dense-ink",
+        "viewport": "1440 by 900",
+        "broken_by": null,
+        "reason": "scene_invalid",
+        "problems": [
+          {
+            "validator": "scene validation",
+            "code": "limit_exceeded",
+            "element": null,
+            "detail": "33 bound elements; the limit is 32"
+          }
+        ],
+        "image": null,
+        "not_drawn": "scene validation refuses this scene, or the font cannot draw a text in it, so the runtime renderer cannot draw it"
+      },
+      {
+        "id": "stress.characters-the-font-lacks",
+        "set": "stress-test",
+        "training_target": false,
+        "why": "Difficult: titles in a script Inter has no glyphs for, so the text cannot be measured or drawn.",
+        "layout_family": "top-bar-list-left",
+        "visual_preset": "calm-blue",
+        "viewport": "960 by 540",
+        "broken_by": null,
+        "reason": "rejected_by_validators",
+        "problems": [
+          {
+            "validator": "text fit",
+            "code": "text_not_drawable",
+            "element": "b.document:1",
+            "detail": "Inter has no glyph for a character of '文書'"
+          },
+          {
+            "validator": "text fit",
+            "code": "text_not_drawable",
+            "element": "b.editor.title",
+            "detail": "Inter has no glyph for a character of '文書'"
+          }
+        ],
+        "image": null,
+        "not_drawn": "scene validation refuses this scene, or the font cannot draw a text in it, so the runtime renderer cannot draw it"
+      },
+      {
+        "id": "stress.body-taller-than-the-editor",
+        "set": "stress-test",
+        "training_target": false,
+        "why": "Difficult: a ten-line body in a viewport whose editor shows fewer lines.",
+        "layout_family": "bottom-bar-list-right",
+        "visual_preset": "calm-blue",
+        "viewport": "960 by 300",
+        "broken_by": null,
+        "reason": "rejected_by_validators",
+        "problems": [
+          {
+            "validator": "text fit",
+            "code": "text_too_tall",
+            "element": "b.editor.body",
+            "detail": "10 lines of text run from y 94.8 to 317.1; the box runs from 85.7 to 228.4"
+          }
+        ],
+        "image": {
+          "file": "stress/body-taller-than-the-editor.png",
+          "sha256": "aef47efc6653c8bb8667759a14fdfcf70b51620218d7a63a611870d040174814",
+          "width": 960,
+          "height": 300
+        },
+        "not_drawn": null
+      },
+      {
+        "id": "stress.list-under-the-notification",
+        "set": "stress-test",
+        "training_target": false,
+        "why": "Difficult: nine documents in a short viewport, so the notification lies over the last rows of the list.",
+        "layout_family": "left-rail-list-left",
+        "visual_preset": "calm-blue",
+        "viewport": "960 by 400",
+        "broken_by": null,
+        "reason": "rejected_by_validators",
+        "problems": [
+          {
+            "validator": "text fit",
+            "code": "text_covered",
+            "element": "b.document:8",
+            "detail": "b.notification is drawn over 'Inventory größe'"
+          },
+          {
+            "validator": "text fit",
+            "code": "text_covered",
+            "element": "b.document:9",
+            "detail": "b.notification is drawn over 'Trio'"
+          },
+          {
+            "validator": "hit targets",
+            "code": "hit_target_covered",
+            "element": "b.document:9",
+            "detail": "at x 405.0, y 349.2 a pointer hits notification"
+          }
+        ],
+        "image": {
+          "file": "stress/list-under-the-notification.png",
+          "sha256": "e230ae085d4b72831f3cb742342269cf707de0b5cc6067616a69670669f33c83",
+          "width": 960,
+          "height": 400
+        },
+        "not_drawn": null
+      },
+      {
+        "id": "stress.rail-too-short",
+        "set": "stress-test",
+        "training_target": false,
+        "why": "Difficult: the left rail in a viewport too short for its six elements, so its two groups overlap.",
+        "layout_family": "left-rail-list-right",
+        "visual_preset": "calm-blue",
+        "viewport": "1280 by 240",
+        "broken_by": null,
+        "reason": "rejected_by_validators",
+        "problems": [
+          {
+            "validator": "element completeness",
+            "code": "panels_overlap",
+            "element": "s.toolbar.documents",
+            "detail": "its box overlaps the box of s.toolbar.editing"
+          }
+        ],
+        "image": {
+          "file": "stress/rail-too-short.png",
+          "sha256": "5a6a8fa3af2dde93371c31076ad06b6b1c9e9564d516eed628e46c36e70a0b93",
+          "width": 1280,
+          "height": 240
+        },
+        "not_drawn": null
+      },
+      {
+        "id": "stress.missing-button",
+        "set": "stress-test",
+        "training_target": false,
+        "why": "Broken: the Save button is left out of the scene.",
+        "layout_family": "top-bar-list-left",
+        "visual_preset": "calm-blue",
+        "viewport": "960 by 540",
+        "broken_by": {
+          "kind": "remove",
+          "element": "toolbar.save"
+        },
+        "reason": "scene_invalid",
+        "problems": [
+          {
+            "validator": "scene validation",
+            "code": "bound_missing",
+            "element": null,
+            "detail": "'toolbar.save' is not in the scene"
+          }
+        ],
+        "image": null,
+        "not_drawn": "scene validation refuses this scene, or the font cannot draw a text in it, so the runtime renderer cannot draw it"
+      },
+      {
+        "id": "stress.row-written-twice",
+        "set": "stress-test",
+        "training_target": false,
+        "why": "Broken: one row of the list is in the scene twice.",
+        "layout_family": "top-bar-list-left",
+        "visual_preset": "calm-blue",
+        "viewport": "960 by 540",
+        "broken_by": {
+          "kind": "duplicate",
+          "element": "document:1"
+        },
+        "reason": "scene_invalid",
+        "problems": [
+          {
+            "validator": "scene validation",
+            "code": "bound_duplicated",
+            "element": null,
+            "detail": "'document:1' is in the scene 2 times"
+          }
+        ],
+        "image": null,
+        "not_drawn": "scene validation refuses this scene, or the font cannot draw a text in it, so the runtime renderer cannot draw it"
+      },
+      {
+        "id": "stress.changed-text",
+        "set": "stress-test",
+        "training_target": false,
+        "why": "Broken: a row's text is not the title the application supplied.",
+        "layout_family": "top-bar-list-left",
+        "visual_preset": "calm-blue",
+        "viewport": "960 by 540",
+        "broken_by": {
+          "kind": "retext",
+          "element": "document:1"
+        },
+        "reason": "scene_invalid",
+        "problems": [
+          {
+            "validator": "scene validation",
+            "code": "bound_altered",
+            "element": "b.document:1",
+            "detail": "text of 'document:1' is 'Façade sketch trio (changed)'; the application supplied 'Façade sketch trio'"
+          }
+        ],
+        "image": null,
+        "not_drawn": "scene validation refuses this scene, or the font cannot draw a text in it, so the runtime renderer cannot draw it"
+      },
+      {
+        "id": "stress.broken-binding",
+        "set": "stress-test",
+        "training_target": false,
+        "why": "Broken: the Save button carries the binding of another command.",
+        "layout_family": "top-bar-list-left",
+        "visual_preset": "calm-blue",
+        "viewport": "960 by 540",
+        "broken_by": {
+          "kind": "rebind",
+          "element": "toolbar.save",
+          "binding": {
+            "command": "create"
+          }
+        },
+        "reason": "scene_invalid",
+        "problems": [
+          {
+            "validator": "scene validation",
+            "code": "bound_altered",
+            "element": "b.toolbar.save",
+            "detail": "binding of 'toolbar.save' is {'command': 'create'}; the application supplied {'command': 'save'}"
+          }
+        ],
+        "image": null,
+        "not_drawn": "scene validation refuses this scene, or the font cannot draw a text in it, so the runtime renderer cannot draw it"
+      },
+      {
+        "id": "stress.box-without-area",
+        "set": "stress-test",
+        "training_target": false,
+        "why": "Broken: the title field's box has no width.",
+        "layout_family": "top-bar-list-left",
+        "visual_preset": "calm-blue",
+        "viewport": "960 by 540",
+        "broken_by": {
+          "kind": "resize",
+          "element": "editor.title",
+          "width": 0
+        },
+        "reason": "scene_invalid",
+        "problems": [
+          {
+            "validator": "scene validation",
+            "code": "out_of_range",
+            "element": "b.editor.title",
+            "detail": "box is 0.0 by 40.0; width and height are above zero"
+          }
+        ],
+        "image": null,
+        "not_drawn": "scene validation refuses this scene, or the font cannot draw a text in it, so the runtime renderer cannot draw it"
+      },
+      {
+        "id": "stress.pushed-out-of-the-viewport",
+        "set": "stress-test",
+        "training_target": false,
+        "why": "Broken: the Undo button is moved past the right edge of the viewport.",
+        "layout_family": "top-bar-list-left",
+        "visual_preset": "calm-blue",
+        "viewport": "960 by 540",
+        "broken_by": {
+          "kind": "move",
+          "element": "toolbar.undo",
+          "dx": 200
+        },
+        "reason": "scene_invalid",
+        "problems": [
+          {
+            "validator": "scene validation",
+            "code": "outside_viewport",
+            "element": "b.toolbar.undo",
+            "detail": "box x 1080.365625, y 10.0, 63.634375000000006 by 36.0 leaves the 960.0 by 540.0 viewport"
+          }
+        ],
+        "image": null,
+        "not_drawn": "scene validation refuses this scene, or the font cannot draw a text in it, so the runtime renderer cannot draw it"
+      },
+      {
+        "id": "stress.button-narrower-than-its-text",
+        "set": "stress-test",
+        "training_target": false,
+        "why": "Broken: the create button is half the width its text needs.",
+        "layout_family": "top-bar-list-left",
+        "visual_preset": "calm-blue",
+        "viewport": "960 by 540",
+        "broken_by": {
+          "kind": "resize",
+          "element": "documents.create",
+          "width": 0.5
+        },
+        "reason": "rejected_by_validators",
+        "problems": [
+          {
+            "validator": "text fit",
+            "code": "text_overflows",
+            "element": "b.documents.create",
+            "detail": "'New document' runs from x -2.2 to 98.5; the box runs from 16.0 to 80.3"
+          }
+        ],
+        "image": {
+          "file": "stress/button-narrower-than-its-text.png",
+          "sha256": "3f76dec26e33c1d07e20a0d073a2e327e91feb6eda54eda8b1dd9e8338fd3c10",
+          "width": 960,
+          "height": 540
+        },
+        "not_drawn": null
+      },
+      {
+        "id": "stress.covered-button",
+        "set": "stress-test",
+        "training_target": false,
+        "why": "Broken: an opaque structural element is drawn over the sort button, so what is seen there is not what is hit.",
+        "layout_family": "top-bar-list-left",
+        "visual_preset": "calm-blue",
+        "viewport": "960 by 540",
+        "broken_by": {
+          "kind": "cover",
+          "element": "toolbar.sort"
+        },
+        "reason": "rejected_by_validators",
+        "problems": [
+          {
+            "validator": "text fit",
+            "code": "text_covered",
+            "element": "b.toolbar.sort",
+            "detail": "s.cover is drawn over 'Sort: oldest first'"
+          },
+          {
+            "validator": "hit targets",
+            "code": "hit_target_covered",
+            "element": "b.toolbar.sort",
+            "detail": "at x 219.7, y 28.0 a pointer hits nothing"
+          }
+        ],
+        "image": {
+          "file": "stress/covered-button.png",
+          "sha256": "cde06014a97be1d24a15bebb4716813bcd2dcdcc86af092f5b25e5f4de797d25",
+          "width": 960,
+          "height": 540
+        },
+        "not_drawn": null
+      },
+      {
+        "id": "stress.covered-label",
+        "set": "stress-test",
+        "training_target": false,
+        "why": "Broken: an opaque structural element is drawn over the filter's label, which is then not seen.",
+        "layout_family": "top-bar-list-left",
+        "visual_preset": "calm-blue",
+        "viewport": "960 by 540",
+        "broken_by": {
+          "kind": "cover",
+          "element": "toolbar.filter.label"
+        },
+        "reason": "rejected_by_validators",
+        "problems": [
+          {
+            "validator": "text fit",
+            "code": "text_covered",
+            "element": "b.toolbar.filter.label",
+            "detail": "s.cover is drawn over 'Filter'"
+          },
+          {
+            "validator": "hit targets",
+            "code": "element_covered",
+            "element": "b.toolbar.filter.label",
+            "detail": "at x 310.1, y 28.0 a pointer hits nothing"
+          }
+        ],
+        "image": {
+          "file": "stress/covered-label.png",
+          "sha256": "c282cb92942033ece1aaa82740c2b85db108fa67204d24992da09ba54bbd1ccb",
+          "width": 960,
+          "height": 540
+        },
+        "not_drawn": null
+      },
+      {
+        "id": "stress.stacked-buttons",
+        "set": "stress-test",
+        "training_target": false,
+        "why": "Broken: the Undo button is placed on top of the Save button.",
+        "layout_family": "top-bar-list-left",
+        "visual_preset": "calm-blue",
+        "viewport": "960 by 540",
+        "broken_by": {
+          "kind": "move",
+          "element": "toolbar.undo",
+          "onto": "toolbar.save"
+        },
+        "reason": "rejected_by_validators",
+        "problems": [
+          {
+            "validator": "text fit",
+            "code": "text_covered",
+            "element": "b.toolbar.save",
+            "detail": "b.toolbar.undo is drawn over 'Save'"
+          },
+          {
+            "validator": "element completeness",
+            "code": "elements_overlap",
+            "element": "b.toolbar.save",
+            "detail": "its box overlaps the box of b.toolbar.undo"
+          },
+          {
+            "validator": "hit targets",
+            "code": "hit_target_covered",
+            "element": "b.toolbar.save",
+            "detail": "at x 842.1, y 28.0 a pointer hits toolbar.undo"
+          }
+        ],
+        "image": {
+          "file": "stress/stacked-buttons.png",
+          "sha256": "386d5d26cab3eddfe176113bbc11f6c67ce7e7619c2344b7cbf4e2ee1a236760",
+          "width": 960,
+          "height": 540
+        },
+        "not_drawn": null
+      },
+      {
+        "id": "stress.disabled-drawn-as-enabled",
+        "set": "stress-test",
+        "training_target": false,
+        "why": "Broken: Save is disabled by the application and drawn at full opacity, as if it could be pressed.",
+        "layout_family": "top-bar-list-left",
+        "visual_preset": "calm-blue",
+        "viewport": "960 by 540",
+        "broken_by": {
+          "kind": "style",
+          "element": "toolbar.save",
+          "field": "opacity",
+          "value": 1.0
+        },
+        "reason": "rejected_by_validators",
+        "problems": [
+          {
+            "validator": "state consistency",
+            "code": "state_style_mismatch",
+            "element": "b.toolbar.save",
+            "detail": "its style is not that of button-primary or button-quiet in the state disabled"
+          }
+        ],
+        "image": {
+          "file": "stress/disabled-drawn-as-enabled.png",
+          "sha256": "66a20b17413808ca0cc3653aac5152f93c81f34069663e2edf5719c60ce89aa1",
+          "width": 960,
+          "height": 540
+        },
+        "not_drawn": null
+      },
+      {
+        "id": "stress.row-in-the-wrong-panel",
+        "set": "stress-test",
+        "training_target": false,
+        "why": "Broken: a row of the list is made a child of the editor's panel, and so lies outside its parent.",
+        "layout_family": "top-bar-list-left",
+        "visual_preset": "calm-blue",
+        "viewport": "960 by 540",
+        "broken_by": {
+          "kind": "reparent",
+          "element": "document:1",
+          "parent": "s.editor"
+        },
+        "reason": "rejected_by_validators",
+        "problems": [
+          {
+            "validator": "element completeness",
+            "code": "outside_parent",
+            "element": "b.document:1",
+            "detail": "its box leaves the box of s.editor"
+          }
+        ],
+        "image": {
+          "file": "stress/row-in-the-wrong-panel.png",
+          "sha256": "805cba3800cc7948350c41b037629740180d0e2871be9e0677eca15b81e5a9ea",
+          "width": 960,
+          "height": 540
+        },
+        "not_drawn": null
+      },
+      {
+        "id": "stress.parent-that-does-not-exist",
+        "set": "stress-test",
+        "training_target": false,
+        "why": "Broken: the filter field names a parent that is not in the scene.",
+        "layout_family": "top-bar-list-left",
+        "visual_preset": "calm-blue",
+        "viewport": "960 by 540",
+        "broken_by": {
+          "kind": "reparent",
+          "element": "toolbar.filter",
+          "parent": "s.nowhere"
+        },
+        "reason": "scene_invalid",
+        "problems": [
+          {
+            "validator": "scene validation",
+            "code": "tree",
+            "element": "b.toolbar.filter",
+            "detail": "parent 's.nowhere' is not an element of this scene"
+          }
+        ],
+        "image": null,
+        "not_drawn": "scene validation refuses this scene, or the font cannot draw a text in it, so the runtime renderer cannot draw it"
+      }
+    ]
+  },
+  "files": {
+    "images/full-list-0.000.png": "11dbc29ed3a0cd023773bcb6d00b15d813342543590feb911acdca3534d6ac6d",
+    "images/full-list-0.001.png": "4fe209ef84a75f5ec665bfb7c8c13b7f6fe6a9404f395ad637909d73f499cb74",
+    "images/full-list-0.002.png": "48e874420a0e2e1115aae6b613ef11e1d78a19cabd33b0f3561b328c9ed38a11",
+    "images/full-list-0.003.png": "c8736cb01a0e5069f2668c0df040c1bd1a819155c31f14a2f4ad0439b727a93f",
+    "images/full-list-0.004.png": "66044f04246ba7502eaca85c61f9eab494b2d5a88bbb8a32b6399372209caf2e",
+    "images/full-list-0.005.png": "f02d9e7039aa84d4482ecee56a5c2cba383ab17bbca7e185bb4243fc4125ea68",
+    "images/full-list-0.006.png": "f008036a3922f5175c3426ac282a217a9985b136b7f70f6943ddce690bdb5631",
+    "images/full-list-0.007.png": "05fc13e1543ede514b43e2eeee29e9df03de70219b483f5619dad07b0b48303d",
+    "images/full-list-0.008.png": "72fdef40cd3a7b89b80f47e1ac4060a065a893ca92861c14483f8bd1b7094715",
+    "images/full-list-0.009.png": "0eb8640db1edf26e7f939045d194cf435792a69792017ae64e12f8aa8fda7c20",
+    "images/full-list-0.010.png": "ed7321b32205bf98e498c01bcf9892e2e872c280df812c5f338e6f44fef0a59f",
+    "images/full-list-0.011.png": "5bab4d9208cba940a9b964f84e61b538c37b6139241d8d613e393db77c10bbab",
+    "images/full-list-0.012.png": "0a13dfb4b0186627b2e89e001e8c5e2a6e7e47caa5fc2f6fd028254ea7cb57fa",
+    "images/full-list-0.013.png": "447387831a7c7c803047f8bf13047cb48410ba3f5e99821cedf90802825946c9",
+    "images/full-list-0.014.png": "5653a1c0b99a6dd861c8d56dbada1871f92b7294c0b7ccc446f23cd5c314bd87",
+    "images/full-list-0.015.png": "6c68b4d48507f02380ebd628bfc78cb4e5fa36c0bf71d49689bba5431f1fcd43",
+    "images/full-list-0.016.png": "6a712caef24d0fdad31f1e752e339e8efd6917396410664dda962a05ce26e191",
+    "images/full-list-0.017.png": "50457e06b8021f7e7497303fd118c361b96fa517263073d55b3d5220a4e9cebb",
+    "images/full-list-0.018.png": "f919b25d3f847a9718be5c2eb5e4c02dbf3b0ab77012ff32c144e1467c108250",
+    "images/full-list-0.019.png": "59207c19c3c8f8c671430ea0d66a676195befd92e18123b1b0e27db13425a025",
+    "images/full-list-0.020.png": "a7713f152dd73bca0cbdce65f3b6125f99f3cf7e1c1d3498f3450a8d22b733d1",
+    "images/full-list-0.021.png": "307613162131189f17f2d10809d0f15f1b35a2b6c6209c9785a5497ea9fac7c5",
+    "images/full-list-0.022.png": "2ae1b971fc7f5e6d2477934b36b98bd5fa1fafdbe9c5bcacdb3e2ed3c6bb8025",
+    "images/full-list-0.023.png": "79908e9f0b03766a526d47a7afde31939df75edf2a4caad42f757921c96fcc75",
+    "images/full-list-0.024.png": "5b9a2cc26f5a8f8800fd4c297ec82c3e83506aaf7e5460bfe6276b88993af772",
+    "images/full-list-1.000.png": "53e11a1dd2558f8471e07668eeb75356d3ee4644ac5ca2d5c9ca353dd9f3af1f",
+    "images/full-list-1.001.png": "8718b3a1ecc2a2d728c54c8bdc5169ff9643d794348f4827f163371d1664ea8b",
+    "images/full-list-1.002.png": "61fd3eb6fa4610f66a171d3b0acd2510d1b54e83424913eb0ddc96db43311305",
+    "images/full-list-1.003.png": "71f1c5d8bb82fe82fcbe66119b32a9874c4e70e1e033731cb7ab2ff7ad623dd3",
+    "images/full-list-1.004.png": "f2c12b921e6731a4cf7ff7438f175db5256699146f13ef0ba8f1a9d528a11bc5",
+    "images/full-list-1.005.png": "13830987bbc89bf4916de37016f78ab092abd2f732547d23296ad6f9f65d8b5f",
+    "images/full-list-1.006.png": "49392337ededc82fb7da28482501072493ca4cf16f45c68b37e074292a756435",
+    "images/full-list-1.007.png": "5a08788ef13b39c6a70b839db7f1351d51fba29ba81a1b2f123f399cfc799152",
+    "images/full-list-1.008.png": "e97ea21b978aa1576c050348089eec028cc00d75dbf55421c3018327bf8728e7",
+    "images/full-list-1.009.png": "0ce388be40acb68dc6050a3b9c8f554feb8c3b596e5debe27fe219c027cb6015",
+    "images/full-list-1.010.png": "112cd6b00c76d1d0e82f3ab7382a58cd85506b52c3a89ef0402c72d8ab1dd095",
+    "images/full-list-1.011.png": "3a1652a38a6b60d663a4e4249d740301a789e326fc9680a06ef2f0db52cbaaf3",
+    "images/full-list-1.012.png": "cdc6f8ecc791edb8f4628c2e041e07c9439cc98eae21d06d5755e871e457d85b",
+    "images/full-list-1.013.png": "a929336c3a7f340582e976ba644b210cc54fa2cd078e2d7f389df88ea00ac16c",
+    "images/full-list-1.014.png": "e0f079d9df8fd0806884409839555d4ffcfac798dd5f7930574aee9785e7c8eb",
+    "images/full-list-1.015.png": "80dfe1e6a0e2ad636eb7d2d86a986f9f59f7f3f86ea01f8fe015f6a07559b003",
+    "images/full-list-1.016.png": "1b743f5836346372f59b3585c8c85daa6c5ecec6e368045b1bc1a9c8cb41c598",
+    "images/full-list-1.017.png": "53d6e4154ded5de0befa61ce18bb2fcdfb2f926368d5f28fa20e1ad2219bf72f",
+    "images/full-list-1.018.png": "c4c3fd58d4c9382ca800860667f3983fb1fffd0f05084fca9a61f620f550e313",
+    "images/full-list-1.019.png": "8e86174b592c78dfe2c4eeeeb4653f9ec3ce973d238acd70ccc26f222100aef9",
+    "images/full-list-1.020.png": "f8af7839a88329f9f7ddf5308972ee30f4a465fe35df2a196572bda2f30debd5",
+    "images/full-list-1.021.png": "e42028f1bc354cf848b941e2b9f7608fa204bbe338d0c13be4cb11d187264f25",
+    "images/full-list-1.022.png": "a6e2fa3b8b21c3ce6a5906ad897e6fb47e93bb666d62925391daa68428cbc34c",
+    "images/full-list-1.023.png": "7f8ac1e415f720d853a56573da7840356680724c733cbe120839e2db83c7fadb",
+    "images/full-list-1.024.png": "145400031d3435fec90437d95df5ce165383cf05a6437a67cb2427873f1af3ee",
+    "images/full-list-2.000.png": "750cc18d1dfb5b4d69530edfce393628861979b249a2a080e1f2bb6f727d6c8a",
+    "images/full-list-2.001.png": "85898e0b6e926f66dd31f6484d00407d2aa79957aebdd6b91571169be4057198",
+    "images/full-list-2.002.png": "46202aeb381bcb4fcf52722c2a86344cbe1c132879b9f14aee7a7b1116a24109",
+    "images/full-list-2.003.png": "1221c98945cc390a4ef79be01b50558aacc48acdd610949480ee1dbe03bdc69d",
+    "images/full-list-2.004.png": "d51215d8d75133949870cef487c123239cda37a2834fd6f895af730ca59cb59a",
+    "images/full-list-2.005.png": "b4e1af78964f577c98a8ddfa7c1c3a450e89f7fd2bc1ef6a5f139bf648df8695",
+    "images/full-list-2.006.png": "6c1622c6493eec2458765b6147ca4f976dff3e52a39f7bbea757545e9c3cfa8e",
+    "images/full-list-2.007.png": "2b8cf8e9614ba7b2f3665dc2fa27ab43bacf5e12b1162a2ec0fc2bfb36ca247c",
+    "images/full-list-2.008.png": "19d97bbcf07c8a537f53241aa95e2712c7384ef013741164621e2661dccd33ec",
+    "images/full-list-2.009.png": "a87d7d309a95eba8e221a7b279826b015d4e54c1042656da32b439576c815ad7",
+    "images/full-list-2.010.png": "f96be2629e8651e5dcdbbcbc8a1bd95017d7321d6b7ffdea5f2840360031f3fa",
+    "images/full-list-2.011.png": "de68e7d9d420e36bd928ec1e065c69d3d5352ca517decbdc8ab515c298ec3691",
+    "images/full-list-2.012.png": "7d0fd267fdb8bd4af6947ecd73e9cf0e586df6c9e76f69363f65628c167e703a",
+    "images/full-list-2.013.png": "b814452f39f7755aa195b37b344b5acfe5a2d391697521ac55eb6fab09410058",
+    "images/full-list-2.014.png": "a01905f3c7bac542ce8a9b39d1f8a5a6f147dc23f56c6258331ba5f1d32252ba",
+    "images/full-list-2.015.png": "be60781cf02f61613e77e53af554c443b5112eacfae1e9441d40f1333cc20d5b",
+    "images/full-list-2.016.png": "91f729bb5e4c3f9446bf637dd1a7c3569f0817dba026d744de94ed19ac0b0b69",
+    "images/full-list-2.017.png": "0ae796523d0c72d700949155386a3a21c49f1d1e3c21d14aec57e160f1c063b2",
+    "images/full-list-2.018.png": "18e41e4394e098064fd359bfb583067bfdf593253b243deb60a3dbdd9cb34e02",
+    "images/full-list-2.019.png": "fb59cb226496630f257ebd74d4d2e5b4c8903c4ea7c8fefaaf9a48249d1c2e88",
+    "images/full-list-2.020.png": "2db18d3cbabc0e076e629a1a2d19dd549ba1349398bad6f69448c9633a841139",
+    "images/full-list-2.021.png": "a8b3a8d935e1cff878d37f10488ad0319d061a1b33ffd247b03df8091b4a2fb5",
+    "images/full-list-2.022.png": "45d7eff7e6d8aa0aaafc96d6b8d89f7a8375c83ba1ea3f08319d6ca1503f4549",
+    "images/full-list-2.023.png": "f59c850a90c7e0d28f702787a253e6fb3661d9b41a8416f26f8bef008d36d903",
+    "images/full-list-2.024.png": "695c4dfc5dfb52b58a07637d01089e90c031f98a1dd36156042dc9149a477365",
+    "images/full-list-3.000.png": "2a226264eba061716b62e01c06b31edd18d2bbec051cd5f297906fe8f5deb9c7",
+    "images/full-list-3.001.png": "d3dbf134833728bf71b222449243d24fd78c8efb6336c28e3c2d70137b7d3a4d",
+    "images/full-list-3.002.png": "e495b5d50b162b51c16e70935c39721985f1cbfe023e819c880bd4c8024ac26e",
+    "images/full-list-3.003.png": "330ee8630ce686b988d6bba40535f6ce930125aa3ea2ffc2e8959892cfc61d3d",
+    "images/full-list-3.004.png": "589d9e0b0419ea3e40942608efafde1a4e0ac9211a9fd476fff33d0186dc3fb2",
+    "images/full-list-3.005.png": "5466e06d381d4c1912f5d835dd92710834d8ea42eef4ca1eff3c4499ae7c3891",
+    "images/full-list-3.006.png": "e195573f1bad6c10509dd844924069b9f3ca7f402a16aedfbe96177e840c4bed",
+    "images/full-list-3.007.png": "fa17c06f0d71115e631d6800be24ee7472589079099f687ac65c71d560e6e5a5",
+    "images/full-list-3.008.png": "d346944cb9f5350a150121c1a7e956be33ca2ada97b9079973c9150713639d64",
+    "images/full-list-3.009.png": "ebd920a7227893b719acfa8a84a0fdfa94954b7d8378e61793e4c3f4d8f5d21d",
+    "images/full-list-3.010.png": "7ba09e7e2db34c587aa1088fda41c6de448f14be1ad7e261632999857874599a",
+    "images/full-list-3.011.png": "367f76e500cee6ccbefe20f999dd8caad47e8244416aa4c55b5beb21126cd941",
+    "images/full-list-3.012.png": "4b15ffbe2722c16e043310729f8bd211e6db683e7e699a002710bf9796ae9f99",
+    "images/full-list-3.013.png": "76b2f4defae5a42db1a8808ebba2387cecee389340f32c82c2c3fef79cbd012e",
+    "images/full-list-3.014.png": "cafddd1785e3aa3df8025a25c81b2c644f6903a9d4f389be95f0967da73c9236",
+    "images/full-list-3.015.png": "58818653e8fdf3e26270d0b66d029533db29476c5e6ac6a5cba021694e976467",
+    "images/full-list-3.016.png": "d3c9dc2e4b80358918fc71008a40346b8f91f5626b47efc9075d2aedf37ff847",
+    "images/full-list-3.017.png": "85dd551c833bc84631d9c2b5587feea86f9f58e06f07444996a5decd663982a6",
+    "images/full-list-3.018.png": "fb138a9bad76d466997fea3ca5dc760717d03d8f60e39e34c748c144d0ee1150",
+    "images/full-list-3.019.png": "bccd8dabb5d76f06dd6c3c656b29b496f78635645c23c89a791a78c075df1616",
+    "images/full-list-3.020.png": "4b4c748e6983f1358eeb467325f701dfdd4bad5aa36cb788e4eecd98ea38e5dd",
+    "images/full-list-3.021.png": "7e71d0511b71f243f4f8eefcd300414ab60e7c720278d75a087de619baa0989e",
+    "images/full-list-3.022.png": "182c3dd33a3eddf0a5e02c639d8464335cbaa33894e61977360c30f1c9271866",
+    "images/full-list-3.023.png": "381c9578841f78fc76b9cc790c9a11a8033cf1d15203de6c65e78766786d40f6",
+    "images/full-list-3.024.png": "61e356efd0183cb9ea48948ebf8306010e6767d4a3888666f9d46011270a3118",
+    "images/nothing-found-0.000.png": "eef881bee34d6afbf7cd5046fe73160536922bc8b3be079150729926c944a1e1",
+    "images/nothing-found-0.001.png": "5675572b3d28824ceb1f6e8be66152ff286a158751f7eb09e61f5fcb0d8ae348",
+    "images/nothing-found-0.002.png": "69bf65e8042de4e428c571be87f39175b8f1483ff319a6d70a88f5941cd0ebe5",
+    "images/nothing-found-0.003.png": "286d26038a17b623e2ba4c151be77ef1a6d07d48993667bdd6fd80cb115f751b",
+    "images/nothing-found-0.004.png": "c23594fbfe957f9b9130478c95915be18ef84702788b5ab7d8a74a4cb1c8e3a3",
+    "images/nothing-found-0.005.png": "fb86c7125b69d19110e6705e7bda0142ccaaca6c564bd8dcd9297d5bc6a94fa9",
+    "images/nothing-found-0.006.png": "de78ed101f9a422eaf1888d293eb4917abecf4d11ab25a61de3b92e372bce699",
+    "images/nothing-found-0.007.png": "0a8c6a2c9fe85b3ee353d6ed754e6f3054ec4404d80873bd9d18815dc68e49d7",
+    "images/nothing-found-0.008.png": "8cbc1afca279484ca1cb0f6e320ca5024896c88bbeeb74262ca7e12a63f63406",
+    "images/nothing-found-0.009.png": "779d29b95d7e90995a3add58eb3b6e0a91bdc954e55fb4a44c7f4d146e94b518",
+    "images/nothing-found-1.000.png": "d5f57c9dacd62ef1c2e81d0a836ac7373bf6c14ff5c71e91b9c4693890824b68",
+    "images/nothing-found-1.001.png": "ffdf689156bab0c1c46ebbfdb81b1905c58e1f0518e41829543b329ea5f9ffab",
+    "images/nothing-found-1.002.png": "e2f8373273d970f2bf26808a7d34c5e360cbcdf34ed9bbaed9ec689b1bf718a4",
+    "images/nothing-found-1.003.png": "2a57b3787754399549bafeca1181b8f0a74da690b84e99ead9eb7972479d4805",
+    "images/nothing-found-1.004.png": "17d3e9d7eb99ae97f0fe05db7f352da952d2735fa9ac5fb53ef8cdeb45b28736",
+    "images/nothing-found-1.005.png": "90aa5f9f0dcb7559b86d4f93fa655113b595cf7df95eb9e716a2d72d06b61eb2",
+    "images/nothing-found-1.006.png": "88dfb48ad30dc5b78231ac67b65e3df311b765571f32e0dd862b7f93aed966a1",
+    "images/nothing-found-1.007.png": "e3c2eeb1dfeed184ccd0f88c6bfe7ae5d163c895f1c7a49f48ee206f256642af",
+    "images/nothing-found-1.008.png": "2c22837a1c403d0633cbe8601163659cdb11d0f97f40fbacdbabedf48be07b63",
+    "images/nothing-found-1.009.png": "fb2dc334002ca66545fe314b8fcb8d74fdbca8474e2cfb44beb2eedc97b780f0",
+    "images/nothing-found-2.000.png": "64390fa50004d3318be6b7cb236ebad5f02c8ede6b8f72a1c6217cb8869a2846",
+    "images/nothing-found-2.001.png": "db181c8d18e817ed025b95c02dceb81b6fc0b53d908295e66fbd37282785e9c1",
+    "images/nothing-found-2.002.png": "d62be6f2e318f0e6cb1f699ac96f09eac0d80d084840a5a9374880ac7f1e4fab",
+    "images/nothing-found-2.003.png": "74ef3a29e25aaad93fa4a4155a19f0b0f7b919f2c229f3d6d9a4c8443c17ba61",
+    "images/nothing-found-2.004.png": "5398661cc9b8a5d820ac71a6349eb568b207593b601580b0a4b3c6a39c8392a3",
+    "images/nothing-found-2.005.png": "76505c80ee567fa69a0ff9e95d1cace76e014ec1a7298b82023495cf3b05c643",
+    "images/nothing-found-2.006.png": "ab0d0b932c185464a08c6fbfab2c9af9f203ce36183516d18793a17a51451519",
+    "images/nothing-found-2.007.png": "e4cc086a85591f6800469a1c916eb96603aba0588e461e3478b9abbcb1f15089",
+    "images/nothing-found-2.008.png": "f252f2b8e5406ed41acaffcbc3151ca876ad113de72f7a7b38195a0e9adfe5b9",
+    "images/nothing-found-2.009.png": "acf40381a9e1582863babd1c3c94ed6260b4a9479be66365c169c07f45b7b06a",
+    "images/nothing-found-3.000.png": "14cc5685035a5ce58d2ea773ec45345fee8fcc8179178e1550c6a851bea7e33e",
+    "images/nothing-found-3.001.png": "b6d4c25950885e11b6919c5c825d7d4b2ff3f662609f6a969a4d4041b2163b2a",
+    "images/nothing-found-3.002.png": "e6602155490da1b4ebb3fddb66427b81ffae7db8cc3058196689c5ae273f17da",
+    "images/nothing-found-3.003.png": "307c199efade8ee100df467b7fc490b78c200f2f34665133fe896363051f6fbf",
+    "images/nothing-found-3.004.png": "977904f580993bc97f50336ae143d83ca3edebbcfc4aa3e4ffb6b220b6f10aa1",
+    "images/nothing-found-3.005.png": "2a76ce468c70797c50af7d0472e9de9f362520aa9aec6ceaf6d5427d79b6c02a",
+    "images/nothing-found-3.006.png": "ad457f2b9ba1a0b50423c2da2af7eaf9e61ecc19f72a96eb9b74b3b2bd85b4d7",
+    "images/nothing-found-3.007.png": "6f17f7a604b4894f7b7a006dcb61852c8a19c999480a8865f922359b1d5e61f0",
+    "images/nothing-found-3.008.png": "2af5e504080ee0a5694993c0a48a85633a8086b018916c3f56044587f8af5241",
+    "images/nothing-found-3.009.png": "b3069fe2d4b1a23ce9a1c7f3edddfa5233b582972f3722ccc8dd02d6fd222b23",
+    "images/quick-note-0.000.png": "380e5cf06aca46fb5f8fdafbf826faf51281a8ebd67797cf23ecb442960e67d6",
+    "images/quick-note-0.001.png": "1ab2592261232959b97ced08df0cf34b8250d4b37729bb35c6d3597c6d8c2491",
+    "images/quick-note-0.002.png": "9121775e979aa9e5cea0ad91ffae6a8dd9da520ed6a9f7e5084b041c0539701b",
+    "images/quick-note-0.003.png": "abc576fe67c0a67456830c3a002a0b77ed3f7d58b3f0f95661dacd12b14758ad",
+    "images/quick-note-0.004.png": "72a6a62bacd5d049c5e1b97163b74c1162e7a192ce7716441fff7b5195298d7d",
+    "images/quick-note-0.005.png": "91014e0a5848d98d07c439118c1678583e189a76ffb3a7af443a89baf0353ef2",
+    "images/quick-note-0.006.png": "09dd71e5f2380f90a71b246c7f5d62d1fbeac7e85b0976c38c2ca14ec74ca5a9",
+    "images/quick-note-0.007.png": "b6258d6f2d2b426b4b519feec06c4151b42da9de65cc4e086d4dc14577bc8943",
+    "images/quick-note-0.008.png": "e0be0d61074bec86a134af1f75e7d9bf1cc3bb70aa20d0ead3b7bcc5d1a4d579",
+    "images/quick-note-0.009.png": "1b79a280525e99d3bb1f1ad3cf8ad3dc259a74438d9a41c2a2839a794e04ad70",
+    "images/quick-note-0.010.png": "a56cb0d588414fda87ee6c591c2e511a3e98f2af6dcc086dd94475d156ce3e29",
+    "images/quick-note-0.011.png": "dab529fc228c1d6a7824e9385fefdd83a38895c7c02a337e255e09ebab9ecba3",
+    "images/quick-note-0.012.png": "d7e96bb7ffc004bae64deafcb691c1fd5f45f1020cf383ada757371d7bf2a3a4",
+    "images/quick-note-1.000.png": "3df5ed17070dd1f5e7512b2af5811e54e2ca74edd9eddbd7e89382e488568969",
+    "images/quick-note-1.001.png": "9619928e44b951de013975f159751289c094a473940ff2a84fa14b7e5652cb7a",
+    "images/quick-note-1.002.png": "36ee7cedbd75fab9a23a0bcb4247a2d2cc036aa0b4498c140304463e8c41d50a",
+    "images/quick-note-1.003.png": "d6b7c7d1ac7cbbc538775385821152091e671dcc227dccdde2c6684d5f97f2c4",
+    "images/quick-note-1.004.png": "c394c12e48f5955e3805721b337316d026e9f8cd64157f9adce606c34c88b30f",
+    "images/quick-note-1.005.png": "403e6d4a441feb7cdce50bab5540ed0205a8d0b3b53a9703a2a7756efd2d58e9",
+    "images/quick-note-1.006.png": "38059fe9a8568ea5cda1c70e79d22e5dce93ecc013b1caecc51e380a843567f3",
+    "images/quick-note-1.007.png": "89bbec86e81c5f41d84a9af929f3de567b38d94a2c3e18bd145db0faf3deb5a2",
+    "images/quick-note-1.008.png": "8c69c52541240206286b6ff0fdfc65b8ca7510b4b69adab0e9a788a845ff0078",
+    "images/quick-note-1.009.png": "9bbed3e7013d4d7197129ae353cc4ac0de4b402665b64092dabe1a1cd3da10c3",
+    "images/quick-note-1.010.png": "a72f9cccba3f5110e2704f43ec7e1c2262653aeb505c49061e1a5911febd4c78",
+    "images/quick-note-1.011.png": "4ce8d279ba088b05e848375f909014f423c483b85a454a62c9b20308a8ddb0b1",
+    "images/quick-note-1.012.png": "6d18869f98ca19009ec19f47284e2552be77427c61179908799ac5eafe2b64ce",
+    "images/quick-note-2.000.png": "26a093d4cae5ede4933aac5e5163bd5bebb02dedf84180cc3fc458cc0b91ae37",
+    "images/quick-note-2.001.png": "f886468cbce0771be6d35800398afa55259c882daa486c928b6d9b10a03fb7dc",
+    "images/quick-note-2.002.png": "9fe8a1bf79dc0bb269ef9cc6d4ff64c549c00c22644ed27dda0afa5b3859d3fc",
+    "images/quick-note-2.003.png": "f3ca20750e401f52df6f22deb7aa640593eb994a2ee72278bbe511205a10873c",
+    "images/quick-note-2.004.png": "b2097b77271fdc5e8443ee8cb4f1d0db110bd2f2ac1267baf3f45b8c8586ed0d",
+    "images/quick-note-2.005.png": "aa72135f5993266c47ac1aef3932b69d47e980c8c2856846514d0f2e98bbea80",
+    "images/quick-note-2.006.png": "7f16b45f836cf1f15601b9039f5e8c2b663d440922a89c552688c2bbac8bbd1d",
+    "images/quick-note-2.007.png": "f9429db42bc941bfded607899955b8d1bc1f8ee3fec1e80fc9b6fba4e925dc6d",
+    "images/quick-note-2.008.png": "d091ac31544a7dc9abf76e385a1ee46547bc573c9d29f47df5a68eb9025f9b24",
+    "images/quick-note-2.009.png": "ed24520124bc7b468c18f80aa4e02b5bbe65b14f71d94b6c9b258eec0e0be715",
+    "images/quick-note-2.010.png": "f85433e0dfa94ff4bd7f649b29c9524c6de686a1b0be06346187df8dfa19f713",
+    "images/quick-note-2.011.png": "ae6fda83c159bdeaa95a4d62758005168119a9c1b18261c261fde7ee58beec9e",
+    "images/quick-note-2.012.png": "5045cc89d409ef6b9448caf9a52e7f26116894f1fae95a91c74133b6066d99df",
+    "images/quick-note-3.000.png": "dadbec6f30a6f866ab926ff99f474f6547cfaa2135c0a40e761e59177274ba5c",
+    "images/quick-note-3.001.png": "0c0ecb71838fa9f0cf72615295e6a9eb16a6db5cd162382893fd29222fdf6132",
+    "images/quick-note-3.002.png": "372daec8cc1d053fa8d166f3150ba55236ad16a0c1a002f05c5135fdecb4968e",
+    "images/quick-note-3.003.png": "b2adb311d8b8dd7fbcbd3fe74065011bbf75d2537d49a5a191342c35c1a5177e",
+    "images/quick-note-3.004.png": "0cbca6a927022c037b27c119e0687adcade2f41b613915d960e14e7000ee3773",
+    "images/quick-note-3.005.png": "aa088b20dfdfbe29586dd70943068ca2a837267c226841636b0b8e38cbc00464",
+    "images/quick-note-3.006.png": "b377147756b7959546a7cdf5a05bfe70c33c4e4fca27c1a4d44e5275ed51b092",
+    "images/quick-note-3.007.png": "f54c4a761eb078f705c430db0fdc2ecda98c923369fd2d0202e98c4c97825960",
+    "images/quick-note-3.008.png": "f7fd5b69e197f89b7ae8ab6787f8beebd33d83f5c89721ae647bd01cbb215df9",
+    "images/quick-note-3.009.png": "3f49ab0fe7da780052e1233771f38d8041f8957233c7c3c0eeb34c7b651bc6e2",
+    "images/quick-note-3.010.png": "4ee0afd6c941f01bad560d7b369eb5241093caa39076b22c38f8428ad3d03758",
+    "images/quick-note-3.011.png": "2a3f143eaf234b49bf3701f6f135b767b405b69927c23b389b78aa1cc17e7565",
+    "images/quick-note-3.012.png": "f54563fcf696b35766e6d8461df4cfb2ba8b8d538bd71fef683c9657508e76a2",
+    "images/rename-and-undo-0.000.png": "ceec683a1a318096e973ade95c0b05862222e51a39c0108340597303378ed7cc",
+    "images/rename-and-undo-0.001.png": "073a4d68cc0c3f7ee8e8536443cf22329fae7de0b138818a123eeac2568c678c",
+    "images/rename-and-undo-0.002.png": "7a256ed810268f5b9dbbfe68781269a1c4d05b12e4a18bf56617283e420df7fa",
+    "images/rename-and-undo-0.003.png": "04396db4b26683fc9908e0fbab4bcdc688945e1d7cad5bca027d41fda9613ed2",
+    "images/rename-and-undo-0.004.png": "f8a17140e8188d17ce802d27f156c7e074533d26233924d3b1fd878879f81475",
+    "images/rename-and-undo-0.005.png": "94567de9670306380334eb4056def6ac05d161e7db041845d2990f167c794c21",
+    "images/rename-and-undo-0.006.png": "dbc083b2f9b4c4147e7eb22aa7d6d3f473a9fc69b9d4bcc192693d689428d8f6",
+    "images/rename-and-undo-0.007.png": "b35835565556063a997a5cd2824d1dcd0053f44d9df4f4cc450bc3b6c36c24c8",
+    "images/rename-and-undo-0.008.png": "4aa0c519b21146b5604aea3a6fb02716253c29ce5962727f8b6abda015d1f4aa",
+    "images/rename-and-undo-0.009.png": "6f338372a8628c6195880f3337c96b6b6ff12daed7c749f8ee4a55b5584e262b",
+    "images/rename-and-undo-0.010.png": "eedbbca5292f99a500cba33aa9ad2193ef0da2b42ee9fd77534c97d6aaa48167",
+    "images/rename-and-undo-0.011.png": "878959faae8d6182bd17e6b3050baab5ce432df07fb511d79b258af9b241d1bb",
+    "images/rename-and-undo-0.012.png": "c8096cfbcc008e1b6dfc31e7bb66f3a7aa9db3ef7eb3eda8cbcb5b624bd4e01f",
+    "images/rename-and-undo-1.000.png": "0896940452c22b2e4a77980cdf9142a9bb7a3b6fc51936c04eba7f3bd415369b",
+    "images/rename-and-undo-1.001.png": "ca2489737ac5efbb60155c8b602d00c65c3d36c5a8862f9253e140564bdeb143",
+    "images/rename-and-undo-1.002.png": "b4f46b6029f3cc9f0d45c6d9c32875713ecf30008d2ba769c563cec3168c7229",
+    "images/rename-and-undo-1.003.png": "03c570422a0ef442e6324c20c1a8462fe15743d31bef7718a93d2e67629da5b8",
+    "images/rename-and-undo-1.004.png": "0f642318d5eda7a14bf37bec7d8cc344fcc45f6cc63db94bf05f1534cd98bf1d",
+    "images/rename-and-undo-1.005.png": "fc1a78fe36402f23f8093129b302196e7b353e20245fe69fc5f987d662ff1763",
+    "images/rename-and-undo-1.006.png": "b0312826468eebe5da8e6a4302dcb981bbf266f664e81b56b0b3b17969a2c4a6",
+    "images/rename-and-undo-1.007.png": "599fea3d00639631254abec3cb4e8918a023d8d2b61b97d12cb4783799829e4c",
+    "images/rename-and-undo-1.008.png": "b378de0c39aa46f8f9054db11c5a69a28d29d7bc5c5b5c21a4e20e3180cf938c",
+    "images/rename-and-undo-1.009.png": "546367062cdb6a803e792f136b8d42f8ad0d2485c006009206098991b503a147",
+    "images/rename-and-undo-1.010.png": "d29e5a4b8650bbb0dce0985076e5c71364ceafd6f5d3527f1b4efdfae569e7b3",
+    "images/rename-and-undo-1.011.png": "8574ca43805e7f47a404a4e7808360a56c02f2245872a30e35e3c27997a2f1de",
+    "images/rename-and-undo-1.012.png": "3590716b96de91aa6b14687957da8bad11ef0d8cc78a8b3d0f991a80c37626dc",
+    "images/rename-and-undo-2.000.png": "8509fd74d601736b39803351161bb5eb80b5c2a242fb2f6e096e1446590e1bcb",
+    "images/rename-and-undo-2.001.png": "826b0f7c1b61526553d70ae09dfccde673c28fc62ebf018b49500256ffa67f79",
+    "images/rename-and-undo-2.002.png": "880036635621dfb233b6fe85986f6e4e4a4fbb2c38588438c688143c0f1f241d",
+    "images/rename-and-undo-2.003.png": "90c32c5ddd7560407b602b256a8dbe525959c3cb051bc13413955610d6c35c58",
+    "images/rename-and-undo-2.004.png": "efb600cf34a37268ebee2aa149e5e0b203dc5ebaf3ccd7c75857a2ccf854f351",
+    "images/rename-and-undo-2.005.png": "5723d4925fba9a99b298d32b4c82dbe01a4d2d7dbcd49ab2722ac723c88bf081",
+    "images/rename-and-undo-2.006.png": "c29c49cba3e66dca8ee30d0cc4022ef492a11396f7975ce447ce00820c7fdd08",
+    "images/rename-and-undo-2.007.png": "17f54d2af37e89ce7d8f71af0512e1ca3190c81657e24fc65dc2b9ab480a8ab6",
+    "images/rename-and-undo-2.008.png": "f44d1998d718f4ef33645fb067ed6519e1b4d643e17edc48b6ff1c06979a3a8a",
+    "images/rename-and-undo-2.009.png": "71aee78917e29e12b9f40b511e086f44a32a72226cc51adacafdeb0dee89e237",
+    "images/rename-and-undo-2.010.png": "29e41349511bf6143ee3a1f9b942dee1bfdb337ce4508b6ce62eeec843b72c61",
+    "images/rename-and-undo-2.011.png": "de0e0fbc0ee67d774cc589d8dd05c6046c7e70145a4737bb9d90e332d5cab4c2",
+    "images/rename-and-undo-2.012.png": "a40605ac42d3649b83253fe7524ca379166be477cafabf5afce896a0ce9596d5",
+    "images/rename-and-undo-3.000.png": "6d68dfce1c572d09db75222e1ee60719118d39ac1c40364b35ce72cf252cd6f1",
+    "images/rename-and-undo-3.001.png": "9e26d89fbbc25ee83b3af7269e360543e9832e540cad02770e871c65efd96f9f",
+    "images/rename-and-undo-3.002.png": "809193184229e751187c78377b6ce4599a08c6a39db2eecdded2c07f11f7a0e8",
+    "images/rename-and-undo-3.003.png": "af917fb4617549268bf184aad7e7cc1bcae273607aa034dffbb01613f7e62b6c",
+    "images/rename-and-undo-3.004.png": "fa5bf2feb9bfbc60a237c6d46f2bd995948f65e265a0e500d4da9a01a8bccbb7",
+    "images/rename-and-undo-3.005.png": "c0871b4c2a971ecad60d7c01b19b35b18358c9f9325e8453a00d7dbd63e3c5cc",
+    "images/rename-and-undo-3.006.png": "3d3d3cbe1466aae49439d3d0b825d58a9cff0dde0646e416c53a6d0bdda3a577",
+    "images/rename-and-undo-3.007.png": "a02bf726085a6e6935100204653c46d32f0821ba00f7634d3e21bd8f9637e4ef",
+    "images/rename-and-undo-3.008.png": "831e7504c4aeb485673f9ad1c9c5d1a84bb432a9702132ddf951241767728e20",
+    "images/rename-and-undo-3.009.png": "0778619f9a359b2cf0433ce9fc3004e3ee9b7f6a66b0310ff0de1e754f581475",
+    "images/rename-and-undo-3.010.png": "b4c47192b648b7936793a3bb69ded98897eba31ae5bd51395e0d32e158485a68",
+    "images/rename-and-undo-3.011.png": "5b4576ae1cfff783a476994c6e3132fbd519791b2d2ce1243def86b4859c5b0e",
+    "images/rename-and-undo-3.012.png": "160f7f8cf10f9f997d43668292e3e6f69f581e4b219dc9acbf3cd0b787644287",
+    "images/reorder-and-open-0.000.png": "d06d89c84d832a47dd0e8c060dd231802228f2a945455f73e4828103c1b77426",
+    "images/reorder-and-open-0.001.png": "f34ff20dc5ba5551263e91ce762c4a8e63f40d9ba724771f5d5af592255c7376",
+    "images/reorder-and-open-0.002.png": "6ce5bf2a35bd8bc10d3df90330c693f03c60e662d7222a1ddc08e66042f1350c",
+    "images/reorder-and-open-0.003.png": "96a1387a0cbaf00d9632a845f4ccf9c991d52c8c8bbeac7d70f49eeafa76e753",
+    "images/reorder-and-open-0.004.png": "a492bed2ff2e6af47bf9faecc02a0f58b83b6cde6f96274011163668a207a488",
+    "images/reorder-and-open-0.005.png": "129d5dae0f525654f1e4a79928105d98ea2afd88ef87f65397cdcbebd7cdb56a",
+    "images/reorder-and-open-0.006.png": "95e6fda4d14bf7507e5383b63d7933e646a3c079e7a2e11940c75d07f8526b58",
+    "images/reorder-and-open-0.007.png": "cb97795de2175056e9ef8d0a5dfe3e1998e84b29997a7af7a2047ba149f158bd",
+    "images/reorder-and-open-0.008.png": "11d3412717878f1372ee04282ac8fff73d9a3fe70e3169ea3ca16513d21f39f1",
+    "images/reorder-and-open-0.009.png": "24994262be943e719ad1f0176a37df2cb67c6f6a9f656e43c2d29f9bddd47eba",
+    "images/reorder-and-open-0.010.png": "387acc66bd7e8e12a3d83b8ff20cddd64c19d6e7cb7ef561b14c3c4b71907aee",
+    "images/reorder-and-open-0.011.png": "50b50d401bfcb5b8109be091d6120f5ebfdeb2adc6aab9d5b262d4c37a433f35",
+    "images/reorder-and-open-0.012.png": "ea1aa3ba55138dad549de73fabc9bfbaedeee382f0d2e0dc619125ef5c5ea5a2",
+    "images/reorder-and-open-1.000.png": "72f545dddae8e8c62d3012a8b6fd5a4cec77d1f8dee5798941d21ca56d14cf39",
+    "images/reorder-and-open-1.001.png": "255a8c7ba72f0243e811fa4b64010f03c37aa9486f501e32a4093ed3b18f8fb7",
+    "images/reorder-and-open-1.002.png": "5c94fd6c59074af64ea70004ebdade656c036a9efb63b5e677e9d7093c07c65d",
+    "images/reorder-and-open-1.003.png": "407f17928520fe8e6562ce2e141d2e7cec4e99431e3450984181df49d500dbd4",
+    "images/reorder-and-open-1.004.png": "679191a570e2f149d46b0adaf143db410c781cfffe60e11572e1a5dcb620a692",
+    "images/reorder-and-open-1.005.png": "3d3c1c7dfda41a67cc7b30bd8a7da425c42f499826718a85be5f090c64121c99",
+    "images/reorder-and-open-1.006.png": "3455f51bae4a2e79a01146bd1697d8505d229bf9dd21bc98ba9ed55d15d36b97",
+    "images/reorder-and-open-1.007.png": "a6e10bb60920011c4ab400adae6d9c1c8405688dfe1bd39a06d2851089b0baea",
+    "images/reorder-and-open-1.008.png": "0c65c87976a2a72a3d6d260f1732ce138a7c9a42030642f290ccd3323b31dbc7",
+    "images/reorder-and-open-1.009.png": "db39fd2312ca6f3b1d1bd8f968d8f09f778627e15a86deaca8eff17c324e6ab1",
+    "images/reorder-and-open-1.010.png": "e21f8787ab14e3ba381fd49f2537ee04c471ae1f1334d1df12f3ee03c049b455",
+    "images/reorder-and-open-1.011.png": "b951316b3f56f5aa5808f37a23441b6e2ad1bbb40055e68544036049cdfbd237",
+    "images/reorder-and-open-1.012.png": "4653620c158db6c3767f2becaaa7b06e566a4672fa18c1f6528b81f31eb035e7",
+    "images/reorder-and-open-2.000.png": "fbc98570729054dcb9edf2ea6029cb3f7f616d16f5341baee9b91b1e05327006",
+    "images/reorder-and-open-2.001.png": "6aa1f80a7688467702adda2f9f847ecfc33a460f483f19b0b57b64422fcceaad",
+    "images/reorder-and-open-2.002.png": "668c3abc539b36a389c58e53ef2f242d4a32551f22e30518a158419ab4a27488",
+    "images/reorder-and-open-2.003.png": "b2075b134be5637b4603bc34be30ee9a2a1aca5fe9dc27b8083a828a7acf0426",
+    "images/reorder-and-open-2.004.png": "3d869b029f54634d079e3cd7a4040d515a539863f5407f702b240092c00d4bf6",
+    "images/reorder-and-open-2.005.png": "8fb2bbeac76f18d1decdde443f1da06375c0d003f4703f34b12410e444b0b7b0",
+    "images/reorder-and-open-2.006.png": "fe8b57cea50f65584d1735feb3188e4c123775dcbd2236850540f3e5fd3dde93",
+    "images/reorder-and-open-2.007.png": "0c3f129a746c00577394a591e75314ffe17a535df2dcc822b3ed75dca95b8fcc",
+    "images/reorder-and-open-2.008.png": "6d2fc078d2eca9c585fa4ecaf7c969d44126b9442b16963d9a00b935b237fe36",
+    "images/reorder-and-open-2.009.png": "d84e9d0b07e064be4297c247c3e6ed019b017f51fdf62bb115818742c1cc52e1",
+    "images/reorder-and-open-2.010.png": "e555f8d0c5a75193060e60f05980127b49489661e27f9b011c7d96373878adc3",
+    "images/reorder-and-open-2.011.png": "05e1f48b30d1d5e673d515b15935262a28c3704764eece673b074cfc806980ef",
+    "images/reorder-and-open-2.012.png": "e7f52b9e8bf5f3d9082b78fb5148c8a512213136e270b5c6ca5266f8b6213cd6",
+    "images/reorder-and-open-3.000.png": "3e965b3397963b93c2f2a34af7d688514900775592556a959fa11fadb5b0610b",
+    "images/reorder-and-open-3.001.png": "a02e0f6014fc0ca26d163017c1141b44e963ca929f857c0202ba3e37a0727849",
+    "images/reorder-and-open-3.002.png": "27ef2b289cbc244e3c359b3cd37c3f06ee84e6c45fe806c99a543bcb68fce7ec",
+    "images/reorder-and-open-3.003.png": "88a62d34a206a943520b2a038a7f6854b69fe632824c26357c8c470c78233b0a",
+    "images/reorder-and-open-3.004.png": "c57ae53f745d95b1ae0633e7fde36b24f9683a0cd915c8f2777c2a6fe7a56877",
+    "images/reorder-and-open-3.005.png": "d2e6a0be7dcc13633a175cb26832ea10474825ff59dc5d407f467df9b2f0a535",
+    "images/reorder-and-open-3.006.png": "5335a8579cec62fbec884756d410ff5cb6071732a14d7fee5fcc741949930878",
+    "images/reorder-and-open-3.007.png": "cfdd3074ddec1ebd451d04fada2fbdc1c697d2b21c529ac708e1041627b89e00",
+    "images/reorder-and-open-3.008.png": "3fdf55bce02bf4b999f3bbb70b7a811aef957ba331e9d6d8ff48204c99f1b572",
+    "images/reorder-and-open-3.009.png": "499111a66222448458b6ac6bff78fe568f0028df0fe4adfdc783034edb62e6ae",
+    "images/reorder-and-open-3.010.png": "2cf0908a0539ffe4e9065f0e6e6b94d2b9ec8f838b704fceec0cf8c4721c7797",
+    "images/reorder-and-open-3.011.png": "d6dcea7cfcbbb5d6cf299943aaf095bea8d228e6cd1ec229359c84356ff3bcd4",
+    "images/reorder-and-open-3.012.png": "de78daabb79b301aa1d1e4e5e6c8d2d4e35ab9287e0e368d7672de58f7f5cdf7",
+    "images/revise-and-save-0.000.png": "893ce9ef728f390285a6bc215c04545d2c5391bbb399fc31150dcb9ff3141a2a",
+    "images/revise-and-save-0.001.png": "7256aa8d914c38b56c71d431f67c027c2e4301afdda8d50c1635c7f51148c7bf",
+    "images/revise-and-save-0.002.png": "3ebec5c50e5de182301074d07ed7fa0dfc2d4d45d6b8f6be7f2a13bb8f06698a",
+    "images/revise-and-save-0.003.png": "6864da82e38d9a4aa07783ac967947dc89c7fc04b1b04eafe3fd932f13256911",
+    "images/revise-and-save-0.004.png": "c2df381c3d609015ca3ca42d14fbe45fccba2c978faf6d8a603f4678061149da",
+    "images/revise-and-save-0.005.png": "9f88ec7639b03595263b8aa53b2e7af26a37d8e525f1646eaaa900391a42e832",
+    "images/revise-and-save-0.006.png": "44497fbc676040fed181b7aea456c705ddbbc117d4db0c889cb66cb324bbc37e",
+    "images/revise-and-save-0.007.png": "17a9da6ada6567138492a17f99a250c2c75ea8428fb5e157b842752e55737a4d",
+    "images/revise-and-save-0.008.png": "aa8bc9a859b0131e11b7e5b3c9fe5d81d561900c8923dd264a2488420d334417",
+    "images/revise-and-save-0.009.png": "8719b28b97eedb5c42c50ec326b959a4326afd934b4745204cbbacea883439ba",
+    "images/revise-and-save-0.010.png": "3950d490349f20c2e4efa97edcb3e4196edfa2ee924abf89225193580e610384",
+    "images/revise-and-save-0.011.png": "605edc02ad70146bc703580bdc1affc9bbf8c186ed84730953a98e66e06e27f4",
+    "images/revise-and-save-0.012.png": "5ee1341f87ff9969e2d25e906072230e5289613a037012893a4bceffc1812432",
+    "images/revise-and-save-0.013.png": "aee2a772295a3586c01a84404ea5e85b7c730296f9ba9ea1f052398b14469ff5",
+    "images/revise-and-save-0.014.png": "835a27d19260325f4c1d24b3b4331353a8b717c508f7b94eb6d5e63fee229214",
+    "images/revise-and-save-0.015.png": "1d79c7f3ae8395c7681c4199266227637b33e9e5bc59ae10f102917bfea8cfa1",
+    "images/revise-and-save-1.000.png": "981d178b1927fd2700670a8eae06d630752600c5beb6a3284092574ce2ebb6ab",
+    "images/revise-and-save-1.001.png": "8cac55b85f05036dae4a0c97ad43f828c86e23ceb12303df8b8159d073a81ead",
+    "images/revise-and-save-1.002.png": "ddf45530c0b9282f151b1ee16b16b2caa2242cd119ab9ea319064bf3c7b993b8",
+    "images/revise-and-save-1.003.png": "13c7876c6c7a602e94dd2b55c30adecc5641d27e66516f74f1a2daab9340a55c",
+    "images/revise-and-save-1.004.png": "607b51d713cd2e120857a4a455794ba59b5561d4bf023f644d2c3b877a4c697e",
+    "images/revise-and-save-1.005.png": "cad24836703ccbb8a903f962df8d74abda074ac2da4ad89222f9555c7eb206f7",
+    "images/revise-and-save-1.006.png": "6489fef04360cdc98a13918c00f4444832c80ef6e47de52003033db6aa38cf81",
+    "images/revise-and-save-1.007.png": "d109f1b3eba76d0252cbf4be26c40d643a4b49ee34f03e7a7d4a54b3733e7653",
+    "images/revise-and-save-1.008.png": "eb463b31cd3011cfdb51f0585c32f4002723e94bad89be72aef0cc7fcc5f35e5",
+    "images/revise-and-save-1.009.png": "5f10ec1ab9b0eef9dd0e50dfd12984d2563b1c1a8205c8f309c4ac74ae7a8604",
+    "images/revise-and-save-1.010.png": "9b371a1c6fe18e2340d9370dedcf319a18e814832ed61bebb25a4929b34ae827",
+    "images/revise-and-save-1.011.png": "4f92f78dc9da31388b7b9d4f9e15cde37e2bdd5c36e28182f7bbd1ba00384811",
+    "images/revise-and-save-1.012.png": "15f30f05fa6460f5228e9394990aded10eead882b79216381611afc28511d739",
+    "images/revise-and-save-1.013.png": "4acaae58ec1216a61f31d04f2a26d22d0ec65d0eb469107bdd2b69b2d297669f",
+    "images/revise-and-save-1.014.png": "c333b15277a71e7e0dedf298f9b92ecb777e39ac5d8c8dd3062776e6aa05a6e7",
+    "images/revise-and-save-1.015.png": "a924107d400d61bdb76f0d2681b4d94e7f8c73b43ab1fec49da536f46eed5a9f",
+    "images/revise-and-save-2.000.png": "09c71aaff67357fcf9ee2458b27821f0e20031c4da2f05eb480d51661f52f782",
+    "images/revise-and-save-2.001.png": "eca2a8ed940eb97897849fbffec5f8f098c9e621593e79373ff083bc4c6140f4",
+    "images/revise-and-save-2.002.png": "1a21b4a9b4cff02fcfe5092b37eae888f6bd23f78845804861aaa1f067c6fd0a",
+    "images/revise-and-save-2.003.png": "9338e835a5c0835701087a189a087ebb264d54fab19431acc622cb43d4393bbe",
+    "images/revise-and-save-2.004.png": "1dea98940c24dd8cc52284d6c014feaed0ac95abe3d0183cfdaa2f4b750314cb",
+    "images/revise-and-save-2.005.png": "db7f1c91c128e84be945b093a0904ed414aa1eca5f2c2a52793e2c64786f1f43",
+    "images/revise-and-save-2.006.png": "1d712c9fc5b1cd926d33b42545a7c0d5f97c3e055d6481c34a23fa28243aa075",
+    "images/revise-and-save-2.007.png": "d0c49f0ec0a31d0cecc05f1f69b2f7edaefe95b7e1254e4a9fe67a165e6cb553",
+    "images/revise-and-save-2.008.png": "34b7cdba10e7540e30af934ac6dd372558d8ee98183fa60e21d91bf43c2bf61c",
+    "images/revise-and-save-2.009.png": "1790f8bb121844f14c55f7c6559a7c14ab1a2e61e6094b406a06fd17b70cd4f5",
+    "images/revise-and-save-2.010.png": "e1c4694fdc2c5d0bdfb66ab86bccd0f5088dc398576b9908fa26e76264b728c4",
+    "images/revise-and-save-2.011.png": "bcb4058b77016c8fa0c6a329c9da622775c6c402d65d24a7454d7ee753eb38e8",
+    "images/revise-and-save-2.012.png": "46eed6577cb1111ef02b3f4f91b7021219c90f35720ef5c393d78634a49c09f1",
+    "images/revise-and-save-2.013.png": "83a33a8545a7d0d1b25567bf18b34600f5c83c8d30fc34cc7f93f59ec6cadbe1",
+    "images/revise-and-save-2.014.png": "8f382a3c76be63df62f19b194359876cbefc544cdce1c5ef62dddb2b1af4c305",
+    "images/revise-and-save-2.015.png": "9d1bb69aa91704f4f1fd9f06c63c275ff7e41f3f7dcb991ceef510ff9980cff9",
+    "images/revise-and-save-3.000.png": "a2171d2b87262395c68660e15528ab78fb9a7660e7314ebf3ae08d67950dc385",
+    "images/revise-and-save-3.001.png": "3130387a8916fae9a790f136449eb29cce121c0471f4374709a6993d53f37a32",
+    "images/revise-and-save-3.002.png": "62b19dbce16eba95e5b9e415e9a4bcba633aeb4526bbc44d769aa6c0e26ce9b6",
+    "images/revise-and-save-3.003.png": "a180bae358eeadd2c9bb49bc530c71f927287c90b68dc68fd600d7aecac67f10",
+    "images/revise-and-save-3.004.png": "a48d0d4392714b4582b677ec55e42a52468d47051be30c38e5767bda7b59b641",
+    "images/revise-and-save-3.005.png": "21dd092ac65a5e2ab9b1c08f3e919e1eefdaba2a7faa91fcaba436d85e9bae89",
+    "images/revise-and-save-3.006.png": "18006656774d488b13b52d8de43abc530bf435e2b4c4b64e120836bf9659041b",
+    "images/revise-and-save-3.007.png": "8571660cc5ac71fa855ccbe4df60f752a96b53f35bf00093ae23746c992375e0",
+    "images/revise-and-save-3.008.png": "8ca6fefb4d4d4ef7de1c4d19ac3a3580001f3c065d2676b2cea07a2d79393f99",
+    "images/revise-and-save-3.009.png": "39fa196123e742bb56ae1b079aadd5075a90c7da39e4a61eeb23a96340023635",
+    "images/revise-and-save-3.010.png": "1452b4897434a92b38f0a6e104fd5fcd138cbcd61e43512d9502679fce45051c",
+    "images/revise-and-save-3.011.png": "9073b4b125141db9efb08e3375b6f505dcfb2e750b9489580c111f97147857ea",
+    "images/revise-and-save-3.012.png": "93358408eedd2e3ce46bb2712f2a6de8094d27f8d17d3193f6ccbd6423a780b2",
+    "images/revise-and-save-3.013.png": "fd3c724085d53ad8c0622dad8f4f86e9a58890c4230b538181b47db377a7ddeb",
+    "images/revise-and-save-3.014.png": "54b24d0e0eaea2a6ac26e222a1bd7b8f86f477e148c2dc75e9e6722c44349192",
+    "images/revise-and-save-3.015.png": "967a57ebae71ed4de9f879041372f6853f2e8ba925c137aa28ca1c0e452be7a7",
+    "images/sort-and-find-0.000.png": "17b17273007e49fae7d9867d36c088b97edc01ea27f6306844727a070e62cefe",
+    "images/sort-and-find-0.001.png": "cb06537afeb86baf8057c53725f1a45fd452c986e0150948caf33c1a1422dbf3",
+    "images/sort-and-find-0.002.png": "a193087f4c008687c6588069609cfd2694f0b907d2e516a5129443b4693269ab",
+    "images/sort-and-find-0.003.png": "5bb892495cb4bdd0051a8201d4a9ef510c92a89b9fdd40835ececb1102d9fb1f",
+    "images/sort-and-find-0.004.png": "2fec89ac25fd494c7c14692f44d7fadf8712c41299148041c8b339a9d43b7dc8",
+    "images/sort-and-find-0.005.png": "c039120f5086e273d1b93d738121e385a972d39cd0872e1f18fe914d7c0a5f92",
+    "images/sort-and-find-0.006.png": "467fc50fad0b03144464457831f3ae48010df83ac11eabc0331bf26032e1bcae",
+    "images/sort-and-find-0.007.png": "642132f299356ba8f6d2575306ce3e24c472dcf46540c37b9465bc03732a7c8d",
+    "images/sort-and-find-0.008.png": "5acca617ed8c905a6061ef58183fbfbd5c9ede1b5d4436c80b2ae89f57b6088f",
+    "images/sort-and-find-0.009.png": "bec62ab1869c96e57fb467a5441d878bec9c66a902e74e971e32982aecfcf9a9",
+    "images/sort-and-find-0.010.png": "0c7975b9f5b24f8f57de339de0e877e2d38bba60577c12f11240aaec7d56c009",
+    "images/sort-and-find-0.011.png": "dd4046d4d96334085b7ab02eb191d90af7e803bf0c206207e8254247553da727",
+    "images/sort-and-find-0.012.png": "36f067138e984a8da5aa8f4f6caa99936efd22eacb01e21a1c511d88030d4993",
+    "images/sort-and-find-0.013.png": "f11b97aa82e69944f2e262c0ad15b10d6e90000d9aefd363b373d91afaf8f28a",
+    "images/sort-and-find-0.014.png": "aabcc842cb5d7a260f6c87700d6cace76e52a0efb5a447873ce0427aa540feed",
+    "images/sort-and-find-0.015.png": "24700dc36ded66ddd01f860ebf994c6821135a11c471369ca777b804b499b379",
+    "images/sort-and-find-1.000.png": "a4a563498007b5df3ce90f3b4be1aac9b6917e67fb1c944ad849627e8d16addb",
+    "images/sort-and-find-1.001.png": "f8fbcf00cb0e3808ef8d2119e54dd26978d8549b1b24a74928d309ceef9bd613",
+    "images/sort-and-find-1.002.png": "49609771712215103fc67818a5eb94789f00dd0f874b778476cedb4056835505",
+    "images/sort-and-find-1.003.png": "dee87139fbcee0be897bf353198f926398b69e8e79c72837efcf4c0ee0c25952",
+    "images/sort-and-find-1.004.png": "833756fbb15af412b17229b0dedc6e96ae19b7e8a9c5bca266836a61358f5047",
+    "images/sort-and-find-1.005.png": "6c95b75a7d67564ef1aba60645d688180c8f9e07cfeb7dbf9217342c89fc015c",
+    "images/sort-and-find-1.006.png": "b245db530245779963f01c138e7339d7da35f3fe4da56399b58602e2590b0dc8",
+    "images/sort-and-find-1.007.png": "0f6686ccb635609e982e895675ee5973698aa0aa84f773efbd63c35263d8ff6c",
+    "images/sort-and-find-1.008.png": "458f6e81891996a8fc936f31dd2177cd8af3e085ca18552db4dbbefa949ced74",
+    "images/sort-and-find-1.009.png": "62680978aed489a7ab9a6fa77aff41bda9be98de3a6142ddc6931b2885e37521",
+    "images/sort-and-find-1.010.png": "1c75f2e6e75e9ea490e337b0067bbd7908e32e6194937a127a82921646320e08",
+    "images/sort-and-find-1.011.png": "484c39d624856ef1f46d7dd56d51d9841c5540c29a57760bb2dc4f8a47748573",
+    "images/sort-and-find-1.012.png": "5cb686540016280e05a545ad417a5de2c3d6680a2ed12059022ba7e3d31827ec",
+    "images/sort-and-find-1.013.png": "af63a57c70a65b4e9f615cd03cedf1ff63c567addecbd6d867996f155be36d5e",
+    "images/sort-and-find-1.014.png": "c5d572a8400d2c727c09135b6a021e35b69592fb14573f62ad54cd3fd76923f4",
+    "images/sort-and-find-1.015.png": "23b4e45a2b72e9a0579f0e26b708fd21bcb97de01bbcdf8c5d2ca3f99e65950d",
+    "images/sort-and-find-2.000.png": "3df15c3c8471e28ff36d11472f1d97503b97abc2af705f5504ce44c070c67cb0",
+    "images/sort-and-find-2.001.png": "636e8c2fdaca302d03b04daf2413fa04aeedad4bc7874ca8f3835d8cb8be329e",
+    "images/sort-and-find-2.002.png": "f53873525433d7598d52b3462e18fe3d07eb9609e63c9d5d72d55faf0f57d034",
+    "images/sort-and-find-2.003.png": "7f1bd14208733983285672e9fcdd04b8fdc6197755ad4d54940a6f35f725c7a1",
+    "images/sort-and-find-2.004.png": "c093259ba44ba6554178c8c29a18efa523bd635d1a4de3624e51f300ab49de23",
+    "images/sort-and-find-2.005.png": "2349b95d9a59f332b773878835449fbcc0dd3f7d3c35e15b1e8ae20e1e6fa591",
+    "images/sort-and-find-2.006.png": "2c0bd3ff376527b2108dbf148dd0e099feab05c6f87ee84daab3800dbee5ced3",
+    "images/sort-and-find-2.007.png": "4ea4910279f70a5bf981fe3e564388e0284b46179382fb90968334fab5b3e719",
+    "images/sort-and-find-2.008.png": "91851e6067462d9154fb4bd402e05774401cef817da272fc9755f18e69e7e3b3",
+    "images/sort-and-find-2.009.png": "76adc190e3546e519cd808a87c5d7cfa718d00993bf34295db101a351c1aaf1c",
+    "images/sort-and-find-2.010.png": "b5fae1880cc55ed5ba715b58f76a8691378523c49b2bc239a2227ddf41ac6bf9",
+    "images/sort-and-find-2.011.png": "72a73c17425856eed0a637eea412070205e3ceeaa7163f67cee9cd54c44509f9",
+    "images/sort-and-find-2.012.png": "d9acc70c6ad0b9dac574bb389d8d950e3e53ddf2f95a900036c71571192fee35",
+    "images/sort-and-find-2.013.png": "2b095f2d5bd480cdbda7309282dc2b77319636d4ae18e6e1c00a0b27adf2865c",
+    "images/sort-and-find-2.014.png": "d128f4c9a21dcfe26583f6d65a1f03dc24a6ff4032b921f2ddc2e22644f983a9",
+    "images/sort-and-find-2.015.png": "88868e48eef4d6b759465d1b0095162dee1f7133d6fa64fdf5674ea87bf44dd6",
+    "images/sort-and-find-3.000.png": "070a975770495b9841a3d5c9ca94ad1ff14dbf3b0d84e4d9b3ed8b7333e58eae",
+    "images/sort-and-find-3.001.png": "5ac36232b254326d1b867401d33c6b7afb0aac1810eaf540e6534334428837f0",
+    "images/sort-and-find-3.002.png": "8fdf4c51a554bbf2a5c1a77b8db1f08b4d5f19041d2e9a3f8f5e6388fd56da4a",
+    "images/sort-and-find-3.003.png": "4577ee3196947399988a99ed83fb42890d9c34ed1b71d3725624eb82ed4e0a7f",
+    "images/sort-and-find-3.004.png": "b16e3e258908e137d1b072a55348d459413d02f16ee58cf8aef5eaad9a7db68a",
+    "images/sort-and-find-3.005.png": "67b5629f8273e74a05e00d82423f42094e549b9ab0b2af346830f266860ed22c",
+    "images/sort-and-find-3.006.png": "9b933bfc6954cffcfd734827b0158e5a8269dd0d20c528258b3c84105baa0377",
+    "images/sort-and-find-3.007.png": "a23f33d3445bc965dd1d2ca1ffec957bc48038b1c6e36926948a208e1fa734ae",
+    "images/sort-and-find-3.008.png": "cd6d80bf1ac2c51ce8b9028f0ac1df778f44e3cbe362a20bf891d8642779b617",
+    "images/sort-and-find-3.009.png": "749e666786610e2b5fb2c55adf521d699fc03c347b389eec99297cfcde17e9b3",
+    "images/sort-and-find-3.010.png": "daecb063919298fbf5ba7405fd44ff87e0ef498b0a74c651d5923a3036fcfc51",
+    "images/sort-and-find-3.011.png": "6c1c485c1140b39f25dd7b1ecc415e13fb3e5f1cc72d9c623e71877465741b8d",
+    "images/sort-and-find-3.012.png": "e5283a951937073c6be0e32dd56e398a4fe1573fca48320fbfc1092072ad3448",
+    "images/sort-and-find-3.013.png": "5c065ed645215c46f2e33a39c65cdf9a80e601276ccb11ff154e6b4fdf498920",
+    "images/sort-and-find-3.014.png": "59c310b534bdb16f8066ad39b8cd56849f696d3d6324ebcc15f72fbe16ee936a",
+    "images/sort-and-find-3.015.png": "8735c3d4a6b784a03d7e019bfc50eb687fc7abff3757881f840dde9246555775",
+    "images/two-documents-0.000.png": "4aabdd2551ba5658a5593de2f229ddcb90f785baf4ac8d0270e16683ecc8f26a",
+    "images/two-documents-0.001.png": "b2dacafbc8d9b9badb8ca7e63dcff3d7f6c5ee5a2eed4bb3a72a20c1d5f2a98f",
+    "images/two-documents-0.002.png": "4325dd124ebe1136018752ec02576268fc4bd188506fd54a91ede2122dd7d396",
+    "images/two-documents-0.003.png": "8347be15d95cd66b3d2a2b7af5fa9ffe0ad0fb60b0f2ca66fae9c36bb1ef358b",
+    "images/two-documents-0.004.png": "8eb9f8489dddac4f764d3b3c81f3a45828fbae851b658a42d76c8ac63323acdb",
+    "images/two-documents-0.005.png": "1ce0aecac63dca361ebae240abc0711d38e235ac863f8ac2264b6413d83b6d5a",
+    "images/two-documents-0.006.png": "8f6815d2d5bb00f31b2a5f976b0835a7fb92eea77c7e3f99fabb51171f87c1a7",
+    "images/two-documents-0.007.png": "323b1178bf7cfb7b14770b4502f0b864f014a30d636377bc3d6a0483dbc45c08",
+    "images/two-documents-0.008.png": "a14eca3ac1571b07a04788fc2668fd969548ec284a2d39bb2471f08f39e06e76",
+    "images/two-documents-0.009.png": "08edf9d4281632227baec3285e2465c0e17270cf7368aab5f4d64c53c713191a",
+    "images/two-documents-0.010.png": "808d1bded2c947e90a332d9d31bfc6ca91fe4af831dccaef90adbf9528d83071",
+    "images/two-documents-0.011.png": "e78c54e2b00e273d073cca778205e4d6645b128a45188f9457e6ef8cae0d403d",
+    "images/two-documents-0.012.png": "dc1ac96e7c2dd791b7f181b49da2608839f79d77282151595fd4dd285fef0808",
+    "images/two-documents-1.000.png": "98d0559f98cea69e989a4419a1ff96b680ce9f657826e28da0169820f60e00de",
+    "images/two-documents-1.001.png": "0e7f906c1ae90d040a0b86c91048fbf43ea3e1a6fe81b7f21f35dfbc9e0189b9",
+    "images/two-documents-1.002.png": "37b9ba132c81b3db2a7a41cc27c3fed9c37a6ac220bc5b0b0c3ec7edab79f82e",
+    "images/two-documents-1.003.png": "171613e686624862d38a6c2fff4303eec4132bbdaea7547b8186741aeef175df",
+    "images/two-documents-1.004.png": "d3c6c4dbd57411944135d811e4b41abf67a2a3bf59ccd772f556e007351819cf",
+    "images/two-documents-1.005.png": "b632791aff864cac309b472caf767da472ee49cf156070c244165728e5c9778b",
+    "images/two-documents-1.006.png": "d92e66cde1259e1b2a0c0a265318fa6d81c065d99563bcb455d6a79d3edd0c1f",
+    "images/two-documents-1.007.png": "255152de2d5ed53e8e8e174e3af071cd183d793c067553b282ab459290b86f1a",
+    "images/two-documents-1.008.png": "43f280c1936a5a8eb383db0eac7d7d55ff3081ba9518b963546fdcb840528a3c",
+    "images/two-documents-1.009.png": "3a6a158107e08b95e746328d5061f691430a8fc03dd1b4fcac6d2ee4bf7c8c3e",
+    "images/two-documents-1.010.png": "7c7b6e4cb884f9b56a0ccccdb9060d3c7c043fe31358b1682022bec0886c136b",
+    "images/two-documents-1.011.png": "7f140a62dd07c780beb1510b45cf1bc3566ecb2059ca872c46de5ae9bdc2e04d",
+    "images/two-documents-1.012.png": "2b1c33d6c07df65fb94af9830372212a9944d806bcc64b226ef7fbef7a0eee68",
+    "images/two-documents-2.000.png": "f72de4cff47b4d865663172bf73468e57c68b25fe1f6c17e52c1f9c2ecc27ab4",
+    "images/two-documents-2.001.png": "4f4e3e03c4ff4dcbce1447e2fb048fc13255170643fa43c22899cdf45f07199e",
+    "images/two-documents-2.002.png": "ea1ef97e25a970c29cc9316a4165986eff8da574e1fe38213bd9fa7410949443",
+    "images/two-documents-2.003.png": "b525f1c1541999ca6c1dffcbc588e3f94a214952bc82d14d0a67a713f39bf0d3",
+    "images/two-documents-2.004.png": "4ffeb953f3f71d51b92b5de86889b19fda44d7572c06b3f98b8dac4621a069b2",
+    "images/two-documents-2.005.png": "2ab764d30cd3e26fe8d9fb281f1b153b8f612877b56d9c28afded7965d0524f8",
+    "images/two-documents-2.006.png": "9534894222320b3a48256194fdac877d7e4bbfe18c30080eabc25abaf199972f",
+    "images/two-documents-2.007.png": "5c80dd9e48b35e26d2e6f88a392ec1a305d849126910f9b700b998d98632c3db",
+    "images/two-documents-2.008.png": "62d75d975a31ca71e867005d2c3fbd1df2adeb16e24100e3f8998cbc7d3ecf6f",
+    "images/two-documents-2.009.png": "e94c76426945e3d848ec18aa4355d2f3f9675a196f1b2bf78a9ac52ea439b66f",
+    "images/two-documents-2.010.png": "42b509682b091d3ba037e0bde801b6f00c445958f62d87230de716ce0c42c8df",
+    "images/two-documents-2.011.png": "694839ae07a16c9d5279be91802b8cc9124689819616d56fcae55f9ac5124c24",
+    "images/two-documents-2.012.png": "a3bdec34d0d908ae78e24c56f87ceadd4c53a1cf05ac0cd010c21b96b76cd392",
+    "images/two-documents-3.000.png": "27def24127f29b23d8ae93dba317036b8ac489c609c33d7fd5a5551c824ab34f",
+    "images/two-documents-3.001.png": "393ef1ca75713f4ec7987567ee54438d8524b23ad4d2013177b3ff9cf011af98",
+    "images/two-documents-3.002.png": "029e7149b56d16af6a0b2c4c0072220dc7824d576b8a7bede3c94225a44c805c",
+    "images/two-documents-3.003.png": "4c541726d3fa59908bdf107603002f8891b2e8282eda2b274400db222892b0aa",
+    "images/two-documents-3.004.png": "b4e536c2df3ca3ec0f9f490600c3aadd40aac0d9da103f4d7d653d071806e6c9",
+    "images/two-documents-3.005.png": "537c8b5e31f27f3a7a84f680fce8ecae2f66c059f1c3d4874fc19b895854d1fa",
+    "images/two-documents-3.006.png": "dfcf27556b93e66e518e2b505ddb9b08e463a3a327857ae5cdcde2fd7a94a874",
+    "images/two-documents-3.007.png": "abc4e9ce0bfda208bc2ec7f530ff0a1aa0c3e6c4604ea28d630b3293784222aa",
+    "images/two-documents-3.008.png": "bbd9f245a5f9179f00cc42bb88d64d129f4cd07490bdfe9142150f9d05db8ae4",
+    "images/two-documents-3.009.png": "93a7e0ac2f803830cae124da256849e10e15c0f11102ff29324675cf7c762899",
+    "images/two-documents-3.010.png": "243ec2b0714132c78b42d70274826de0ac226381a38849cb6d0297bfb9b1c9db",
+    "images/two-documents-3.011.png": "ff059c8c1ee48793c9a60c098fdf64d380b030be926a829eb2a0536f4e8e99b5",
+    "images/two-documents-3.012.png": "7bcce36218a201e7513a5b0984f0bd869db8fbe553526b35a6882a800d75c4e4",
+    "index.html": "e0267fe94037d94c0978a41289dcbe37979d6a0d292fed0c561b0a4566971f5a",
+    "rejected/revise-and-save-1.009-960x540.png": "b6d84c168343ed1acb57922b49049837a669b4f034967f8547ede0c605325eb4",
+    "rejected/two-documents-0.012-1024x768.png": "68ab7cd3bd5a79b9899fcfcae3ba86aebf66918b3779fda55ce1a592947bdff6",
+    "stress/body-taller-than-the-editor.png": "aef47efc6653c8bb8667759a14fdfcf70b51620218d7a63a611870d040174814",
+    "stress/button-narrower-than-its-text.png": "3f76dec26e33c1d07e20a0d073a2e327e91feb6eda54eda8b1dd9e8338fd3c10",
+    "stress/covered-button.png": "cde06014a97be1d24a15bebb4716813bcd2dcdcc86af092f5b25e5f4de797d25",
+    "stress/covered-label.png": "c282cb92942033ece1aaa82740c2b85db108fa67204d24992da09ba54bbd1ccb",
+    "stress/disabled-drawn-as-enabled.png": "66a20b17413808ca0cc3653aac5152f93c81f34069663e2edf5719c60ce89aa1",
+    "stress/list-under-the-notification.png": "e230ae085d4b72831f3cb742342269cf707de0b5cc6067616a69670669f33c83",
+    "stress/rail-too-short.png": "5a6a8fa3af2dde93371c31076ad06b6b1c9e9564d516eed628e46c36e70a0b93",
+    "stress/row-in-the-wrong-panel.png": "805cba3800cc7948350c41b037629740180d0e2871be9e0677eca15b81e5a9ea",
+    "stress/stacked-buttons.png": "386d5d26cab3eddfe176113bbc11f6c67ce7e7619c2344b7cbf4e2ee1a236760",
+    "stress/titles-too-long.png": "856fa5dd808e37872e236ea94124f146663eda43db77a9d18addb93add8d3cbf"
+  }
+}
