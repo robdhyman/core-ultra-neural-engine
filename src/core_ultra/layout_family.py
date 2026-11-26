@@ -1,18 +1,26 @@
 """Design conditions and layout families.
 
 A design condition is one value for each declared design factor: navigation
-position, panel arrangement, density, spacing and notification location. A
-layout family is a named combination of those values. The two say the same
+position, panel arrangement, density, spacing and notification location, and,
+in a layout that declares them, grouping and alignment. A layout family is a
+named combination of those values. The two say the same
 thing in two vocabularies: the scene model is given the factor values, and the
 family's name is diagnostic metadata that it never sees, so a held-out family
 is a combination it has not met and not an unknown identifier.
 
-A layout configuration (`configs/layout/v1.json`, `configs/layout/v2.json`)
-declares the factors, the values each may take and the families. Version 1
-has one family. Version 2 has eight, and lists under `out_of_scope` the
-variation the generator does not produce. `load()` without a path reads
-version 1, which is what a scene session draws A, Reference in unless it is
-given another layout.
+A layout configuration (`configs/layout/v1.json` to `v3.json`) declares the
+factors, the values each may take and the families. Version 1 has one family.
+Version 2 has eight, and lists under `out_of_scope` the variation the
+generator does not produce. Version 3 declares two more factors, grouping and
+alignment, and its eight families vary in them too. `load()` without a path
+reads version 1, which is what a scene session draws A, Reference in unless
+it is given another layout.
+
+Every layout declares the five factors of `REQUIRED_FACTORS`. The two
+`OPTIONAL_FACTORS` are declared together or not at all. A design condition of
+a layout that does not declare them has no value for either: the reference
+layout then draws what it drew before the factors existed, and the scene model
+is not given them.
 
     layout = load()
     family = layout.family("top-bar-list-left")
@@ -39,7 +47,9 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CONFIG = REPO_ROOT / "configs" / "layout" / "v1.json"
 
-FACTORS = ("navigation_position", "panel_arrangement", "density", "spacing", "notification_location")
+REQUIRED_FACTORS = ("navigation_position", "panel_arrangement", "density", "spacing", "notification_location")
+OPTIONAL_FACTORS = ("grouping", "alignment")
+FACTORS = (*REQUIRED_FACTORS, *OPTIONAL_FACTORS)
 
 _NAME = re.compile(r"[a-z][a-z0-9]*(-[a-z0-9]+)*")
 
@@ -55,16 +65,20 @@ class LayoutError(ValueError):
 
 @dataclass(frozen=True)
 class DesignCondition:
-    """One value for each design factor."""
+    """One value for each design factor its layout declares. The optional
+    factors of a layout that does not declare them are None, and are not part
+    of the condition as JSON."""
 
     navigation_position: str
     panel_arrangement: str
     density: str
     spacing: str
     notification_location: str
+    grouping: str | None = None
+    alignment: str | None = None
 
     def to_json(self) -> dict[str, str]:
-        return {factor: getattr(self, factor) for factor in FACTORS}
+        return {factor: getattr(self, factor) for factor in FACTORS if getattr(self, factor) is not None}
 
 
 @dataclass(frozen=True)
@@ -135,7 +149,7 @@ def _load(path: str) -> Layout:
     problems = _config_problems(raw)
     if problems:
         raise LayoutError(problems)
-    factors = MappingProxyType({factor: tuple(raw["factors"][factor]) for factor in FACTORS})
+    factors = MappingProxyType({factor: tuple(raw["factors"][factor]) for factor in FACTORS if factor in raw["factors"]})
     families = {
         name: LayoutFamily(name, entry["title"], entry["summary"], DesignCondition(**entry["design_condition"]))
         for name, entry in raw["families"].items()
@@ -155,13 +169,13 @@ def _condition_problems(values: Any, factors: Mapping[str, Any]) -> list[str]:
     if not isinstance(values, Mapping):
         return ["a design condition is a value for each design factor"]
     problems = []
-    for factor in FACTORS:
+    for factor in factors:
         if factor not in values:
             problems.append(f"the design condition has no {factor}")
         elif not isinstance(values[factor], str) or values[factor] not in factors[factor]:
             problems.append(f"{factor} is {values[factor]!r}; its values are {', '.join(factors[factor])}")
-    for extra in sorted(set(values) - set(FACTORS), key=str):
-        problems.append(f"{extra!r} is not a design factor; the factors are {', '.join(FACTORS)}")
+    for extra in sorted(set(values) - set(factors), key=str):
+        problems.append(f"{extra!r} is not a design factor; the factors are {', '.join(factors)}")
     return problems
 
 
@@ -179,8 +193,8 @@ def _config_problems(raw: Any) -> list[str]:
         problems.append("out_of_scope is not a list of sentences")
 
     factors = raw.get("factors")
-    if not isinstance(factors, dict) or set(factors) != set(FACTORS):
-        return [*problems, f"factors does not hold exactly: {', '.join(FACTORS)}"]
+    if not isinstance(factors, dict) or set(factors) not in (set(REQUIRED_FACTORS), set(FACTORS)):
+        return [*problems, f"factors does not hold exactly {', '.join(REQUIRED_FACTORS)}, with or without both of {' and '.join(OPTIONAL_FACTORS)}"]
     for factor, values in factors.items():
         if not isinstance(values, list) or not values or len(set(map(str, values))) != len(values):
             problems.append(f"factors.{factor} is not a list of different values")
@@ -208,7 +222,7 @@ def _config_problems(raw: Any) -> list[str]:
         inner = _condition_problems(entry["design_condition"], factors)
         problems += [f"{where}.design_condition: {problem}" for problem in inner]
         if not inner:
-            combination = tuple(entry["design_condition"][factor] for factor in FACTORS)
+            combination = tuple(entry["design_condition"][factor] for factor in FACTORS if factor in factors)
             if combination in seen:
                 problems.append(f"{where} is the same combination as families.{seen[combination]}")
             seen[combination] = name

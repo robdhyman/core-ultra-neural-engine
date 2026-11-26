@@ -1,7 +1,7 @@
 """Command-line tests for layout families, coherent variation, the validators
 and the stress-test set (test seam 2).
 
-`data generate` is run for real on the committed `configs/data/families-v1.json`
+`data generate` is run for real on the committed `configs/data/families-v2.json`
 and the tests assert on the manifest, the records and the stress-test set it
 writes.
 
@@ -33,12 +33,14 @@ from core_ultra.kernel import Kernel
 from core_ultra.scene_session import Conditioning, RenderingMode, SceneSession
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-FAMILIES = REPO_ROOT / "configs" / "data" / "families-v1.json"
-COMMITTED_MANIFEST = REPO_ROOT / "artifacts" / "datasets" / "families-v1" / "manifest.json"
-LAYOUT_V2 = REPO_ROOT / "configs" / "layout" / "v2.json"
+FAMILIES = REPO_ROOT / "configs" / "data" / "families-v2.json"
+FAMILIES_V1 = REPO_ROOT / "configs" / "data" / "families-v1.json"
+COMMITTED_MANIFEST = REPO_ROOT / "artifacts" / "datasets" / "families-v2" / "manifest.json"
+COMMITTED_MANIFEST_V1 = REPO_ROOT / "artifacts" / "datasets" / "families-v1" / "manifest.json"
+LAYOUT_V3 = REPO_ROOT / "configs" / "layout" / "v3.json"
 DESIGN_CONFIG = REPO_ROOT / "configs" / "design" / "v1.json"
 
-FACTORS = ("navigation_position", "panel_arrangement", "density", "spacing", "notification_location")
+FACTORS = ("navigation_position", "panel_arrangement", "density", "spacing", "notification_location", "grouping", "alignment")
 DENSITY = {0.85: "compact", 1.0: "preset", 1.15: "roomy"}
 SPACING = {0.75: "tight", 1.0: "preset", 1.25: "loose"}
 STATES = {"default", "hover", "pressed", "focused", "disabled"}
@@ -143,14 +145,41 @@ def nearest(value: float, names: dict[float, str]) -> str:
     return names[factor]
 
 
+def part_of(element: dict) -> str | None:
+    """The part of the workspace a bound element says it belongs to."""
+    for relationship in element.get("bound", {}).get("relationships", []):
+        if relationship["relation"] == "part_of":
+            return relationship["target"]
+    return None
+
+
+def around(scene: dict, part: str) -> dict:
+    """The smallest box around the bound elements of one part of the workspace."""
+    boxes = [element["box"] for element in scene["elements"] if part_of(element) == part]
+    left, top = min(b["x"] for b in boxes), min(b["y"] for b in boxes)
+    right, bottom = max(b["x"] + b["width"] for b in boxes), max(b["y"] + b["height"] for b in boxes)
+    return {"x": left, "y": top, "width": right - left, "height": bottom - top}
+
+
+def holds(outer: dict, inner: dict) -> bool:
+    return (
+        outer["x"] <= inner["x"] + 1e-6
+        and outer["y"] <= inner["y"] + 1e-6
+        and inner["x"] + inner["width"] <= outer["x"] + outer["width"] + 1e-6
+        and inner["y"] + inner["height"] <= outer["y"] + outer["height"] + 1e-6
+    )
+
+
 def condition_read_off(record: dict) -> dict[str, str]:
-    """The factor values a scene was drawn in, read off its boxes and the
-    visual preset's token values, with no knowledge of the reference layout."""
+    """The factor values a scene was drawn in, read off its boxes, its tree
+    and the visual preset's token values, with no knowledge of the reference
+    layout."""
     scene = record["target"]["scene"]
     tokens = record["inputs"]["visual_preset"]
     width, height = viewport_of(record)
-    toolbar, listed, editor = box(scene, "s.toolbar"), box(scene, "s.list"), box(scene, "s.editor")
-    create, sort = box(scene, "documents.create"), box(scene, "toolbar.sort")
+    toolbar = box(scene, "s.toolbar")
+    create, sort, field = box(scene, "documents.create"), box(scene, "toolbar.sort"), box(scene, "toolbar.filter")
+    save, undo = box(scene, "toolbar.save"), box(scene, "toolbar.undo")
 
     if toolbar["width"] == width and toolbar["y"] == 0:
         navigation = "top"
@@ -160,21 +189,130 @@ def condition_read_off(record: dict) -> dict[str, str]:
         assert toolbar["x"] == 0 and toolbar["height"] == height and toolbar["width"] < width / 2
         navigation = "left"
 
-    if listed["y"] == editor["y"]:
-        arrangement = "list-left" if listed["x"] < editor["x"] else "list-right"
+    # Which containers hold the elements of each part, and that each
+    # container's box really holds them.
+    listed, editor = around(scene, "workspace.list"), around(scene, "workspace.editor")
+    by_id = {element["id"]: element for element in scene["elements"]}
+    parents = {}
+    for element in scene["elements"]:
+        if part_of(element) in ("workspace.toolbar", "workspace.list", "workspace.editor"):
+            parents.setdefault(part_of(element), set()).add(element["parent"])
+            assert holds(by_id[element["parent"]]["box"], element["box"])
+    rules = [e["box"] for e in scene["elements"] if e["type"] == "divider" and e["id"] != "s.divider"]
+    shared = parents["workspace.list"] == parents["workspace.editor"]
+
+    # Where the list lies beside the editor: by their two panels, or, on one
+    # panel, by the rule drawn between them.
+    if shared:
+        (rule,) = rules
+        if rule["height"] > rule["width"]:
+            arrangement = "list-left" if listed["x"] < rule["x"] else "list-right"
+        else:
+            arrangement = "list-top"
     else:
-        assert listed["x"] == editor["x"] and listed["y"] + listed["height"] < editor["y"]
-        arrangement = "list-top"
+        (list_panel,), (editor_panel,) = parents["workspace.list"], parents["workspace.editor"]
+        list_panel, editor_panel = by_id[list_panel]["box"], by_id[editor_panel]["box"]
+        if list_panel["y"] == editor_panel["y"]:
+            arrangement = "list-left" if list_panel["x"] < editor_panel["x"] else "list-right"
+        else:
+            assert list_panel["x"] == editor_panel["x"] and list_panel["y"] + list_panel["height"] < editor_panel["y"]
+            arrangement = "list-top"
 
     if navigation == "left":
         gap = sort["y"] - create["y"] - create["height"]
     else:
         gap = sort["x"] - create["x"] - create["width"]
+
+    # Grouping: which bound elements share a container.
+    if shared:
+        # One panel holds the list and the editor, with a rule between them.
+        (sheet,) = parents["workspace.list"]
+        (rule,) = rules
+        assert by_id[sheet]["type"] == "panel" and holds(by_id[sheet]["box"], listed) and holds(by_id[sheet]["box"], editor)
+        if arrangement == "list-top":
+            assert listed["y"] + listed["height"] <= rule["y"] and rule["y"] + rule["height"] <= editor["y"]
+        else:
+            first, second = (listed, editor) if arrangement == "list-left" else (editor, listed)
+            assert first["x"] + first["width"] <= rule["x"] and rule["x"] + rule["width"] <= second["x"]
+        grouping = "sheet"
+    elif len(parents["workspace.toolbar"]) == 2:
+        # Two containers in the toolbar: one holds create, sort and the filter,
+        # the other save and undo, and a rule lies between the two.
+        leading, trailing = by_id[the_parent(scene, "documents.create")], by_id[the_parent(scene, "toolbar.save")]
+        assert leading["id"] != trailing["id"] and {leading["parent"], trailing["parent"]} == {"s.toolbar"}
+        assert {the_parent(scene, name) for name in ("toolbar.sort", "toolbar.filter.label", "toolbar.filter")} == {leading["id"]}
+        assert the_parent(scene, "toolbar.undo") == trailing["id"]
+        (rule,) = rules
+        if navigation == "left":
+            assert field["y"] + field["height"] <= rule["y"] and rule["y"] + rule["height"] <= save["y"]
+        else:
+            assert field["x"] + field["width"] <= rule["x"] and rule["x"] + rule["width"] <= save["x"]
+        grouping = "tasks"
+    else:
+        assert all(len(containers) == 1 for containers in parents.values()) and rules == []
+        assert len({next(iter(containers)) for containers in parents.values()}) == 3
+        grouping = "parts"
+
+    # Alignment: where the toolbar's elements lie in the room they have.
+    if navigation == "left":
+        if create["width"] == pytest.approx(field["width"]):
+            alignment = "justified"
+        elif create["x"] == pytest.approx(field["x"]):
+            alignment = "start"
+        else:
+            assert create["x"] + create["width"] / 2 == pytest.approx(field["x"] + field["width"] / 2)
+            alignment = "centre"
+    else:
+        packed = save["x"] - field["x"] - field["width"] == pytest.approx(gap)
+        before, after = create["x"], width - undo["x"] - undo["width"]
+        if not packed:
+            assert before == pytest.approx(after)
+            alignment = "justified"
+        elif before == pytest.approx(after):
+            alignment = "centre"
+        else:
+            assert before < after
+            alignment = "start"
+    # Every element narrower than its room says the same as the toolbar.
+    centred = alignment == "centre"
+
+    def middle(of: dict) -> float:
+        return of["x"] + of["width"] / 2
+
+    # The list's heading: centred over the list, or at its start. The list
+    # is as wide as its panel, or as its rows where it shares a panel.
+    heading = box(scene, "documents.heading")
+    row_boxes = [e["box"] for e in scene["elements"] if e.get("bound", {}).get("role") == "list-item"]
+    if not shared:
+        (list_panel,) = parents["workspace.list"]
+        assert (middle(heading) == pytest.approx(middle(by_id[list_panel]["box"]))) == centred
+    elif arrangement == "list-top":
+        assert (middle(heading) == pytest.approx(middle(by_id[sheet]["box"]))) == centred
+    elif row_boxes:
+        assert (middle(heading) == pytest.approx(middle(row_boxes[0]))) == centred
+    # The label of an empty list stands under the heading as the heading stands.
+    if has(scene, "documents.empty"):
+        label = box(scene, "documents.empty")
+        assert (middle(label) == pytest.approx(middle(heading))) == centred
+        assert (label["x"] == pytest.approx(heading["x"])) == (not centred)
+    # The editor's revision: centred under the title field, or at its start.
+    if has(scene, "editor.revision"):
+        title, revision = box(scene, "editor.title"), box(scene, "editor.revision")
+        assert (middle(revision) == pytest.approx(middle(title))) == centred
+        assert (revision["x"] == pytest.approx(title["x"])) == (not centred)
+    # In a rail, the filter's label: centred over the field, or at its start.
+    if navigation == "left":
+        label = box(scene, "toolbar.filter.label")
+        assert (middle(label) == pytest.approx(middle(field))) == centred
+        assert (label["x"] == pytest.approx(field["x"])) == (not centred)
+
     found = {
         "navigation_position": navigation,
         "panel_arrangement": arrangement,
         "density": nearest(create["height"] / tokens["density"]["control-height"], DENSITY),
         "spacing": nearest(gap / tokens["spacing"]["gap"], SPACING),
+        "grouping": grouping,
+        "alignment": alignment,
     }
     if has(scene, "notification"):
         note = box(scene, "notification")
@@ -186,6 +324,10 @@ def condition_read_off(record: dict) -> dict[str, str]:
         else:
             found["notification_location"] = "bottom-left" if centre < middle else "bottom-right"
     return found
+
+
+def the_parent(scene: dict, identity: str) -> str:
+    return next(e["parent"] for e in scene["elements"] if e.get("bound", {}).get("identity") == identity)
 
 
 def a_workspace() -> Kernel:
@@ -204,7 +346,7 @@ def a_workspace() -> Kernel:
 
 
 def test_the_layout_configuration_declares_what_the_reference_layout_draws_and_no_more():
-    raw = json.loads(LAYOUT_V2.read_text())
+    raw = json.loads(LAYOUT_V3.read_text())
     assert set(raw["factors"]) == set(FACTORS)
     for factor, values in raw["factors"].items():
         assert set(values) == set(reference_layout.DRAWN[factor]), factor
@@ -212,7 +354,7 @@ def test_the_layout_configuration_declares_what_the_reference_layout_draws_and_n
 
 
 def test_the_families_are_different_structures_and_each_value_is_in_at_least_two():
-    raw = json.loads(LAYOUT_V2.read_text())
+    raw = json.loads(LAYOUT_V3.read_text())
     families = {name: entry["design_condition"] for name, entry in raw["families"].items()}
     assert len(families) >= 6
     # No two families share both where the navigation is and how the panels are arranged.
@@ -232,7 +374,7 @@ def test_the_families_are_different_structures_and_each_value_is_in_at_least_two
 
 
 def test_every_record_is_drawn_as_the_factor_values_of_its_family(records):
-    raw = json.loads(LAYOUT_V2.read_text())["families"]
+    raw = json.loads(LAYOUT_V3.read_text())["families"]
     located = Counter()
     for record in records:
         declared = raw[record["diagnostics"]["layout_family"]]["design_condition"]
@@ -243,8 +385,146 @@ def test_every_record_is_drawn_as_the_factor_values_of_its_family(records):
     assert {"bottom-right", "bottom-left", "bottom-centre"} <= set(located)
 
 
+def test_grouping_and_alignment_vary_on_their_own():
+    """Neither follows from another factor: among the declared families each
+    navigation position and each panel arrangement meets more than one
+    grouping and more than one alignment, and each grouping meets more than
+    one alignment."""
+    families = [entry["design_condition"] for entry in json.loads(LAYOUT_V3.read_text())["families"].values()]
+    for varied in ("grouping", "alignment"):
+        for held in (factor for factor in FACTORS if factor != varied):
+            met = defaultdict(set)
+            for condition in families:
+                met[condition[held]].add(condition[varied])
+            assert all(len(values) >= 2 for values in met.values()), (varied, held, dict(met))
+    assert len({(c["grouping"], c["alignment"]) for c in families}) == len(families)
+
+
+def test_grouping_changes_the_tree_and_alignment_moves_boxes_and_neither_does_the_other():
+    """One state, one visual preset and one viewport size; the other five
+    factors fixed in turn at each navigation position and panel arrangement.
+    Changing the grouping changes which container holds an element and no
+    bound element's box. Changing the alignment moves boxes and changes no
+    element's container."""
+    kernel = a_workspace()
+    bound = documents_adapter.describe(kernel.state())
+    kernel.close()
+    preset = design.load().preset()
+
+    def written(**values: str) -> dict:
+        fixed = {"density": "preset", "spacing": "preset", "notification_location": "bottom-right", **values}
+        scene = reference_layout.write_scene(bound, (1440, 900), preset, layout_family.DesignCondition(**fixed))
+        assert validators.judge(scene, bound, (1440, 900), preset)[1] == ()
+        return scene
+
+    def bound_boxes(scene: dict) -> dict:
+        return {e["bound"]["identity"]: e["box"] for e in scene["elements"] if "bound" in e}
+
+    def tree(scene: dict) -> dict:
+        return {e["id"]: (e["type"], e["parent"]) for e in scene["elements"]}
+
+    for navigation, arrangement in itertools.product(reference_layout.DRAWN["navigation_position"], reference_layout.DRAWN["panel_arrangement"]):
+        where = {"navigation_position": navigation, "panel_arrangement": arrangement}
+        for alignment in reference_layout.DRAWN["alignment"]:
+            by_grouping = {grouping: written(**where, grouping=grouping, alignment=alignment) for grouping in reference_layout.DRAWN["grouping"]}
+            assert len({json.dumps(tree(scene), sort_keys=True) for scene in by_grouping.values()}) == 3
+            assert len({json.dumps(bound_boxes(scene), sort_keys=True) for scene in by_grouping.values()}) == 1
+            # The trees themselves: one container for each part, two in the toolbar, or one panel for list and editor.
+            parts, tasks, sheet = (tree(by_grouping[name]) for name in ("parts", "tasks", "sheet"))
+            assert parts["b.toolbar.save"][1] == parts["b.documents.create"][1] == "s.toolbar"
+            assert tasks["b.toolbar.save"][1] != tasks["b.documents.create"][1] and tasks[tasks["b.toolbar.save"][1]] == ("container", "s.toolbar")
+            assert parts["b.documents.heading"][1] != parts["b.editor.title"][1]
+            assert sheet["b.documents.heading"][1] == sheet["b.editor.title"][1] and sheet[sheet["b.editor.title"][1]][0] == "panel"
+        for grouping in reference_layout.DRAWN["grouping"]:
+            by_alignment = {alignment: written(**where, grouping=grouping, alignment=alignment) for alignment in reference_layout.DRAWN["alignment"]}
+            assert len({json.dumps(tree(scene), sort_keys=True) for scene in by_alignment.values()}) == 1
+            boxes = {name: bound_boxes(scene) for name, scene in by_alignment.items()}
+            assert len({json.dumps(found, sort_keys=True) for found in boxes.values()}) == 3
+            # What moves: elements narrower than their room. What stays: the
+            # rows, the fields that fill their part and the notification.
+            for still in ("document:1", "editor.title", "editor.body", "notification"):
+                assert boxes["justified"][still] == boxes["start"][still] == boxes["centre"][still], still
+            assert boxes["start"]["documents.heading"] == boxes["justified"]["documents.heading"] != boxes["centre"]["documents.heading"]
+            assert boxes["start"]["editor.revision"] != boxes["centre"]["editor.revision"]
+            assert boxes["justified"]["toolbar.save"] != boxes["start"]["toolbar.save"] != boxes["centre"]["toolbar.save"]
+
+
+def test_the_scene_model_is_told_the_grouping_and_the_alignment(records):
+    """Two designs that differ only in grouping or alignment are both valid,
+    so the difference is a model input and the target is not random."""
+    for record in records:
+        condition = record["inputs"]["design_condition"]
+        assert list(condition) == list(FACTORS)
+        assert condition["grouping"] in ("parts", "tasks", "sheet") and condition["alignment"] in ("justified", "start", "centre")
+    layout = layout_family.load(LAYOUT_V3)
+    assert generator.record_problems(records[0], design.load(), layout) == []
+    # Inputs without them would not decide the target, and break the record rules.
+    for dropped in (("alignment",), ("grouping",), ("grouping", "alignment")):
+        stripped = copy.deepcopy(records[0])
+        for factor in dropped:
+            del stripped["inputs"]["design_condition"][factor]
+        problems = generator.record_problems(stripped, design.load(), layout)
+        if len(dropped) == 1:
+            assert any(f"inputs: design_condition has no {dropped[0]}" in problem for problem in problems), problems
+        else:
+            assert "inputs.design_condition is not the design condition of the record's layout family" in problems, problems
+    # A layout that declares neither gives a condition of five factors, as before.
+    tiny = generator.load_config(REPO_ROOT / "configs" / "data" / "tiny-v1.json")
+    assert list(tiny.layout.family().design_condition.to_json()) == list(FACTORS[:5])
+
+
+def test_a_layout_declares_the_five_factors_and_may_declare_grouping_and_alignment(tmp_path):
+    raw = json.loads(LAYOUT_V3.read_text())
+
+    def loaded(change) -> layout_family.Layout:
+        changed = copy.deepcopy(raw)
+        change(changed)
+        path = tmp_path / f"layout-{len(list(tmp_path.iterdir()))}.json"
+        path.write_text(json.dumps(changed))
+        return layout_family.load(path)
+
+    def without(factor: str):
+        def change(layout: dict) -> None:
+            del layout["factors"][factor]
+            for family in layout["families"].values():
+                del family["design_condition"][factor]
+
+        return change
+
+    # Every one of the five is required.
+    for factor in FACTORS[:5]:
+        with pytest.raises(layout_family.LayoutError, match="factors does not hold exactly navigation_position, panel_arrangement"):
+            loaded(without(factor))
+    with pytest.raises(layout_family.LayoutError, match="factors does not hold"):
+        loaded(lambda layout: layout["factors"].update(brand=["acme"]))
+    # A family must give a value for each factor its layout declares, and for no other.
+    with pytest.raises(layout_family.LayoutError, match="the design condition has no grouping"):
+        loaded(lambda layout: layout["families"]["top-bar-list-top"]["design_condition"].pop("grouping"))
+    # Grouping and alignment are declared together or not at all.
+    for factor in FACTORS[5:]:
+        with pytest.raises(layout_family.LayoutError, match="with or without both of grouping and alignment"):
+            loaded(without(factor))
+
+    def without_both(layout: dict) -> None:
+        without("grouping")(layout)
+        without("alignment")(layout)
+
+    # Without them the families have five values each, and are drawn as
+    # `parts` and `justified`.
+    five = loaded(without_both)
+    assert list(five.factors) == list(FACTORS[:5])
+    condition = five.family("left-rail-list-top").design_condition
+    assert condition.grouping is None and condition.alignment is None and list(condition.to_json()) == list(FACTORS[:5])
+    kernel = a_workspace()
+    bound = documents_adapter.describe(kernel.state())
+    kernel.close()
+    preset = design.load().preset()
+    stated = layout_family.DesignCondition(**{**condition.to_json(), "grouping": "parts", "alignment": "justified"})
+    assert reference_layout.write_scene(bound, (1280, 720), preset, condition) == reference_layout.write_scene(bound, (1280, 720), preset, stated)
+
+
 def test_one_state_is_a_different_arrangement_in_every_family():
-    layout = layout_family.load(LAYOUT_V2)
+    layout = layout_family.load(LAYOUT_V3)
     kernel = a_workspace()
     session = SceneSession(layout)
     drawn = {}
@@ -254,7 +534,7 @@ def test_one_state_is_a_different_arrangement_in_every_family():
         )
         scene = frame.scene.to_json()
         drawn[name] = (
-            json.dumps([box(scene, part) for part in ("s.toolbar", "s.list", "s.editor", "notification")]),
+            json.dumps([(element["id"], element["parent"], element["box"]) for element in scene["elements"] if "bound" not in element or element["bound"]["role"] == "status"]),
             frame.image.tobytes(),
         )
         # The same bound elements, each still hit at its own centre.
@@ -266,7 +546,7 @@ def test_one_state_is_a_different_arrangement_in_every_family():
 
 
 def test_a_scene_session_without_the_layout_refuses_a_family_it_does_not_declare():
-    family = layout_family.load(LAYOUT_V2).family("left-rail-list-top")
+    family = layout_family.load(LAYOUT_V3).family("left-rail-list-top")
     kernel = Kernel()
     with pytest.raises(layout_family.LayoutError):
         SceneSession().frame(kernel.state(), Conditioning(1280, 720, design_condition=family.design_condition.to_json()), "A, Reference")
@@ -278,14 +558,15 @@ def test_a_scene_session_without_the_layout_refuses_a_family_it_does_not_declare
 
 def test_every_combination_of_factor_values_is_drawn_and_passes_the_validators():
     """No navigation position, panel arrangement, density, spacing or
-    notification location is rejected for what it is: all 243 combinations, in
-    every visual preset, pass every validator when the viewport has room."""
+    notification location, and no grouping or alignment, is rejected for what
+    it is: all 2 187 combinations, in every visual preset, pass every
+    validator when the viewport has room."""
     kernel = a_workspace()
     bound = documents_adapter.describe(kernel.state())
     kernel.close()
     presets = design.load().presets.values()
     combinations = list(itertools.product(*(reference_layout.DRAWN[factor] for factor in FACTORS)))
-    assert len(combinations) == 243
+    assert len(combinations) == 3**7 == 2187
     for values in combinations:
         condition = layout_family.DesignCondition(**dict(zip(FACTORS, values)))
         for preset in presets:
@@ -305,7 +586,7 @@ def test_the_validators_are_given_no_design_condition_and_load_no_design_prefere
     # Nothing in the module names a layout family, and no validator is told
     # which factor values a scene was drawn in.
     source = (REPO_ROOT / "src" / "core_ultra" / "validators.py").read_text()
-    for name in json.loads(LAYOUT_V2.read_text())["families"]:
+    for name in json.loads(LAYOUT_V3.read_text())["families"]:
         assert name not in source
     for preset in json.loads(DESIGN_CONFIG.read_text())["presets"]:
         assert preset not in source
@@ -365,20 +646,29 @@ def test_the_records_vary_in_structure_content_and_appearance(records, manifest)
     def rows(scene: dict) -> list[dict]:
         return [e for e in scene["elements"] if e.get("bound", {}).get("role") == "list-item"]
 
-    # Composition, grouping, navigation placement, panel arrangement, density, spacing.
+    # Composition, navigation placement, panel arrangement, density, spacing,
+    # grouping and alignment: three values of each.
     for factor in FACTORS:
         assert len({condition[factor] for condition in conditions}) == 3, factor
-    # Grouping and alignment: in a rail the controls are stretched to one width
-    # and stacked; in a bar each is as wide as its text and they sit in a row.
-    stretched = {box(s, "documents.create")["width"] == box(s, "toolbar.sort")["width"] for s in scenes}
-    assert stretched == {True, False}
+    # Grouping, in the scene's tree: the structural elements a scene has.
+    structures = {tuple(sorted(e["id"] for e in s["elements"] if "bound" not in e)) for s in scenes}
+    assert structures == {
+        ("s.divider", "s.editor", "s.list", "s.root", "s.toolbar"),
+        ("s.divider", "s.editor", "s.list", "s.root", "s.toolbar", "s.toolbar.divider", "s.toolbar.documents", "s.toolbar.editing"),
+        ("s.divider", "s.root", "s.toolbar", "s.workspace", "s.workspace.divider"),
+    }
+    # Alignment, in a rail: a button as wide as the rail's inside, or as wide
+    # as its text at the rail's left, or as wide as its text in its middle.
     stacked = {box(s, "toolbar.save")["x"] == box(s, "toolbar.undo")["x"] for s in scenes}
     assert stacked == {True, False}
+    in_rail = set()
     for scene in scenes:
-        if box(scene, "toolbar.save")["x"] == box(scene, "toolbar.undo")["x"]:
-            rail, margin = box(scene, "s.toolbar")["width"], box(scene, "documents.create")["x"]
-            for control in ("documents.create", "toolbar.sort", "toolbar.filter", "toolbar.save", "toolbar.undo"):
-                assert box(scene, control)["width"] == pytest.approx(rail - 2 * margin), control
+        create, field = box(scene, "documents.create"), box(scene, "toolbar.filter")
+        if box(scene, "toolbar.sort")["y"] > create["y"]:
+            in_rail.add((create["width"] == pytest.approx(field["width"]), create["x"] == pytest.approx(field["x"])))
+    # The declared families put a rail's buttons at its left or in its middle;
+    # a rail of stretched buttons is drawn too, and is in no family.
+    assert in_rail == {(False, True), (False, False)}
     # A list is one column, or a grid with several rows side by side.
     assert any(len({row["box"]["y"] for row in rows(s)}) < len(rows(s)) for s in scenes)
     assert any(len({row["box"]["y"] for row in rows(s)}) == len(rows(s)) > 1 for s in scenes)
@@ -406,7 +696,7 @@ def test_the_records_vary_in_structure_content_and_appearance(records, manifest)
         if button["bound"]["state"] != "default":
             continue
         create = button["style"]
-        panel = next(e for e in scene["elements"] if e["id"] == "s.list")["style"]
+        panel = next(e for e in scene["elements"] if e["type"] == "panel")["style"]
         looks[record["diagnostics"]["visual_preset"]].add(
             json.dumps([create["fill"], create["type_size"], create["type_weight"], create["corner_radius"], panel["elevation"]])
         )
@@ -460,11 +750,11 @@ def test_what_the_records_do_not_cover_is_recorded_as_a_gap(folder):
 
 
 def test_a_design_is_sampled_whole_and_never_token_by_token(records, manifest):
-    raw_layout = json.loads(LAYOUT_V2.read_text())
+    raw_layout = json.loads(LAYOUT_V3.read_text())
     declared_conditions = {json.dumps(f["design_condition"], sort_keys=True) for f in raw_layout["families"].values()}
     raw_design = json.loads(DESIGN_CONFIG.read_text())["presets"]
 
-    # Of 243 possible combinations of factor values, only the declared families are sampled.
+    # Of 2 187 possible combinations of factor values, only the declared families are sampled.
     sampled = {json.dumps(record["inputs"]["design_condition"], sort_keys=True) for record in records}
     assert sampled == declared_conditions and len(sampled) == 8
 
@@ -502,11 +792,15 @@ def test_density_and_spacing_each_scale_their_whole_group_of_tokens_by_one_facto
         (density,) = {nearest(ratio, DENSITY) for ratio in ratios}
         assert density == record["inputs"]["design_condition"]["density"]
 
-        # Two distances: the editor's padding and the gap under the title field.
-        editor, title, revision = box(scene, "s.editor"), box(scene, "editor.title"), box(scene, "editor.revision")
+        # Three distances: the gap under the title field, the gap under the
+        # revision, and the three margins under the notification.
+        title, revision, body = box(scene, "editor.title"), box(scene, "editor.revision"), box(scene, "editor.body")
+        note, toolbar = box(scene, "notification"), box(scene, "s.toolbar")
+        floor = toolbar["y"] if toolbar["y"] > 0 else viewport_of(record)[1]
         distances = {
-            (title["x"] - editor["x"]) / tokens["spacing"]["editor-padding"],
             (revision["y"] - title["y"] - title["height"]) / tokens["spacing"]["gap"],
+            (body["y"] - revision["y"] - revision["height"]) / tokens["spacing"]["gap"],
+            (floor - note["y"] - note["height"]) / (3 * tokens["spacing"]["margin"]),
         }
         (spacing,) = {nearest(ratio, SPACING) for ratio in distances}
         assert spacing == record["inputs"]["design_condition"]["spacing"]
@@ -535,7 +829,7 @@ def test_a_viewport_size_is_given_only_where_every_state_of_the_session_fits(man
     rejected for those codes; at the size the session was given, it passes."""
     assert manifest["viewport_choice"] == "fitting"
     by_id = {record["id"]: record for record in records}
-    layout, presets = layout_family.load(LAYOUT_V2), design.load().presets
+    layout, presets = layout_family.load(LAYOUT_V3), design.load().presets
     refusals = 0
     for session in manifest["sessions"]:
         for refusal in session["viewports_refused"]:
@@ -584,6 +878,7 @@ def sound(records) -> dict:
         states = {e["bound"]["identity"]: e["bound"]["state"] for e in scene["elements"] if "bound" in e}
         if (
             record["inputs"]["design_condition"]["navigation_position"] == "top"
+            and record["inputs"]["design_condition"]["grouping"] == "parts"
             and has(scene, "editor.body") and has(scene, "notification") and has(scene, "document:1")
             and states["toolbar.save"] == "disabled"
         ):  # fmt: skip
@@ -605,7 +900,8 @@ def narrow(scene: dict, name: str) -> None:
 
 
 def flatten(scene: dict, name: str) -> None:
-    the(scene, name)["box"]["height"] = 12.0
+    # As low as its corners allow, and lower than a line of its text needs.
+    the(scene, name)["box"]["height"] = 2 * the(scene, name)["style"]["corner_radius"] + 1
 
 
 def out_of_its_panel(scene: dict, name: str) -> None:
@@ -621,7 +917,7 @@ def onto_save(scene: dict, name: str) -> None:
 
 
 def an_empty_panel(scene: dict, name: str) -> None:
-    scene["elements"].append({**copy.deepcopy(the(scene, "s.list")), "id": "s.spare", "box": {"x": 0.0, "y": 0.0, "width": 4.0, "height": 4.0}})
+    scene["elements"].append({**copy.deepcopy(the(scene, "s.list")), "id": "s.spare", "box": {"x": 0.0, "y": 0.0, "width": 40.0, "height": 40.0}})
 
 
 def editor_over_the_list(scene: dict, name: str) -> None:
@@ -706,11 +1002,12 @@ def test_a_notification_may_lie_over_one_corner_of_an_element_and_no_more(sound)
     # Over the centre.
     centre = (body["x"] + (body["width"] - note["width"]) / 2, body["y"] + (body["height"] - note["height"]) / 2)
     assert findings_with_the_notification_at(*centre) == [("hit_target_covered", "b.editor.body")]
-    # Over both right-hand outer points of the title field, and not its centre.
+    # Over both left-hand outer points of the title field, and not its centre.
     title = the(sound["target"]["scene"], "editor.title")["box"]
-    assert note["height"] >= title["height"] / 2 + 2
-    over_two = (title["x"] + 0.75 * title["width"] - 4, title["y"] + title["height"] / 4 - 1)
-    assert over_two[0] > title["x"] + title["width"] / 2 and over_two[0] + note["width"] <= viewport[0]
+    # Its right end, clear of its rounded corners, lies over the two points.
+    assert note["height"] == title["height"]
+    over_two = (title["x"] + 0.25 * title["width"] + 20 - note["width"], title["y"])
+    assert over_two[0] >= 0 and over_two[0] + note["width"] < title["x"] + title["width"] / 2
     assert ("hit_target_covered", "b.editor.title") in findings_with_the_notification_at(*over_two)
 
 
@@ -932,9 +1229,25 @@ def test_the_committed_manifest_is_the_families_configuration_generated(manifest
         return subprocess.run(["git", "check-ignore", "-q", path], cwd=REPO_ROOT).returncode == 0
 
     dataset = generator.default_out(generator.load_config(FAMILIES)).as_posix()
-    assert dataset == "artifacts/datasets/families-v1"
+    assert dataset == "artifacts/datasets/families-v2"
     assert not ignored(f"{dataset}/manifest.json")
     assert ignored(f"{dataset}/records/long-list-0.000.json") and ignored(f"{dataset}/stress/missing-button.json")
+
+
+def test_the_first_families_dataset_still_generates_the_inputs_and_targets_its_manifest_lists():
+    """Version 1 of the families dataset is in layout version 2, which has no
+    grouping and no alignment. Its committed manifest is not rewritten: the
+    reference layout must still write the same scenes for it, and its model
+    inputs must still hold five factors."""
+    committed = json.loads(COMMITTED_MANIFEST_V1.read_text())
+    assert committed["configuration"]["sha256"] == sha256(FAMILIES_V1.read_bytes())
+    files = dict(generator.generate(generator.load_config(FAMILIES_V1)))
+    manifest = json.loads(files["manifest.json"])
+    fields = ("id", "session", "layout_family", "visual_preset", "viewport", "inputs_sha256", "target_sha256")
+    assert [[entry[f] for f in fields] for entry in committed["records"]] == [[entry[f] for f in fields] for entry in manifest["records"]]
+    assert [entry["codes"] for entry in committed["stress_tests"]["records"]] == [entry["codes"] for entry in manifest["stress_tests"]["records"]]
+    record = json.loads(files[manifest["records"][0]["file"]])
+    assert list(record["inputs"]["design_condition"]) == list(FACTORS[:5])
 
 
 # --- the stress-test set ----------------------------------------------------------------------
@@ -1001,7 +1314,7 @@ def test_a_difficult_stress_test_is_what_the_reference_layout_writes_for_a_reach
     """Nothing was broken by hand: the candidate is the reference layout's own
     scene for a state the kernel reaches, and it is the content or the
     viewport that makes it invalid."""
-    layout, presets = layout_family.load(LAYOUT_V2), design.load().presets
+    layout, presets = layout_family.load(LAYOUT_V3), design.load().presets
     difficult = [record for record in stress if record["broken_by"] is None]
     assert len(difficult) >= 6
     for record in difficult:
@@ -1105,7 +1418,7 @@ def test_a_content_length_is_diagnostic_metadata_and_never_a_model_input(records
 
 
 def test_the_variation_the_generator_does_not_support_is_listed(manifest):
-    stated = json.loads(LAYOUT_V2.read_text())["out_of_scope"]
+    stated = json.loads(LAYOUT_V3.read_text())["out_of_scope"]
     assert len(stated) >= 10 and all(isinstance(item, str) and item.endswith(".") for item in stated)
     assert manifest["out_of_scope"] == stated
     record = (REPO_ROOT / "records" / "milestones" / "S2.md").read_text()

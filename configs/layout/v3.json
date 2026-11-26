@@ -1,0 +1,167 @@
+{
+  "kind": "layout-config",
+  "name": "core-ultra-layout-v3",
+  "version": 3,
+  "note": "The design factors a design condition is made of, the values the reference layout engine draws for each, and the layout families: each family is one named combination of factor values, chosen as a whole. The scene model is given the factor values, never a family's name. Navigation position is where the toolbar's elements sit: a bar across the top, a rail down the left side or a bar across the bottom. Panel arrangement is where the document list sits beside the editor: a column on the left, a column on the right, or a grid of rows across the top. Density scales the visual preset's heights and spacing scales its distances, each by one factor for every token of the group (`preset` leaves them as the preset states them). Notification location is where along the lower edge of the area the navigation leaves free the notification lies. Grouping is which elements share a container in the scene: `parts` gives each part of the workspace one container (the toolbar's, the list's panel, the editor's panel); `tasks` puts the toolbar's elements in two containers with a divider between them, those that act on the documents and those that act on the work in hand; `sheet` puts the list and the editor on one panel with a divider between them. Alignment is where an element narrower than the room it has is put: `justified` spreads the toolbar's elements to both ends of a bar and stretches them across a rail; `start` packs them from the leading edge at the width of their text; `centre` centres them, and centres the list's heading, the label of an empty list and the editor's revision too. Version 3 adds grouping and alignment to version 2, whose families are here with a value for each. The families are preferences, not rules: the engine draws any combination of these values, every value is used by at least two families, and none is the correct one. `out_of_scope` lists the variation the generator does not produce. A changed layout is a new version of this file, never an edit to this one once a dataset has been generated from it.",
+  "factors": {
+    "navigation_position": [
+      "top",
+      "left",
+      "bottom"
+    ],
+    "panel_arrangement": [
+      "list-left",
+      "list-right",
+      "list-top"
+    ],
+    "density": [
+      "compact",
+      "preset",
+      "roomy"
+    ],
+    "spacing": [
+      "tight",
+      "preset",
+      "loose"
+    ],
+    "notification_location": [
+      "bottom-right",
+      "bottom-left",
+      "bottom-centre"
+    ],
+    "grouping": [
+      "parts",
+      "tasks",
+      "sheet"
+    ],
+    "alignment": [
+      "justified",
+      "start",
+      "centre"
+    ]
+  },
+  "default_family": "top-bar-list-left",
+  "families": {
+    "top-bar-list-left": {
+      "title": "Top bar, list left",
+      "summary": "The toolbar across the top, the document list on the left, the editor filling the rest and the notification over the lower right corner.",
+      "design_condition": {
+        "navigation_position": "top",
+        "panel_arrangement": "list-left",
+        "density": "preset",
+        "spacing": "preset",
+        "notification_location": "bottom-right",
+        "grouping": "parts",
+        "alignment": "justified"
+      }
+    },
+    "top-bar-list-right": {
+      "title": "Top bar, list right",
+      "summary": "The toolbar across the top, the editor on the left and the document list on the right, taller elements and wider distances, the notification at the middle of the lower edge. The editor and the list lie on one panel, and the toolbar's elements are at the two ends of the bar.",
+      "design_condition": {
+        "navigation_position": "top",
+        "panel_arrangement": "list-right",
+        "density": "roomy",
+        "spacing": "loose",
+        "notification_location": "bottom-centre",
+        "grouping": "sheet",
+        "alignment": "justified"
+      }
+    },
+    "top-bar-list-top": {
+      "title": "Top bar, list across the top",
+      "summary": "The toolbar across the top, the documents as a grid of rows under it and the editor below, shorter elements and closer distances, the notification over the lower right corner. The list and the editor lie on one panel, and the toolbar's elements, the list's heading and the revision are centred.",
+      "design_condition": {
+        "navigation_position": "top",
+        "panel_arrangement": "list-top",
+        "density": "compact",
+        "spacing": "tight",
+        "notification_location": "bottom-right",
+        "grouping": "sheet",
+        "alignment": "centre"
+      }
+    },
+    "left-rail-list-left": {
+      "title": "Left rail, list left",
+      "summary": "The toolbar's elements stacked in a rail down the left side, the document list beside it and the editor filling the rest, shorter elements, the notification over the lower left corner, under the list. The rail's elements are in two groups with a divider between them, each as wide as its text and centred, as are the list's heading and the revision.",
+      "design_condition": {
+        "navigation_position": "left",
+        "panel_arrangement": "list-left",
+        "density": "compact",
+        "spacing": "preset",
+        "notification_location": "bottom-left",
+        "grouping": "tasks",
+        "alignment": "centre"
+      }
+    },
+    "left-rail-list-right": {
+      "title": "Left rail, list right",
+      "summary": "The toolbar's elements stacked in a rail down the left side, the editor beside it and the document list on the right, closer distances, the notification at the middle of the lower edge. The rail's elements are in two groups with a divider between them, its buttons as wide as their text, at its left.",
+      "design_condition": {
+        "navigation_position": "left",
+        "panel_arrangement": "list-right",
+        "density": "preset",
+        "spacing": "tight",
+        "notification_location": "bottom-centre",
+        "grouping": "tasks",
+        "alignment": "start"
+      }
+    },
+    "left-rail-list-top": {
+      "title": "Left rail, list across the top",
+      "summary": "The toolbar's elements stacked in a rail down the left side, the documents as a grid of rows across the top and the editor below, taller elements and wider distances, the notification over the lower right corner. The rail's buttons are as wide as their text, at its left.",
+      "design_condition": {
+        "navigation_position": "left",
+        "panel_arrangement": "list-top",
+        "density": "roomy",
+        "spacing": "loose",
+        "notification_location": "bottom-right",
+        "grouping": "parts",
+        "alignment": "start"
+      }
+    },
+    "bottom-bar-list-left": {
+      "title": "Bottom bar, list left",
+      "summary": "The toolbar across the bottom, the document list on the left and the editor filling the rest above it, taller elements, the notification over the lower left corner, under the list. The list and the editor lie on one panel, and the toolbar's elements are packed from the left.",
+      "design_condition": {
+        "navigation_position": "bottom",
+        "panel_arrangement": "list-left",
+        "density": "roomy",
+        "spacing": "preset",
+        "notification_location": "bottom-left",
+        "grouping": "sheet",
+        "alignment": "start"
+      }
+    },
+    "bottom-bar-list-right": {
+      "title": "Bottom bar, list right",
+      "summary": "The toolbar across the bottom, the editor on the left and the document list on the right above it, shorter elements and closer distances, the notification at the middle of the lower edge. The toolbar's elements are in two groups with a divider between them, at the two ends of the bar.",
+      "design_condition": {
+        "navigation_position": "bottom",
+        "panel_arrangement": "list-right",
+        "density": "compact",
+        "spacing": "tight",
+        "notification_location": "bottom-centre",
+        "grouping": "tasks",
+        "alignment": "justified"
+      }
+    }
+  },
+  "out_of_scope": [
+    "Scrolling. Nothing scrolls, so a workspace holds at most 32 bound elements (21 list rows) and only as many rows and lines as its viewport shows.",
+    "Text that wraps, is cut short or ends in an ellipsis. Every text is one line (a document body, one line per line feed) and must fit its box as it is.",
+    "Right-to-left and vertical text, and any character the Inter font has no glyph for (Chinese, Japanese, Korean, Arabic, emoji).",
+    "More than one font family, and italic or condensed styles. Presets differ in type size and weight only.",
+    "Text aligned inside its own box. Where text sits in a box is the runtime renderer's rule and not a scene value: a button's text is centred and every other text starts at the left, in every family. Alignment moves boxes, never the text inside one.",
+    "Right alignment, and a different alignment in each part of the workspace. One alignment holds for the whole workspace, and it is justified, start or centre.",
+    "Groupings other than the three declared. Rows are never grouped under sub-headings, the editor's title and body are never in containers of their own, and the two groupings of the toolbar and of the panels are not combined.",
+    "Style values randomised one by one. A design is a whole visual preset and a whole layout family; no token is drawn independently of the rest of its set.",
+    "Arrangements that change with the viewport. The arrangement comes from the design condition alone; a narrow viewport never folds the list away or moves the navigation.",
+    "Navigation on the right, hidden or collapsed navigation, tabs, menus, icons and images. The toolbar always holds the same six bound elements, as text.",
+    "A notification along the upper edge. There it lies over the title field or the first rows of the list, which the validators reject.",
+    "More than two panels, nested or floating panels, dialogs, and more than one notification at a time.",
+    "Element states beyond default, hover, pressed, focused and disabled, more than one pointed element at a time, selection and drag.",
+    "Workspaces other than the document workspace, and document lists the scripted sessions do not reach (the longest scripted list has nine documents).",
+    "Motion. A record is one still frame."
+  ]
+}

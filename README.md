@@ -98,7 +98,7 @@ uv run core-ultra data generate --config configs/data/tiny-v1.json
 
 `data generate` runs the scripted sessions of a dataset configuration against the application kernel. For every state a session reaches, the reference layout engine writes the true scene, the validators judge it, the runtime renderer draws it, and one dataset record and one reference image are written. The stress-test set is written apart, and a manifest of hashes is written last. The same configuration always gives the same bytes. A state whose true scene a validator rejects is not written; the manifest lists it under `rejected` with every reason. The manifest also lists what the records do not cover (`coverage.gaps`), which the command prints and does not fail on.
 
-`configs/data/families-v1.json` is the configuration with every layout family, and takes about eight seconds.
+`configs/data/families-v2.json` is the configuration with every layout family, and takes about eight seconds.
 
 It exits 2, writing nothing, when the configuration cannot be used, a stress test is not rejected for the reasons it states, or the folder already holds a different dataset. A dataset is never overwritten.
 
@@ -138,15 +138,16 @@ All text is drawn in Inter, kept in this repository under the SIL Open Font Lice
 
 ## Datasets
 
-A dataset is generated, never collected. There are two configurations, and neither is the pilot.
+A dataset is generated, never collected. There are three configurations, and none is the pilot.
 
 | Configuration | Holds |
 | --- | --- |
 | `configs/data/tiny-v1.json` | Four scripted sessions, one in each visual preset, in one layout family: 82 records. It shows the whole path. Its committed manifest was written by generator version 1; the model inputs and targets it lists are still what the configuration generates. |
-| `configs/data/families-v1.json` | Sixteen scripted sessions across eight layout families, four visual presets, five viewport sizes and three content lengths: 358 records, none rejected, and a stress-test set of 20. |
+| `configs/data/families-v2.json` | Sixteen scripted sessions across the eight layout families of layout version 3, four visual presets, five viewport sizes and three content lengths: 358 records, none rejected, and a stress-test set of 20. |
+| `configs/data/families-v1.json` | The same in layout version 2, which has no grouping and no alignment of its own. Version 2 replaces it; its manifest stays, and a test holds its model inputs and targets to it. |
 
 ```
-artifacts/datasets/families-v1/
+artifacts/datasets/families-v2/
   manifest.json        hashes of everything below; the only file in git
   config.json          the dataset configuration, byte for byte
   records/<id>.json    one dataset record
@@ -157,7 +158,7 @@ artifacts/datasets/families-v1/
 
 **Scripted sessions.** A scenario is a script, a list of actions such as `create`, `open`, `edit`, `save`. A scripted session carries a script out on an empty kernel the way a person would: the pointer moves onto a bound element, the element is pressed or focused, and the command its action binding names is given to the kernel. Each of those three is a moment and each moment becomes a record, so every state in a dataset is one the application can reach. Titles, bodies and which row is opened come from a random source seeded with the configuration's seed and the session's id. A session runs in one design, chosen whole: one layout family, one visual preset, one viewport size and one content length (a named range of title words and body lines), dealt out in seeded orders so that the sessions cover each evenly. No factor value and no style token is drawn on its own.
 
-**Design condition and layout family.** A design condition is one value for each of five design factors: navigation position, panel arrangement, density, spacing and notification location. A layout family is a named combination of those values. `configs/layout/v1.json` declares one, `top-bar-list-left`; `configs/layout/v2.json` declares eight. The reference layout engine turns application state, viewport size, visual preset and design condition into exactly one scene, with no random choice, and refuses a factor value it does not draw.
+**Design condition and layout family.** A design condition is one value for each design factor a layout declares. Every layout declares five: navigation position, panel arrangement, density, spacing and notification location. Layout version 3 declares two more, grouping and alignment. A layout family is a named combination of those values. `configs/layout/v1.json` declares one, `top-bar-list-left`; `configs/layout/v2.json` and `configs/layout/v3.json` declare eight each. The reference layout engine turns application state, viewport size, visual preset and design condition into exactly one scene, with no random choice, and refuses a factor value it does not draw.
 
 | Factor | Values the engine draws |
 | --- | --- |
@@ -166,8 +167,10 @@ artifacts/datasets/families-v1/
 | Density | `compact`, `preset`, `roomy`: the visual preset's heights times 0.85, 1 and 1.15 |
 | Spacing | `tight`, `preset`, `loose`: the visual preset's distances times 0.75, 1 and 1.25 |
 | Notification location | `bottom-right`, `bottom-left`, `bottom-centre` of the area the navigation leaves free |
+| Grouping | `parts` (one container for each part of the workspace), `tasks` (the toolbar's elements in two containers, with a divider between them), `sheet` (the list and the editor on one panel, with a divider between them) |
+| Alignment | `justified` (the toolbar's elements at both ends of a bar, or as wide as a rail), `start` (packed from the left, a rail's buttons as wide as their text), `centre` (centred, and with them the list's heading, the label of an empty list and the editor's revision) |
 
-The engine draws any of the 243 combinations. The eight families are the combinations a dataset samples, each value is in at least two of them, and none is the correct one: a family is a preference, declared in the layout configuration, and no validator knows it. `configs/layout/v2.json` also lists, under `out_of_scope`, the variation the generator does not produce.
+The engine draws any of the 2 187 combinations. The eight families are the combinations a dataset samples, each value is in at least two of them, and none is the correct one: a family is a preference, declared in the layout configuration, and no validator knows it. Grouping changes which container holds an element and never a bound element's box. Alignment moves boxes and never changes a container. Neither changes where text sits inside its own box, which is the runtime renderer's rule. A design condition from a layout that declares neither is drawn in `parts` and `justified`, and the scene model is then given five factor values, not seven. `configs/layout/v3.json` also lists, under `out_of_scope`, the variation the generator does not produce.
 
 **Viewport sizes.** With `"viewport_choice": "fitting"` a session is given the least used viewport size in which every one of its states passes the validators, so a roomy visual preset or a wide arrangement gets a size that holds it. The sizes it was refused are in the manifest with the element and the reason. Without it the sizes are dealt out in turn and a state that does not fit is rejected.
 
@@ -198,7 +201,7 @@ The engine draws any of the 243 combinations. The eight families are the combina
 
 - for each bound element, its identity, role, the kind of its action binding, its current state, the length of its text, the measured width of its text at 16 units and weight 400, and its semantic relationships;
 - the viewport size;
-- the design condition as its five factor values;
+- the design condition as its factor values: five, or seven from a layout that declares grouping and alignment;
 - the visual preset as its token values.
 
 The text itself, the true scene, any image, validation results, the layout family's name, the visual preset's name, seeds and all other diagnostic metadata are never inputs. The generator refuses to write a record that breaks this, and `data check` fails a written one.
@@ -207,7 +210,7 @@ The text itself, the true scene, any image, validation results, the layout famil
 
 Limits of this version:
 
-- Nothing scrolls, text never wraps, and a scene holds at most 32 bound elements. `out_of_scope` in `configs/layout/v2.json` has the full list of what is not varied.
+- Nothing scrolls, text never wraps, and a scene holds at most 32 bound elements. `out_of_scope` in `configs/layout/v3.json` has the full list of what is not varied.
 - A coverage gap is recorded and printed. It does not fail `data generate`.
 - What a stress test is rejected for depends on the content its seed writes, so its expected codes belong to the configuration they are written in.
 - The measured text width is at one weight, 400. An element drawn at another weight is not exactly that width scaled.
@@ -230,8 +233,8 @@ kernel.save()
 session = SceneSession()
 frame = session.frame(kernel.state(), Conditioning(960, 540), RenderingMode.A_REFERENCE, scale=2)
 # Conditioning(960, 540, visual_preset="warm-paper") draws the same state in another preset;
-# design_condition={...} gives the five design factor values, by default the default layout family's;
-# SceneSession(layout_family.load("configs/layout/v2.json")) draws the eight families of version 2
+# design_condition={...} gives the design factor values, by default the default layout family's;
+# SceneSession(layout_family.load("configs/layout/v3.json")) draws the eight families of version 3
 frame.scene              # the validated scene; frame.scene.to_json() is how it is stored
 frame.image              # RGBA pixels drawn by the runtime renderer, 1920 by 1080 here
 hit = frame.hit_test(70, 28)   # the bound element at a point in viewport units, or None
@@ -381,6 +384,6 @@ Weight and array files (`*.pt`, `*.safetensors`, `*.npz` and similar) are ignore
 uv run pytest
 ```
 
-The tests run the real commands on the machine at hand; `measure step` is run on a configuration small enough to finish in seconds. The kernel tests ([tests/test_kernel.py](tests/test_kernel.py)) run commands against a real SQLite file and assert on what the kernel then reports, including after the store is closed and reopened. The scene session tests ([tests/test_scene_session.py](tests/test_scene_session.py)) build state in a real kernel and assert on the scene, its validity, the drawn image and hit-test answers; drawn text is judged against Qt's own text-to-path and a drawn shadow against its documented formula, not against the renderer's code. The design tests ([tests/test_design.py](tests/test_design.py)) draw one state in every visual preset and compare the scene with the values DESIGN.md writes, read from its YAML and not through the code that loads the configuration; they also change one value at a time in a copy of either file and assert that `design check` names it. The layout family tests ([tests/test_cli_layout_families.py](tests/test_cli_layout_families.py)) run `data generate` on the families configuration and judge it without the generator: the factor values of each scene are read off its boxes, text fit is measured by Qt's own font metrics, every stress test is judged again from what its own record holds, and all 243 combinations of factor values must pass the validators. The data tests ([tests/test_cli_data_generate.py](tests/test_cli_data_generate.py)) run `data generate` on the tiny configuration and judge what it wrote without the generator: each record's state is reached again in a kernel of the test's own from the commands the record lists, its scene is asked of the scene session, its image is drawn again, and ten ways of putting the target or diagnostic metadata into the model inputs must each fail `data check`. `test_report_matches_the_tested_platform` asserts the tested platform above and fails on any other machine on purpose.
+The tests run the real commands on the machine at hand; `measure step` is run on a configuration small enough to finish in seconds. The kernel tests ([tests/test_kernel.py](tests/test_kernel.py)) run commands against a real SQLite file and assert on what the kernel then reports, including after the store is closed and reopened. The scene session tests ([tests/test_scene_session.py](tests/test_scene_session.py)) build state in a real kernel and assert on the scene, its validity, the drawn image and hit-test answers; drawn text is judged against Qt's own text-to-path and a drawn shadow against its documented formula, not against the renderer's code. The design tests ([tests/test_design.py](tests/test_design.py)) draw one state in every visual preset and compare the scene with the values DESIGN.md writes, read from its YAML and not through the code that loads the configuration; they also change one value at a time in a copy of either file and assert that `design check` names it. The layout family tests ([tests/test_cli_layout_families.py](tests/test_cli_layout_families.py)) run `data generate` on the families configuration and judge it without the generator: the factor values of each scene are read off its boxes, text fit is measured by Qt's own font metrics, every stress test is judged again from what its own record holds, and all 2 187 combinations of factor values must pass the validators. The data tests ([tests/test_cli_data_generate.py](tests/test_cli_data_generate.py)) run `data generate` on the tiny configuration and judge what it wrote without the generator: each record's state is reached again in a kernel of the test's own from the commands the record lists, its scene is asked of the scene session, its image is drawn again, and ten ways of putting the target or diagnostic metadata into the model inputs must each fail `data check`. `test_report_matches_the_tested_platform` asserts the tested platform above and fails on any other machine on purpose.
 
 The scene export tests ([tests/test_cli_scene_export.py](tests/test_cli_scene_export.py)) run `scene export` on every record of the tiny dataset and judge each SVG by parsing it with the standard library and comparing it with the record's true scene, read from the record's JSON; a refused scene is compared with the scene session refusing the same scene for the same application state; and the numbers `scene compare` reports are computed again from the dataset's own reference images.

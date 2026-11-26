@@ -276,7 +276,7 @@ It is not told the text itself. It is not shown the picture. It is never given t
 
 ### Layout families
 
-A **layout family** is one arrangement of the screen, described by those five layout settings. Issue #7 had one: toolbar across the top, list on the left, notification at the lower right. Issue #8 added seven more, described below. Later, whole families are held back from training to see how the network does on an arrangement it has never met.
+A **layout family** is one arrangement of the screen, described by those five layout settings (seven since issue #8). Issue #7 had one: toolbar across the top, list on the left, notification at the lower right. Issue #8 added seven more, described below. Later, whole families are held back from training to see how the network does on an arrangement it has never met.
 
 ### Traceable and repeatable
 
@@ -310,7 +310,7 @@ Until now every example was the same screen in four colour schemes. A network tr
 
 ### Eight layout families
 
-Each of the five layout settings now has three values:
+The five layout settings each have three values now, and there are two more settings, grouping and alignment:
 
 | Setting | Values |
 | --- | --- |
@@ -319,18 +319,20 @@ Each of the five layout settings now has three values:
 | Density | Compact, the preset's own, roomy: every control height times 0.85, 1 or 1.15 |
 | Spacing | Tight, the preset's own, loose: every margin, gap and padding times 0.75, 1 or 1.25 |
 | Notification location | Lower right, lower left, lower centre |
+| Grouping | One container for each part of the screen; the toolbar split into two groups with a divider between them; the list and the editor on one shared panel with a divider between them |
+| Alignment | Justified (toolbar items pushed to both ends, or stretched across a rail); start (packed from the left, buttons as wide as their labels); centre (centred, along with the list heading and the revision line) |
 
-That is 243 possible combinations, and the layout rules can draw every one. A dataset does not sample all 243. It samples eight named combinations, the **layout families**, such as "left rail, list across the top, roomy and loose, notification lower right". Think of them as eight page templates. No two share both a navigation position and a panel arrangement, and every value appears in at least two families. That matters later: a whole family can be held back from training, and the network will still have met each of its settings somewhere else.
+That is 2,187 possible combinations, and the layout rules can draw every one. A dataset does not sample all 2,187. It samples eight named combinations, the **layout families**, such as "left rail, list across the top, roomy and loose, notification lower right". Think of them as eight page layouts. No two share both a navigation position and a panel arrangement, and every value appears in at least two families. That matters later: a whole family can be held back from training, and the network will still have met each of its settings somewhere else.
 
 ### Variation is dealt in whole sets
 
 A session gets one design and keeps it: one layout family, one visual preset, one window size and one content length (brief, medium or long titles and text). Each of those is a complete, hand-declared set. The generator never picks a corner radius here and a font size there, in the same way a designer applies a theme and does not roll dice per token. Density and spacing follow the same rule: "compact" shrinks every control height by the same factor.
 
-The window size is chosen with the design in mind. A session is given the least used size in which every one of its screens passes the checks below. A roomy preset with a side rail lands in a large window. The sizes it could not use are recorded with the reason. In this small dataset that happened once in sixteen sessions, so the choice has hardly been tested yet.
+The window size is chosen with the design in mind. A session is given the least used size in which every one of its screens passes the checks below. The sizes it could not use are recorded with the reason. In this small dataset that happened once in sixteen sessions, so the choice has hardly been tested yet.
 
 ### Rules versus taste
 
-The checks that reject a screen are all about things being broken: clipped, hidden, unreachable or contradicting the app. None of them prefers a top bar to a side rail, or roomy to compact. To show that, a test draws all 243 combinations in all four presets and every one passes. Which eight combinations to sample is a matter of taste, and it lives in a configuration file that the checks never read.
+The checks that reject a screen are all about things being broken: clipped, hidden, unreachable or contradicting the app. None of them prefers a top bar to a side rail, or roomy to compact. To show that, a test draws all 2,187 combinations in all four presets and every one passes. Which eight combinations to sample is a matter of taste, and it lives in a configuration file that the checks never read.
 
 ### The six checks
 
@@ -353,21 +355,23 @@ They are saved in their own folder with a label that says they are never a train
 
 ### How it was checked
 
-482 automated tests pass in 120 seconds, 67 of them new.
+525 automated tests pass in 175 seconds, 72 of them new with this issue.
 
-- **The layout is read back off the picture's geometry.** For each of the 358 examples, a test works out from the boxes alone where the navigation is, how the panels are arranged, the density, the spacing and where the notification sits, and compares that with what the example claims.
+- **The layout is read back off the picture's geometry.** For each of the 358 examples, a test works out from the boxes and the grouping alone where the navigation is, how the panels are arranged, the density, the spacing, where the notification sits, how the elements are grouped and how they are aligned, and compares that with what the example claims.
 - **Every example is valid, four ways.** Scene validation, the checks above, a click test at the centre of every element, and text widths measured independently by the font system.
 - **Other seeds too.** Three more runs with different random seeds, 179 examples each, pass the same four.
 - **Same seed, same bytes.** A second run writes identical files.
 - **Every stress test is judged again** from its own file, and rejected for its stated reason.
-- **Testing the tests.** 38 deliberate breakages. 35 were caught at once. The other three had no test, and each now has one.
+- **Testing the tests.** 50 deliberate breakages. 46 were caught at once. The other four had no test, and each now has one.
 - **Reviewed.** Two independent reviews of the change found that two of the checks were enforcing taste (padding around text, and how elements are grouped). Both were removed, and tests now hold that line.
 
 ### Known limits
 
 - **Sixteen sessions is small.** Each family appears in two of the four presets. The pilot in issue #9 scales this up.
 - **Any family can meet any preset.** A design is coherent inside its family and inside its preset. Nothing judges whether a particular pairing looks intentional, except the gallery.
-- **Alignment and grouping are not settings of their own.** They change only because the navigation, the panels and the notification move.
+- **Start and justified differ in the toolbar only.** In the list and the editor, only centre looks different.
+- **Some pairings of settings appear in one family only**, the centred toolbar bar for instance. Holding that family back from training holds the pairing back too.
+- **Alignment moves boxes, not the text inside a box.** A button's label is always centred and every other text starts at the left. Changing that would mean changing the scene format, which is Rob's decision.
 - **The notification only sits along the bottom.** Along the top it covered the title field or the first rows, which the checks reject, so that position was dropped.
 - **A coverage gap is reported, not enforced.** The command prints it and still finishes.
 - **Compact changes heights, not type size.** Whether compact on the already dense preset still looks intentional is a question for the gallery.

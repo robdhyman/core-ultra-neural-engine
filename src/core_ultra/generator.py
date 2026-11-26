@@ -604,7 +604,7 @@ def generate(config: Config) -> Iterator[tuple[str, bytes]]:
                 },
                 "diagnostics": _diagnostics(config, session, moment),
             }
-            problems = record_problems(record, config.design)
+            problems = record_problems(record, config.design, config.layout)
             if problems:
                 raise RuntimeError(f"record {record_id} was not written, because it broke the record rules: " + "; ".join(problems))
             record_file = f"records/{record_id}.json"
@@ -671,7 +671,7 @@ def _declared(config: Config) -> dict[str, list[str]]:
         "viewport": [_viewport_name(viewport) for viewport in config.viewports],
         "scenario": list(config.scenarios),
         **({"content length": list(config.content_lengths)} if config.content_lengths else {}),
-        **{factor.replace("_", " "): sorted({condition[factor] for condition in conditions}) for factor in layout_family.FACTORS},
+        **{factor.replace("_", " "): sorted({condition[factor] for condition in conditions}) for factor in config.layout.factors},
         "element state": list(documents_adapter.STATES),
         "role": list(documents_adapter.ROLES),
         "command": list(commands),
@@ -1117,7 +1117,7 @@ def check(folder: str | Path) -> list[str]:
             except (FileNotFoundError, json.JSONDecodeError, UnicodeDecodeError):
                 continue
             if kind == "record":
-                found = record_problems(record, config.design if config else None)
+                found = record_problems(record, config.design if config else None, config.layout if config else None)
                 image = record.get("reference_image") if isinstance(record, dict) else None
             else:
                 found = stress_problems(record, config) if config else []
@@ -1149,12 +1149,15 @@ def check(folder: str | Path) -> list[str]:
 # --- the record rules --------------------------------------------------------------
 
 
-def record_problems(record: Any, design: design_source.Design | None = None) -> list[str]:
+def record_problems(record: Any, design: design_source.Design | None = None, layout: layout_family.Layout | None = None) -> list[str]:
     """Every way a dataset record breaks the record rules. Chief among them:
     its model inputs hold only model inputs, and so neither the target, nor an
     image, nor any diagnostic metadata. Given the design the dataset was
     generated in, the target must also pass every validator of a scene, which
-    need the visual preset."""
+    need the visual preset. Given the layout, the design condition in the
+    inputs must be the whole condition of the record's layout family: a
+    factor left out of the inputs would leave the target undetermined by
+    them."""
     if not isinstance(record, dict) or record.get("kind") != "dataset-record":
         return ['it is not an object of kind "dataset-record"']
     problems = [f"it has no {name}" for name in RECORD_FIELDS if name not in record]
@@ -1221,7 +1224,16 @@ def record_problems(record: Any, design: design_source.Design | None = None) -> 
     except SceneInvalid as refused:
         return [*problems, *(f"target.scene is invalid: {problem}" for problem in refused.problems)]
 
-    # 6. The target passes the other validators, in the record's visual preset.
+    # 6. The inputs give every factor value of the record's layout family.
+    if layout is not None:
+        try:
+            declared = layout.family(diagnostics["layout_family"]).design_condition.to_json()
+        except layout_family.LayoutError as error:
+            return [*problems, f"diagnostics.layout_family: {error}"]
+        if not scene_schema._same(inputs["design_condition"], declared):
+            problems.append("inputs.design_condition is not the design condition of the record's layout family")
+
+    # 7. The target passes the other validators, in the record's visual preset.
     if design is not None:
         try:
             preset = design.preset(diagnostics["visual_preset"])

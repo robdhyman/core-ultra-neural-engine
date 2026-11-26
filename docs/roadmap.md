@@ -98,13 +98,13 @@ Green is done. Blue can start now. Grey is waiting on something. Pink is a decis
 | #6 | The original design system (`DESIGN.md`), its machine-readable twin, the check that keeps them in sync, four visual presets and the Inter font, with 360 tests | PR #30, merged 2026-11-26, [S2 record so far](../records/milestones/S2.md) |
 | #7 | `data generate`: scripted sessions drive the app and every screen they reach is saved as a traceable training example. A tiny dataset of 82 examples, a check that nothing the network is given contains the answer, and `data check`, with 415 tests | [S2 record so far](../records/milestones/S2.md) |
 | #32 | `scene export`: any scene written as an SVG of separate named objects, with text as text, made to be opened in a design tool. No design tool has been tried yet. `scene compare` measures the SVG against the runtime renderer: on the tiny dataset the mean difference is 0.43 levels of 255, nearly all of it text. Eight SVGs were handed to Rob with a note for #10 that lists what the scene schema cannot express | [S2 record so far](../records/milestones/S2.md), [hand-off note](../.scratch/scene-export/handoff-scene-as-svg.md) |
-| #8 | Eight layout families, each a different arrangement of the screen; designs sampled as whole sets with a window size that fits; six validators that reject broken examples and record why; and a labelled stress-test set of 20 examples that are wrong on purpose. A dataset of 358 examples across all eight families, with 482 tests | [S2 record so far](../records/milestones/S2.md) |
+| #8 | Eight layout families, each a different arrangement of the screen, varying in seven layout settings, grouping and alignment among them; designs sampled as whole sets with a window size that fits; six validators that reject broken examples and record why; and a labelled stress-test set of 20 examples that are wrong on purpose. A dataset of 358 examples across all eight families, with 525 tests | [S2 record so far](../records/milestones/S2.md) |
 
 ## Next
 
 In the order they unlock:
 
-1. **#9, pilot dataset and gallery.** Ready now that #8 is done. 200 to 500 examples across every preset and layout family, in a gallery made for review. `configs/data/families-v1.json` is the configuration to scale up.
+1. **#9, pilot dataset and gallery.** Ready now that #8 is done. 200 to 500 examples across every preset and layout family, in a gallery made for review. `configs/data/families-v2.json` is the configuration to scale up.
 2. **#12, training renderer stage 1.** Ready now. It depends only on #4. The first piece of the renderer the network learns through: rounded rectangles, with proof that its learning signal is correct.
 3. **#15, the scene model fits a tiny set.** Ready now. The first network, taught to reproduce the tiny dataset that #7 left.
 5. **#32, scene export as editable SVG.** Done; see the table above. It trained nothing and changed no schema. It exists so that Rob sees the scene as an editable vector document before #10, and so that the gaps in the scene schema are known before #11 freezes the dataset.
