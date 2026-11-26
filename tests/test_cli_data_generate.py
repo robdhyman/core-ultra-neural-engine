@@ -711,11 +711,17 @@ def test_git_ignores_the_data_and_keeps_the_manifest():
 
 def test_the_committed_manifest_is_the_tiny_configuration_generated(manifest):
     """Compared by the hashes of the inputs and the targets, which depend on
-    this machine's text measurement but not on its rasteriser."""
+    this machine's text measurement but not on its rasteriser.
+
+    The committed manifest was written by generator version 1 and is never
+    rewritten. A later generator adds validation results to a record and
+    counts to the manifest, so the record hashes differ; the model inputs and
+    the targets of the tiny configuration must not."""
     committed = json.loads(COMMITTED_MANIFEST.read_text())
     assert committed["configuration"]["sha256"] == sha256(TINY.read_bytes())
-    assert committed["generator"] == manifest["generator"] and committed["seed"] == manifest["seed"]
-    assert committed["counts"] == manifest["counts"]
+    assert committed["generator"] == {"name": manifest["generator"]["name"], "version": 1}
+    assert committed["seed"] == manifest["seed"]
+    assert committed["counts"] == {name: manifest["counts"][name] for name in committed["counts"]}
     assert committed["asset_provenance"] == manifest["asset_provenance"]
     fields = ("id", "file", "session", "application_state", "layout_family", "visual_preset", "viewport", "inputs_sha256", "target_sha256")
     assert [[entry[f] for f in fields] for entry in committed["records"]] == [[entry[f] for f in fields] for entry in manifest["records"]]

@@ -7,8 +7,12 @@ thing in two vocabularies: the scene model is given the factor values, and the
 family's name is diagnostic metadata that it never sees, so a held-out family
 is a combination it has not met and not an unknown identifier.
 
-The layout configuration (`configs/layout/v1.json`) declares the factors, the
-values each may take and the families.
+A layout configuration (`configs/layout/v1.json`, `configs/layout/v2.json`)
+declares the factors, the values each may take and the families. Version 1
+has one family. Version 2 has eight, and lists under `out_of_scope` the
+variation the generator does not produce. `load()` without a path reads
+version 1, which is what a scene session draws A, Reference in unless it is
+given another layout.
 
     layout = load()
     family = layout.family("top-bar-list-left")
@@ -79,6 +83,7 @@ class Layout:
     factors: Mapping[str, tuple[str, ...]]
     default_family: str
     families: Mapping[str, LayoutFamily]
+    out_of_scope: tuple[str, ...] = ()
 
     def family(self, name: str | None = None) -> LayoutFamily:
         """The layout family of this name, or the default one."""
@@ -142,6 +147,7 @@ def _load(path: str) -> Layout:
         factors=factors,
         default_family=raw["default_family"],
         families=MappingProxyType(families),
+        out_of_scope=tuple(raw.get("out_of_scope", ())),
     )
 
 
@@ -167,6 +173,10 @@ def _config_problems(raw: Any) -> list[str]:
         problems.append("name is missing")
     if not isinstance(raw.get("version"), int) or isinstance(raw.get("version"), bool):
         problems.append("version is not a whole number")
+
+    stated = raw.get("out_of_scope", [])
+    if not isinstance(stated, list) or not all(isinstance(item, str) and item for item in stated):
+        problems.append("out_of_scope is not a list of sentences")
 
     factors = raw.get("factors")
     if not isinstance(factors, dict) or set(factors) != set(FACTORS):

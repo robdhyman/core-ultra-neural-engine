@@ -6,14 +6,25 @@ is random and nothing is read from anywhere else, so the same four always give
 the same scene. A layout family is a named design condition
 (`core_ultra.layout_family`), so the family is fixed by the condition.
 
-`DRAWN` lists, for each design factor, the values this engine draws. So far
-that is one arrangement of the document workspace: a toolbar across the top,
-the document list on the left, the editor filling the rest and the
-notification over the lower right corner, at the visual preset's own density
-and spacing. A design condition with any other value is refused, never drawn
-as something else. Every style value and every size comes from the visual
-preset (`core_ultra.design`); nothing about how the workspace looks is decided
-here.
+`DRAWN` lists, for each design factor, the values this engine draws. Any
+combination of them is drawn; a design condition with any other value is
+refused, never drawn as something else.
+
+| Factor | Value | What is drawn |
+| --- | --- | --- |
+| navigation position | `top` | The toolbar's six elements in a bar across the top: create, sort and the filter from the left, save and undo at the right. A divider under it. |
+| | `bottom` | The same bar across the bottom, the divider above it. |
+| | `left` | The toolbar's elements stacked in a rail down the left side, each as wide as the rail allows: create, sort and the filter from the top, save and undo at the foot. A divider beside it. The rail is as wide as the widest filter field plus a margin either side. |
+| panel arrangement | `list-left` | The document list as a column on the left of the area the navigation leaves free, the editor filling the rest. |
+| | `list-right` | The same column on the right, the editor on the left. |
+| | `list-top` | The list across the top as a grid: as many columns of rows as fit at the narrowest list's width, filled row by row. The editor fills the rest below. |
+| density | `compact`, `preset`, `roomy` | The visual preset's heights (toolbar, control, row, title, notification) times `DENSITY`. |
+| spacing | `tight`, `preset`, `loose` | The visual preset's distances (margin, gap and the paddings) times `SPACING`. |
+| notification location | `bottom-right`, `bottom-left`, `bottom-centre` | The notification three margins up from the lower edge of the area the navigation leaves free: three margins in from that corner, or centred. |
+
+Every style value and every size comes from the visual preset
+(`core_ultra.design`); density and spacing scale a whole group of its tokens
+by one factor and decide nothing else.
 
 The layout knows the bound elements only by what the adapter says of them: the
 part of the workspace each belongs to, its role and the command its binding
@@ -25,12 +36,14 @@ it falls, and scene validation reports it.
 
 It returns a candidate scene as JSON data. It is not a scene until scene
 validation accepts it. D, Neural Scene must run without this module loaded, so
-nothing outside the scene session's A, Reference path may import it.
+only the scene session's A, Reference path and the generator may import it.
 """
 
 from __future__ import annotations
 
+import math
 from collections.abc import Sequence
+from dataclasses import dataclass
 from typing import Any
 
 from core_ultra import typography
@@ -39,16 +52,34 @@ from core_ultra.documents_adapter import BoundElement
 from core_ultra.layout_family import FACTORS, DesignCondition
 from core_ultra.scene import SCHEMA_VERSION
 
+# What a density or a spacing value multiplies the visual preset's tokens by.
+DENSITY = {"compact": 0.85, "preset": 1.0, "roomy": 1.15}
+SPACING = {"tight": 0.75, "preset": 1.0, "loose": 1.25}
+
 # For each design factor, the values this engine draws.
 DRAWN = {
-    "navigation_position": ("top",),
-    "panel_arrangement": ("list-left",),
-    "density": ("preset",),
-    "spacing": ("preset",),
-    "notification_location": ("bottom-right",),
+    "navigation_position": ("top", "left", "bottom"),
+    "panel_arrangement": ("list-left", "list-right", "list-top"),
+    "density": tuple(DENSITY),
+    "spacing": tuple(SPACING),
+    "notification_location": ("bottom-right", "bottom-left", "bottom-centre"),
 }
 
 _CLEAR = [0.0, 0.0, 0.0, 0.0]
+
+
+@dataclass(frozen=True)
+class _Area:
+    """The edges of the part of the viewport the navigation leaves free."""
+
+    left: float
+    top: float
+    right: float
+    bottom: float
+
+    @property
+    def width(self) -> float:
+        return self.right - self.left
 
 
 def write_scene(
@@ -66,24 +97,14 @@ def write_scene(
                 f"the reference layout does not draw {factor} {value!r}; it draws {', '.join(DRAWN[factor])}"
             )
     width, height = viewport
-    writer = _Writer(preset)
+    writer = _Writer(preset, condition)
     parts = _Parts(bound_elements)
-    toolbar, divider = preset.component("toolbar"), preset.component("divider")
-    margin = preset.spacing["margin"]
-    top = toolbar.height + margin
-    sizes = preset.dimensions
-    list_width = min(max(sizes["list-share"] * width, sizes["list-width-min"]), sizes["list-width-max"])
 
-    elements = [
-        writer.structural("s.root", "surface", None, "page", 0, 0, width, height),
-        writer.structural("s.toolbar", "container", "s.root", "toolbar", 0, 0, width, toolbar.height),
-        writer.structural("s.divider", "divider", "s.root", "divider", 0, toolbar.height, width, divider.height),
-    ]
-    elements += writer.toolbar(parts, width)
-    elements += writer.list(parts, top, list_width)
-    editor_x = 2 * margin + list_width
-    elements += writer.editor(parts, editor_x, top, width - editor_x - margin, height - top - margin)
-    elements += writer.notification(parts, width, height)
+    elements = [writer.structural("s.root", "surface", None, "page", 0, 0, width, height)]
+    area, navigation = writer.navigation(parts, width, height, condition.navigation_position)
+    elements += navigation
+    elements += writer.panels(parts, area, condition.panel_arrangement)
+    elements += writer.notification(parts, area, condition.notification_location)
     parts.require_all_placed()
 
     return {
@@ -124,31 +145,74 @@ class _Parts:
 
 
 class _Writer:
-    """Writes the workspace's elements in one visual preset."""
+    """Writes the workspace's elements in one visual preset, at one density
+    and spacing."""
 
-    def __init__(self, preset: VisualPreset) -> None:
+    def __init__(self, preset: VisualPreset, condition: DesignCondition) -> None:
         self.preset = preset
-        self.margin = preset.spacing["margin"]
-        self.gap = preset.spacing["gap"]
+        self.density = DENSITY[condition.density]
+        self.spacing = SPACING[condition.spacing]
+        self.margin = self.space("margin")
+        self.gap = self.space("gap")
 
-    def toolbar(self, parts: _Parts, width: float) -> list[dict[str, Any]]:
-        create = parts.one("toolbar", "button", "create")
-        sort = parts.one("toolbar", "button", "sort")
-        label = parts.one("toolbar", "label")
-        field = parts.one("toolbar", "text-field", "filter")
-        save = parts.one("toolbar", "button", "save")
-        undo = parts.one("toolbar", "button", "undo")
-        bar = self.preset.component("toolbar").height
+    def space(self, name: str) -> float:
+        """One of the preset's distances at this spacing."""
+        return self.preset.spacing[name] * self.spacing
 
-        def button(element: BoundElement) -> Component:
-            return self.preset.component("button-primary" if element.binding["command"] == "create" else "button-quiet")
+    def high(self, component: Component) -> float:
+        """A component's height at this density."""
+        return component.height * self.density
+
+    # --- navigation ---------------------------------------------------------
+
+    def navigation(self, parts: _Parts, width: float, height: float, position: str) -> tuple[_Area, list[dict[str, Any]]]:
+        """The toolbar's container, its divider and its elements, and the area
+        they leave free."""
+        divider = self.preset.component("divider").height
+        if position == "left":
+            rail = self.preset.dimensions["filter-width-max"] + 2 * self.margin
+            placed = [
+                self.structural("s.toolbar", "container", "s.root", "toolbar", 0, 0, rail, height),
+                self.structural("s.divider", "divider", "s.root", "divider", rail, 0, divider, height),
+                *self.rail(parts, rail, height),
+            ]
+            return _Area(rail, 0.0, width, height), placed
+        bar = self.high(self.preset.component("toolbar"))
+        if position == "top":
+            bar_y, divider_y, area = 0.0, bar, _Area(0.0, bar, width, height)
+        else:
+            bar_y, divider_y, area = height - bar, height - bar - divider, _Area(0.0, 0.0, width, height - bar)
+        placed = [
+            self.structural("s.toolbar", "container", "s.root", "toolbar", 0, bar_y, width, bar),
+            self.structural("s.divider", "divider", "s.root", "divider", 0, divider_y, width, divider),
+            *self.bar(parts, width, bar_y, bar),
+        ]
+        return area, placed
+
+    def _toolbar_elements(self, parts: _Parts) -> tuple[BoundElement, ...]:
+        return (
+            parts.one("toolbar", "button", "create"),
+            parts.one("toolbar", "button", "sort"),
+            parts.one("toolbar", "label"),
+            parts.one("toolbar", "text-field", "filter"),
+            parts.one("toolbar", "button", "save"),
+            parts.one("toolbar", "button", "undo"),
+        )
+
+    def _button(self, element: BoundElement) -> Component:
+        return self.preset.component("button-primary" if element.binding["command"] == "create" else "button-quiet")
+
+    def bar(self, parts: _Parts, width: float, bar_y: float, bar: float) -> list[dict[str, Any]]:
+        """The toolbar's elements in a row, each centred on the bar's height."""
+        create, sort, label, field, save, undo = self._toolbar_elements(parts)
 
         def button_width(element: BoundElement) -> float:
-            return typography.measure(element.text, *button(element).type) + 2 * button(element).padding
+            component = self._button(element)
+            return typography.measure(element.text, *component.type) + 2 * (component.padding * self.spacing)
 
         def place_button(element: BoundElement, x: float) -> dict[str, Any]:
-            component = button(element)
-            return self.bound(element, component, "s.toolbar", x, (bar - component.height) / 2, button_width(element), component.height)
+            high = self.high(self._button(element))
+            return self.bound(element, self._button(element), "s.toolbar", x, bar_y + (bar - high) / 2, button_width(element), high)
 
         placed = []
         x = self.margin
@@ -159,7 +223,7 @@ class _Writer:
         text = self.preset.component("label")
         line = typography.line_height(*text.type)
         label_width = typography.measure(label.text, *text.type)
-        placed.append(self.bound(label, text, "s.toolbar", x, (bar - line) / 2, label_width, line))
+        placed.append(self.bound(label, text, "s.toolbar", x, bar_y + (bar - line) / 2, label_width, line))
         x += label_width + self.gap
 
         # The filter field takes the room left before Save and Undo, within its
@@ -168,22 +232,76 @@ class _Writer:
         sizes = self.preset.dimensions
         trailing = button_width(save) + self.gap + button_width(undo)
         field_width = min(max(width - self.margin - trailing - self.gap - x, sizes["filter-width-min"]), sizes["filter-width-max"])
-        placed.append(self.bound(field, box, "s.toolbar", x, (bar - box.height) / 2, field_width, box.height))
+        placed.append(self.bound(field, box, "s.toolbar", x, bar_y + (bar - self.high(box)) / 2, field_width, self.high(box)))
         x = max(x + field_width + self.gap, width - self.margin - trailing)
         placed.append(place_button(save, x))
         placed.append(place_button(undo, x + button_width(save) + self.gap))
         return placed
 
-    def list(self, parts: _Parts, top: float, list_width: float) -> list[dict[str, Any]]:
+    def rail(self, parts: _Parts, rail: float, height: float) -> list[dict[str, Any]]:
+        """The toolbar's elements in a column, each as wide as the rail's inside: create,
+        sort and the filter from the top, save and undo at the foot."""
+        create, sort, label, field, save, undo = self._toolbar_elements(parts)
+        x, inside = self.margin, rail - 2 * self.margin
+
+        placed = []
+        y = self.margin
+        for element in (create, sort):
+            high = self.high(self._button(element))
+            placed.append(self.bound(element, self._button(element), "s.toolbar", x, y, inside, high))
+            y += high + self.gap
+
+        text = self.preset.component("label")
+        line = typography.line_height(*text.type)
+        placed.append(self.bound(label, text, "s.toolbar", x, y, typography.measure(label.text, *text.type), line))
+        y += line + self.gap
+        box = self.preset.component("field")
+        placed.append(self.bound(field, box, "s.toolbar", x, y, inside, self.high(box)))
+
+        undo_high, save_high = self.high(self._button(undo)), self.high(self._button(save))
+        undo_y = height - self.margin - undo_high
+        placed.append(self.bound(save, self._button(save), "s.toolbar", x, undo_y - self.gap - save_high, inside, save_high))
+        placed.append(self.bound(undo, self._button(undo), "s.toolbar", x, undo_y, inside, undo_high))
+        return placed
+
+    # --- the list and the editor --------------------------------------------
+
+    def panels(self, parts: _Parts, area: _Area, arrangement: str) -> list[dict[str, Any]]:
+        """The document list and the editor, inside the area the navigation leaves free."""
+        sizes = self.preset.dimensions
+        top = area.top + self.margin
+        list_width = min(max(sizes["list-share"] * area.width, sizes["list-width-min"]), sizes["list-width-max"])
+        if arrangement == "list-left":
+            listed = self.list(parts, area.left + self.margin, top, list_width, 1)
+            editor_x = area.left + (2 * self.margin + list_width)
+            return listed + self.editor(parts, editor_x, top, area.right - editor_x - self.margin, area.bottom - top - self.margin)
+        if arrangement == "list-right":
+            list_x = area.right - self.margin - list_width
+            listed = self.list(parts, list_x, top, list_width, 1)
+            editor_x = area.left + self.margin
+            return listed + self.editor(parts, editor_x, top, list_x - self.margin - editor_x, area.bottom - top - self.margin)
+        # list-top: a grid as wide as the area, the editor under it.
+        x, wide = area.left + self.margin, area.width - 2 * self.margin
+        inset = self.space("row-inset")
+        narrowest = sizes["list-width-min"] - 2 * inset
+        columns = max(1, math.floor((wide - 2 * inset + self.gap) / (narrowest + self.gap)))
+        listed = self.list(parts, x, top, wide, columns)
+        panel = listed[0]["box"]
+        editor_y = panel["y"] + panel["height"] + self.margin
+        return listed + self.editor(parts, x, editor_y, wide, area.bottom - self.margin - editor_y)
+
+    def list(self, parts: _Parts, x: float, top: float, list_width: float, columns: int) -> list[dict[str, Any]]:
+        """The list's panel, as tall as what it holds, then its heading and its
+        rows in `columns` columns, filled row by row."""
         heading = parts.one("list", "heading")
         rows = parts.take("list", "list-item", "open")
         empty = parts.take("list", "label")
         row, row_open = self.preset.component("row"), self.preset.component("row-open")
-        inset, padding = self.preset.spacing["row-inset"], self.preset.spacing["panel-padding"]
+        inset, padding = self.space("row-inset"), self.space("panel-padding")
 
-        row_x = self.margin + inset
+        row_x = x + inset
         # Headings and labels start where a row's text starts.
-        text_x = row_x + (row.height - typography.line_height(*row.type)) / 2
+        text_x = row_x + (self.high(row) - typography.line_height(*row.type)) / 2
 
         title = self.preset.component("heading")
         line = typography.line_height(*title.type)
@@ -191,11 +309,14 @@ class _Writer:
         placed = [self.bound(heading, title, "s.list", text_x, y, typography.measure(heading.text, *title.type), line)]
         y += line + self.gap
 
-        for element in rows:
+        row_width = (list_width - 2 * inset - (columns - 1) * self.gap) / columns
+        for index, element in enumerate(rows):
             is_open = any(relationship["relation"] == "shown_in" for relationship in element.relationships)
             component = row_open if is_open else row
-            placed.append(self.bound(element, component, "s.list", row_x, y, list_width - 2 * inset, component.height))
-            y += component.height
+            column = index % columns
+            placed.append(self.bound(element, component, "s.list", row_x + column * (row_width + self.gap), y, row_width, self.high(component)))
+            if column == columns - 1 or index == len(rows) - 1:
+                y += self.high(component)
         if rows:
             y += inset
 
@@ -205,7 +326,7 @@ class _Writer:
             placed.append(self.bound(label, text, "s.list", text_x, y, typography.measure(label.text, *text.type), line))
             y += line + padding
 
-        panel = self.structural("s.list", "panel", "s.root", "panel", self.margin, top, list_width, y - top)
+        panel = self.structural("s.list", "panel", "s.root", "panel", x, top, list_width, y - top)
         return [panel, *placed]
 
     def editor(self, parts: _Parts, x: float, y: float, width: float, height: float) -> list[dict[str, Any]]:
@@ -223,34 +344,37 @@ class _Writer:
         title = parts.one("editor", "text-field", "rename")
         revision = parts.one("editor", "label")
         title_field = self.preset.component("title-field")
-        padding = self.preset.spacing["editor-padding"]
+        padding = self.space("editor-padding")
+        title_high = self.high(title_field)
         inner_x = x + padding
         inner_width = width - 2 * padding
-        revision_y = y + padding + title_field.height + self.gap
+        revision_y = y + padding + title_high + self.gap
         body_y = revision_y + line + self.gap
         return [
             panel,
-            self.bound(title, title_field, "s.editor", inner_x, y + padding, inner_width, title_field.height),
+            self.bound(title, title_field, "s.editor", inner_x, y + padding, inner_width, title_high),
             self.bound(revision, text, "s.editor", inner_x, revision_y, typography.measure(revision.text, *text.type), line),
             self.bound(
                 body, self.preset.component("editor-body"), "s.editor", inner_x, body_y, inner_width, y + height - padding - body_y
             ),
         ]
 
-    def notification(self, parts: _Parts, width: float, height: float) -> list[dict[str, Any]]:
+    def notification(self, parts: _Parts, area: _Area, location: str) -> list[dict[str, Any]]:
         component = self.preset.component("notification")
+        high = self.high(component)
         placed = []
         for status in parts.take("notification", "status"):
             # As wide as its text plus the inset the runtime renderer gives a
             # line of text: as far from the left edge as from the top.
-            inset = (component.height - typography.line_height(*component.type)) / 2
+            inset = (high - typography.line_height(*component.type)) / 2
             box_width = typography.measure(status.text, *component.type) + 2 * inset
-            placed.append(
-                self.bound(
-                    status, component, "s.root",
-                    width - 3 * self.margin - box_width, height - 3 * self.margin - component.height, box_width, component.height,
-                )
-            )
+            if location == "bottom-left":
+                x = area.left + 3 * self.margin
+            elif location == "bottom-centre":
+                x = area.left + (area.width - box_width) / 2
+            else:
+                x = area.right - 3 * self.margin - box_width
+            placed.append(self.bound(status, component, "s.root", x, area.bottom - 3 * self.margin - high, box_width, high))
         return placed
 
     def structural(

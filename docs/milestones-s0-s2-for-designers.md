@@ -6,7 +6,7 @@ Written 2026-11-26. This merges the three milestone records ([S0](../records/mil
 
 - **S0 (done).** We checked that one MacBook can train the planned neural network. It can, with room to spare, so nothing was rented in the cloud.
 - **S1 (done).** We built a small documents app and a way to draw its whole interface from a structured description, with no neural network involved yet. This hand-built version is the answer key the network will later be graded against.
-- **S2 (started, not finished).** We wrote an original design system as tokens, kept it in sync with the code automatically, and drew the same screen in four different looks. We then built the first working path for training data: simulated sessions use the app, and every screen they reach is saved as a training example. The rest of S2 (more layouts, a pilot gallery, the full dataset) is still to come.
+- **S2 (started, not finished).** We wrote an original design system as tokens, kept it in sync with the code automatically, and drew the same screen in four different looks. We then built the first working path for training data: simulated sessions use the app, and every screen they reach is saved as a training example. Then came eight different arrangements of the screen, checks that throw out broken examples and say why, and a labelled set of examples that are broken on purpose. The rest of S2 (a pilot gallery, Rob's review, the full dataset) is still to come.
 
 No neural network has been trained yet. Everything here is groundwork.
 
@@ -171,7 +171,7 @@ S1 built the app and the full path from "what the app knows" to "a picture on sc
 ### Known limits
 
 - **Nothing scrolls.** With a document open and a notification showing, 21 list rows fill the 32-element limit. A 22nd is reported as an error. Nothing is clipped or dropped silently.
-- **Text overflow is not checked.** Text wider than its box runs past the edge, and the scene still counts as valid. That check is planned for issue #8.
+- **Text overflow is not checked** when a scene is drawn: text wider than its box runs past the edge, and the scene still counts as valid. Since issue #8 the data generator checks it, and such a screen never becomes a training example.
 - **There is one layout.** The pictured state fits at 564 units wide and is reported as too small at 560, where the toolbar no longer fits. Nothing reflows or wraps.
 - **The font was a system font** (Helvetica Neue) at this point. S2 replaces it.
 - **An element is not required to sit inside its parent.** The layout keeps it there and a test confirms it, but the rulebook does not demand it.
@@ -276,7 +276,7 @@ It is not told the text itself. It is not shown the picture. It is never given t
 
 ### Layout families
 
-A **layout family** is one arrangement of the screen, described by those five layout settings. There is one so far: toolbar across the top, list on the left, notification at the lower right. More arrive in issue #8. Later, whole families are held back from training to see how the network does on an arrangement it has never met.
+A **layout family** is one arrangement of the screen, described by those five layout settings. Issue #7 had one: toolbar across the top, list on the left, notification at the lower right. Issue #8 added seven more, described below. Later, whole families are held back from training to see how the network does on an arrangement it has never met.
 
 ### Traceable and repeatable
 
@@ -298,9 +298,80 @@ The examples stay on this Mac. Git keeps one small file, the manifest, which lis
 
 - **One layout family, and a tiny set.** 82 examples show that the path works. They are not a dataset to train on for real.
 - **Text width is given at one font weight.** A button drawn in a heavier weight is slightly wider than that figure scaled, so the network cannot get such widths exactly right.
-- **Text that overflows is still not caught.** That check comes with issue #8.
-- **A screen that does not fit its window is rejected**, with the reason recorded. Nothing picks a better window size yet.
+- **Text that overflows was not caught** in this tiny set's checks. Issue #8 added the check, and all 82 examples pass it.
+- **A screen that does not fit its window is rejected**, with the reason recorded. Issue #8 added the choice of a window size that fits.
 - **The files are tied to this Mac's text rendering**, as the pictures in S2 were.
+
+## S2, continued: eight layouts, and checks that reject broken examples
+
+*Covers issue #8.*
+
+Until now every example was the same screen in four colour schemes. A network trained on that would learn one layout by heart. Issue #8 makes the generator produce screens that differ in structure, adds the checks that keep broken screens out of the training data, and sets aside a labelled pile of broken screens to test those checks with.
+
+### Eight layout families
+
+Each of the five layout settings now has three values:
+
+| Setting | Values |
+| --- | --- |
+| Navigation position | A bar across the top, a rail down the left side with the controls stacked, a bar across the bottom |
+| Panel arrangement | The list on the left, the list on the right, the list as a grid of rows above the editor |
+| Density | Compact, the preset's own, roomy: every control height times 0.85, 1 or 1.15 |
+| Spacing | Tight, the preset's own, loose: every margin, gap and padding times 0.75, 1 or 1.25 |
+| Notification location | Lower right, lower left, lower centre |
+
+That is 243 possible combinations, and the layout rules can draw every one. A dataset does not sample all 243. It samples eight named combinations, the **layout families**, such as "left rail, list across the top, roomy and loose, notification lower right". Think of them as eight page templates. No two share both a navigation position and a panel arrangement, and every value appears in at least two families. That matters later: a whole family can be held back from training, and the network will still have met each of its settings somewhere else.
+
+### Variation is dealt in whole sets
+
+A session gets one design and keeps it: one layout family, one visual preset, one window size and one content length (brief, medium or long titles and text). Each of those is a complete, hand-declared set. The generator never picks a corner radius here and a font size there, in the same way a designer applies a theme and does not roll dice per token. Density and spacing follow the same rule: "compact" shrinks every control height by the same factor.
+
+The window size is chosen with the design in mind. A session is given the least used size in which every one of its screens passes the checks below. A roomy preset with a side rail lands in a large window. The sizes it could not use are recorded with the reason. In this small dataset that happened once in sixteen sessions, so the choice has hardly been tested yet.
+
+### Rules versus taste
+
+The checks that reject a screen are all about things being broken: clipped, hidden, unreachable or contradicting the app. None of them prefers a top bar to a side rail, or roomy to compact. To show that, a test draws all 243 combinations in all four presets and every one passes. Which eight combinations to sample is a matter of taste, and it lives in a configuration file that the checks never read.
+
+### The six checks
+
+| Check | What it rejects |
+| --- | --- |
+| Scene validation | Impossible geometry, anything outside the window, a missing, repeated or altered element (from S1) |
+| Text fit | Text that runs past an edge of its box, text under something else, a character the font cannot draw. How much padding text has is taste, and is not checked |
+| Element completeness | An element sticking out of its panel, an empty panel, overlapping elements. How elements are grouped is taste, and is not checked |
+| State consistency | A disabled button drawn as if enabled; a hover that moves something |
+| Hit targets | A control that something else covers, so that a click there would land on the wrong thing |
+| Coverage | Nothing. It reports what the finished dataset fails to show: a family, preset, window size, state or control nobody sampled |
+
+A rejected screen is not saved as an example. Its entry in the manifest names the check, the element and the reason.
+
+### The stress-test set
+
+Twenty screens are wrong on purpose. Seven are **difficult**: real screens the app can reach, in conditions that break them, such as a window too small, titles nine words long, 24 documents, Japanese titles in a font that has no such letters, or a rail too short for its buttons. Thirteen are **broken**: a good screen with one deliberate fault, such as a missing Save button, a changed label, a button half as wide as its text, a control hidden under a panel.
+
+They are saved in their own folder with a label that says they are never a training target, and without the two fields a training example has. The generator refuses to finish unless the checks reject each one for exactly the reason written beside it.
+
+### How it was checked
+
+482 automated tests pass in 120 seconds, 67 of them new.
+
+- **The layout is read back off the picture's geometry.** For each of the 358 examples, a test works out from the boxes alone where the navigation is, how the panels are arranged, the density, the spacing and where the notification sits, and compares that with what the example claims.
+- **Every example is valid, four ways.** Scene validation, the checks above, a click test at the centre of every element, and text widths measured independently by the font system.
+- **Other seeds too.** Three more runs with different random seeds, 179 examples each, pass the same four.
+- **Same seed, same bytes.** A second run writes identical files.
+- **Every stress test is judged again** from its own file, and rejected for its stated reason.
+- **Testing the tests.** 38 deliberate breakages. 35 were caught at once. The other three had no test, and each now has one.
+- **Reviewed.** Two independent reviews of the change found that two of the checks were enforcing taste (padding around text, and how elements are grouped). Both were removed, and tests now hold that line.
+
+### Known limits
+
+- **Sixteen sessions is small.** Each family appears in two of the four presets. The pilot in issue #9 scales this up.
+- **Any family can meet any preset.** A design is coherent inside its family and inside its preset. Nothing judges whether a particular pairing looks intentional, except the gallery.
+- **Alignment and grouping are not settings of their own.** They change only because the navigation, the panels and the notification move.
+- **The notification only sits along the bottom.** Along the top it covered the title field or the first rows, which the checks reject, so that position was dropped.
+- **A coverage gap is reported, not enforced.** The command prints it and still finishes.
+- **Compact changes heights, not type size.** Whether compact on the already dense preset still looks intentional is a question for the gallery.
+- **Nothing scrolls, wraps or truncates**, still. The list of what the generator does not vary is in the layout configuration and in every manifest.
 
 ## Where a designer's eye is needed
 
@@ -308,14 +379,15 @@ These come straight from the limits above. They are the open questions closest t
 
 1. **Do the four presets each read as intentional?** Nothing automated answers that.
 2. **Field borders are faint** in `calm-blue`, at about 1.9 to 1.
-3. **Long text has no rule yet.** Nothing truncates, wraps or clips.
+3. **Long text has no design rule yet.** Nothing truncates, wraps or clips. A screen whose text does not fit is thrown out of the data instead.
 4. **Long lists have no rule yet.** Nothing scrolls, and the screen tops out at 21 rows.
-5. **Narrow windows have no rule yet.** One arrangement, with no reflow.
+5. **Narrow windows have no rule yet.** There are eight arrangements now, and none of them reflows: a design that does not fit a window is given a larger one.
 6. **The notification cannot be dismissed.** It stays until the next action replaces or clears it.
+7. **Do the eight layout families each read as intentional**, in each preset, at each density? The checks only say nothing is broken.
 
 ## What comes next
 
-- **Issue #8.** More layout arrangements, variation in content and density, and checks that reject broken examples, text overflow among them.
+- **Issue #9.** A pilot dataset of 200 to 500 examples across every preset and layout family, in a gallery made for review, with the stress-test set shown apart.
 - **Issue #12** can run alongside it: the first stage of the training renderer, covering rounded rectangles.
 - **Issue #15** can also start: the first network, taught to reproduce the tiny set.
-- **After that:** a pilot dataset with a review gallery (#9), and Rob's go or no-go on that gallery (#10).
+- **After that:** Rob's go or no-go on that gallery (#10).
