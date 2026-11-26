@@ -34,6 +34,7 @@ from collections import Counter
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from enum import Enum
+from types import MappingProxyType
 from typing import Any
 
 import numpy as np
@@ -77,15 +78,16 @@ class ModeUnavailable(Exception):
 class Conditioning:
     """What the scene writer is told besides application state.
 
-    The viewport size, and the visual preset by its name in the generator
-    configuration (`core_ultra.design`); without a name it is the
-    configuration's default preset. The design condition joins them when the
-    generator is built.
+    The viewport size; the visual preset by its name in the generator
+    configuration (`core_ultra.design`), without a name the configuration's
+    default preset; and the design condition as a value for each design factor
+    (`core_ultra.layout_family`), without one the default layout family's.
     """
 
     viewport_width: float
     viewport_height: float
     visual_preset: str | None = None
+    design_condition: Mapping[str, str] | None = None
 
     def __post_init__(self) -> None:
         for name in ("viewport_width", "viewport_height"):
@@ -94,6 +96,10 @@ class Conditioning:
                 raise ValueError(f"{name} is {value!r}; it is a finite number above zero")
         if self.visual_preset is not None and not isinstance(self.visual_preset, str):
             raise ValueError(f"visual_preset is {self.visual_preset!r}; it is a preset's name")
+        if self.design_condition is not None:
+            if not isinstance(self.design_condition, Mapping):
+                raise ValueError(f"design_condition is {self.design_condition!r}; it is a value for each design factor")
+            object.__setattr__(self, "design_condition", MappingProxyType(dict(self.design_condition)))
 
     @property
     def viewport(self) -> tuple[float, float]:
@@ -206,10 +212,11 @@ class SceneSession:
         bound_elements = documents_adapter.describe(state)
         if mode is RenderingMode.A_REFERENCE:
             # Imported here so that no other rendering mode loads the teacher.
-            from core_ultra import design, reference_layout
+            from core_ultra import design, layout_family, reference_layout
 
             preset = design.load().preset(conditioning.visual_preset)
-            candidate = reference_layout.write_scene(bound_elements, conditioning.viewport, preset)
+            condition = layout_family.load().condition(conditioning.design_condition)
+            candidate = reference_layout.write_scene(bound_elements, conditioning.viewport, preset, condition)
         else:
             raise ModeUnavailable(f"{mode.value} has no scene model yet")
         return self._frame(bound_elements, conditioning, candidate, scale, mode.value, project=False)

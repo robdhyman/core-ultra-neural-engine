@@ -1,9 +1,9 @@
 """The project's single command-line entry point.
 
-`doctor`, `measure step`, `design check` and `design draw` exist so far. The
-spec's later verbs
-(`data generate`, `data gallery`, `renderer check`, `train`, `evaluate`,
-`report`) are added by the issues that build them.
+`doctor`, `measure step`, `design check`, `design draw`, `data generate` and
+`data check` exist so far. The spec's later verbs (`data gallery`,
+`renderer check`, `train`, `evaluate`, `report`) are added by the issues that
+build them.
 """
 
 from __future__ import annotations
@@ -127,6 +127,41 @@ def _parser() -> argparse.ArgumentParser:
     )
     draw.add_argument("--scale", type=float, default=2.0, metavar="N", help="pixels per viewport unit (default: 2)")
     draw.set_defaults(run=_design_draw)
+
+    data = verbs.add_parser(
+        "data",
+        help="generate a dataset and check a written one",
+        description="Datasets: scripted sessions written as traceable dataset records.",
+    )
+    actions = data.add_subparsers(dest="what", required=True, metavar="WHAT")
+    generate = actions.add_parser(
+        "generate",
+        help="run scripted sessions and write dataset records and a manifest",
+        description=(
+            "Run the scripted sessions of a dataset configuration against the application kernel, "
+            "write the true scene of every state reached as a dataset record with its reference "
+            "image, and write a manifest of hashes. The same configuration always gives the same "
+            "bytes. Exits 2 when the configuration cannot be used or the folder already holds a "
+            "different dataset; a dataset is never overwritten."
+        ),
+    )
+    generate.add_argument("--config", type=Path, required=True, metavar="PATH", help="dataset configuration, such as configs/data/tiny-v1.json")
+    generate.add_argument(
+        "--out", type=Path, default=None, metavar="DIR", help="folder the dataset is written to (default: artifacts/datasets/<name>-v<version>)"
+    )
+    generate.set_defaults(run=_data_generate)
+    verify = actions.add_parser(
+        "check",
+        help="check a written dataset against its manifest and regenerate it",
+        description=(
+            "Check a written dataset: every file has the hash its manifest gives, no record's "
+            "model inputs hold the target or diagnostic metadata, every target is a valid scene, "
+            "and generating the dataset again from its own configuration gives the same bytes. "
+            "Exits 1 and lists every problem when it does not hold."
+        ),
+    )
+    verify.add_argument("folder", type=Path, metavar="DIR", help="the dataset folder, the one that holds manifest.json")
+    verify.set_defaults(run=_data_check)
     return parser
 
 
@@ -235,4 +270,52 @@ def _design_draw(args: argparse.Namespace) -> int:
         print(f"{image['visual_preset']:<16} {out / image['file']}  {image['sha256']}")
     print(f"{'every preset':<16} {out / manifest['sheet']['file']}  {manifest['sheet']['sha256']}")
     print(f"{'manifest':<16} {out / preset_sheet.MANIFEST_NAME}")
+    return 0
+
+
+def _data_generate(args: argparse.Namespace) -> int:
+    import hashlib
+
+    from core_ultra import generator
+
+    try:
+        config = generator.load_config(args.config)
+        out = args.out or generator.default_out(config)
+        manifest = generator.write(config, out)
+    except generator.ConfigError as error:
+        print(f"core-ultra: the dataset configuration cannot be used ({len(error.problems)}):", file=sys.stderr)
+        for problem in error.problems:
+            print(f"  - {problem}", file=sys.stderr)
+        return 2
+    except generator.DatasetDiffers as error:
+        print(f"core-ultra: {error}; nothing was written", file=sys.stderr)
+        return 2
+
+    counts = manifest["counts"]
+    manifest_path = out / generator.MANIFEST_NAME
+    print(f"Dataset            {config.name} version {config.version}, seed {config.seed}")
+    print(f"Scripted sessions  {counts['sessions']}")
+    print(f"Records            {counts['records']} ({counts['application_states']} application states)")
+    for name, count in counts["by_visual_preset"].items():
+        print(f"  {name:<16} {count}")
+    print(f"Rejected           {counts['rejected']}")
+    for rejection in manifest["rejected"]:
+        codes = ", ".join(sorted({problem["code"] for problem in rejection["problems"]}))
+        print(f"  {rejection['id']:<16} {codes}")
+    print(f"Written to         {out}")
+    print(f"Manifest           {manifest_path}")
+    print(f"Manifest SHA-256   {hashlib.sha256(manifest_path.read_bytes()).hexdigest()}")
+    return 0
+
+
+def _data_check(args: argparse.Namespace) -> int:
+    from core_ultra import generator
+
+    problems = generator.check(args.folder)
+    if problems:
+        print(f"core-ultra: {args.folder} is not the dataset its manifest describes ({len(problems)}):", file=sys.stderr)
+        for problem in problems:
+            print(f"  - {problem}", file=sys.stderr)
+        return 1
+    print(f"{args.folder} is the dataset its manifest describes, and generating it again gives the same bytes.")
     return 0

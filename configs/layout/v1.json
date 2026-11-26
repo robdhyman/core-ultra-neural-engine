@@ -1,0 +1,27 @@
+{
+  "kind": "layout-config",
+  "name": "core-ultra-layout-v1",
+  "version": 1,
+  "note": "The design factors a design condition is made of, the values the reference layout engine draws for each, and the layout families: each family is one named combination of factor values. The scene model is given the factor values, never a family's name. `preset` for density and spacing means the heights and distances are the visual preset's own. A changed layout is a new version of this file, never an edit to this one once a dataset has been generated from it.",
+  "factors": {
+    "navigation_position": ["top"],
+    "panel_arrangement": ["list-left"],
+    "density": ["preset"],
+    "spacing": ["preset"],
+    "notification_location": ["bottom-right"]
+  },
+  "default_family": "top-bar-list-left",
+  "families": {
+    "top-bar-list-left": {
+      "title": "Top bar, list left",
+      "summary": "The toolbar across the top, the document list on the left, the editor filling the rest and the notification over the lower right corner.",
+      "design_condition": {
+        "navigation_position": "top",
+        "panel_arrangement": "list-left",
+        "density": "preset",
+        "spacing": "preset",
+        "notification_location": "bottom-right"
+      }
+    }
+  }
+}

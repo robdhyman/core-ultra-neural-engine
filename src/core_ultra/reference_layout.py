@@ -1,11 +1,19 @@
 """The reference layout: the deterministic function that writes the true scene.
 
-One arrangement of the document workspace: a toolbar across the top, the
-document list on the left, the editor filling the rest, and the notification
-over the lower right corner. Every style value and every size comes from the
-visual preset it is given (`core_ultra.design`); nothing about how the
-workspace looks is decided here. Design conditions and layout families join
-the arrangement when the generator is built.
+Application state (as the adapter's bound elements), a viewport size, a visual
+preset and a design condition go in; exactly one scene comes out. Nothing here
+is random and nothing is read from anywhere else, so the same four always give
+the same scene. A layout family is a named design condition
+(`core_ultra.layout_family`), so the family is fixed by the condition.
+
+`DRAWN` lists, for each design factor, the values this engine draws. So far
+that is one arrangement of the document workspace: a toolbar across the top,
+the document list on the left, the editor filling the rest and the
+notification over the lower right corner, at the visual preset's own density
+and spacing. A design condition with any other value is refused, never drawn
+as something else. Every style value and every size comes from the visual
+preset (`core_ultra.design`); nothing about how the workspace looks is decided
+here.
 
 The layout knows the bound elements only by what the adapter says of them: the
 part of the workspace each belongs to, its role and the command its binding
@@ -28,13 +36,35 @@ from typing import Any
 from core_ultra import typography
 from core_ultra.design import Component, VisualPreset
 from core_ultra.documents_adapter import BoundElement
+from core_ultra.layout_family import FACTORS, DesignCondition
 from core_ultra.scene import SCHEMA_VERSION
+
+# For each design factor, the values this engine draws.
+DRAWN = {
+    "navigation_position": ("top",),
+    "panel_arrangement": ("list-left",),
+    "density": ("preset",),
+    "spacing": ("preset",),
+    "notification_location": ("bottom-right",),
+}
 
 _CLEAR = [0.0, 0.0, 0.0, 0.0]
 
 
-def write_scene(bound_elements: Sequence[BoundElement], viewport: tuple[float, float], preset: VisualPreset) -> dict[str, Any]:
-    """The true scene for these bound elements at this viewport size, in this visual preset."""
+def write_scene(
+    bound_elements: Sequence[BoundElement],
+    viewport: tuple[float, float],
+    preset: VisualPreset,
+    condition: DesignCondition,
+) -> dict[str, Any]:
+    """The true scene for these bound elements at this viewport size, in this
+    visual preset, under this design condition."""
+    for factor in FACTORS:
+        value = getattr(condition, factor)
+        if value not in DRAWN[factor]:
+            raise ValueError(
+                f"the reference layout does not draw {factor} {value!r}; it draws {', '.join(DRAWN[factor])}"
+            )
     width, height = viewport
     writer = _Writer(preset)
     parts = _Parts(bound_elements)

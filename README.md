@@ -14,7 +14,7 @@ uv sync --locked
 
 ## Command line
 
-There is one entry point, `core-ultra` (also `python -m core_ultra`). Its verbs so far are `doctor`, `measure step`, `design check` and `design draw`.
+There is one entry point, `core-ultra` (also `python -m core_ultra`). Its verbs so far are `doctor`, `measure step`, `design check`, `design draw`, `data generate` and `data check`.
 
 ### `doctor`
 
@@ -88,6 +88,29 @@ uv run core-ultra design draw
 | `--out DIR` | Folder the images are written to. Default: `records/design/v1`. |
 | `--scale N` | Pixels per viewport unit. Default: 2. |
 
+### `data generate`
+
+```bash
+uv run core-ultra data generate --config configs/data/tiny-v1.json
+```
+
+`data generate` runs the scripted sessions of a dataset configuration against the application kernel. For every state a session reaches, the reference layout engine writes the true scene, the runtime renderer draws it, and one dataset record and one reference image are written. A manifest of hashes is written last. The same configuration always gives the same bytes. A state whose true scene fails scene validation is not written; the manifest lists it under `rejected` with every reason.
+
+It exits 2, writing nothing, when the configuration cannot be used or the folder already holds a different dataset. A dataset is never overwritten.
+
+| Flag | Effect |
+| --- | --- |
+| `--config PATH` | The dataset configuration. Required. |
+| `--out DIR` | Folder the dataset is written to. Default: `artifacts/datasets/<name>-v<version>`. |
+
+### `data check`
+
+```bash
+uv run core-ultra data check artifacts/datasets/tiny-v1
+```
+
+`data check` checks a written dataset. Every file must have the hash the manifest gives. No record's model inputs may hold the target, an image or diagnostic metadata. Every target must be a valid scene that carries the application's bound elements unchanged. Generating the dataset again from its own `config.json` must give the same bytes. It exits 1 and lists every problem by record.
+
 ## Design source
 
 The design is original and is held twice. [DESIGN.md](DESIGN.md) is the written one, in the Google Labs DESIGN.md format (version alpha): tokens as YAML, then prose. `configs/design/v1.json` is the generator configuration, the machine-readable one the reference layout reads. `design check` keeps them the same.
@@ -109,6 +132,50 @@ The same application state in A, Reference in each ([one image per preset](recor
 
 All text is drawn in Inter, kept in this repository under the SIL Open Font License. [ASSETS.md](ASSETS.md) records its source, version, hashes and attribution.
 
+## Datasets
+
+A dataset is generated, never collected. `configs/data/tiny-v1.json` is the tiny one: four scripted sessions, one in each visual preset, 82 records. It shows the whole path and is not the pilot.
+
+```
+artifacts/datasets/tiny-v1/
+  manifest.json        hashes of everything below; the only file in git
+  config.json          the dataset configuration, byte for byte
+  records/<id>.json    one dataset record
+  images/<id>.png      its reference image: A, Reference drawn by the runtime renderer
+```
+
+**Scripted sessions.** A scenario is a script, a list of actions such as `create`, `open`, `edit`, `save`. A scripted session carries a script out on an empty kernel the way a person would: the pointer moves onto a bound element, the element is pressed or focused, and the command its action binding names is given to the kernel. Each of those three is a moment and each moment becomes a record, so every state in a dataset is one the application can reach. Titles, bodies and which row is opened come from a random source seeded with the configuration's seed and the session's id. A session runs in one design: one layout family, one visual preset and one viewport size, dealt out in a seeded order.
+
+**Design condition and layout family.** A design condition is one value for each of five design factors: navigation position, panel arrangement, density, spacing and notification location. A layout family is a named combination of those values, declared in `configs/layout/v1.json`. There is one family so far, `top-bar-list-left`. The reference layout engine turns application state, viewport size, visual preset and design condition into exactly one scene, with no random choice, and refuses a factor value it does not draw.
+
+**A dataset record** keeps five things apart:
+
+| Field | Holds |
+| --- | --- |
+| `inputs` | The model inputs, below, and nothing else. |
+| `target` | The true scene. |
+| `reference_image` | The image's file, hash and size. |
+| `application` | What the application supplied: the bound elements with exact text, action bindings and states, and the application state. |
+| `diagnostics` | Generator version, seed and configuration; layout family, visual preset and scenario identifiers; the commands executed so far; asset provenance; validation results. |
+
+**Model inputs** are all the scene model is given ([model_inputs.py](src/core_ultra/model_inputs.py)):
+
+- for each bound element, its identity, role, the kind of its action binding, its current state, the length of its text, the measured width of its text at 16 units and weight 400, and its semantic relationships;
+- the viewport size;
+- the design condition as its five factor values;
+- the visual preset as its token values.
+
+The text itself, the true scene, any image, validation results, the layout family's name, the visual preset's name, seeds and all other diagnostic metadata are never inputs. The generator refuses to write a record that breaks this, and `data check` fails a written one.
+
+**Related records.** Records that share `diagnostics.related.application_state` are one application state under different pointer states: their text, identities, bindings and boxes are the same and only style values differ. Records that share `related.session` are one run of the application. The split rules will keep them together.
+
+Limits of this version:
+
+- One layout family. Each design factor has one value.
+- The measured text width is at one weight, 400. An element drawn at another weight is not exactly that width scaled.
+- The only checks on a record are scene validation and the model-input rule. Text fit, coverage and agreement between drawing and hit targets are not checked yet.
+- The bytes depend on this machine's Qt: text measurement decides the boxes and the rasteriser decides the pixels. The manifest records the Qt version.
+
 ## Scene session
 
 The scene session is the one interface from application state to a drawn interface. It runs without a window.
@@ -125,7 +192,8 @@ kernel.save()
 
 session = SceneSession()
 frame = session.frame(kernel.state(), Conditioning(960, 540), RenderingMode.A_REFERENCE, scale=2)
-# Conditioning(960, 540, visual_preset="warm-paper") draws the same state in another preset
+# Conditioning(960, 540, visual_preset="warm-paper") draws the same state in another preset;
+# design_condition={...} gives the five design factor values, by default the default layout family's
 frame.scene              # the validated scene; frame.scene.to_json() is how it is stored
 frame.image              # RGBA pixels drawn by the runtime renderer, 1920 by 1080 here
 hit = frame.hit_test(70, 28)   # the bound element at a point in viewport units, or None
@@ -140,7 +208,7 @@ session.report.summary() # scenes seen, invalid scenes by reason, values project
 | Application kernel | [kernel.py](src/core_ultra/kernel.py) | Holds the documents app in one SQLite file. Commands: create, open, rename, edit, save, list, sort, filter and undo. |
 | Documents app adapter | [documents_adapter.py](src/core_ultra/documents_adapter.py) | Describes the whole workspace (document list, editor, toolbar, notification) as bound elements: identity, role, exact text, binding, state, relationships. No coordinates, no style. |
 | Design | [design.py](src/core_ultra/design.py) | Reads the generator configuration and resolves every component in the visual preset the conditioning names. |
-| Scene writer | [reference_layout.py](src/core_ultra/reference_layout.py) | In A, Reference, the reference layout writes the scene in that preset. D, Neural Scene has no scene model yet and says so. |
+| Scene writer | [reference_layout.py](src/core_ultra/reference_layout.py) | In A, Reference, the reference layout writes the scene in that preset under the conditioning's design condition. D, Neural Scene has no scene model yet and says so. |
 | Scene validation | [scene.py](src/core_ultra/scene.py) | Accepts the scene or refuses it with every reason. Nothing is repaired. The schema is at the top of the file. |
 | Runtime renderer | [runtime_renderer.py](src/core_ultra/runtime_renderer.py) | Draws the validated scene as vectors with Qt's painter, off screen, and answers hit tests from the same outlines. |
 
@@ -186,7 +254,7 @@ Every style value: fill, text colour, border colour and width, corner radius, el
 
 Limits of this version:
 
-- One arrangement of the workspace, in four visual presets. Design conditions and layout families come with the generator.
+- One arrangement of the workspace, in four visual presets: the one layout family, `top-bar-list-left`.
 - Text is in one font, Inter, in every preset; the scene schema has no value for a font family. It is not elided, wrapped or clipped, and a character the font lacks is refused, not substituted. Text wider than its box runs over it; nothing checks text fit yet.
 - Nothing scrolls. A list too long for the viewport, or a workspace with more than 32 bound elements (21 rows while a document is open and a notification shows), is reported as an invalid scene, never clipped or dropped.
 - No command dismisses the notification; the next command replaces or clears it.
@@ -200,7 +268,7 @@ Why Qt's painter: [docs/adr/0002-qt-painter-is-the-runtime-renderer.md](docs/adr
 | `artifacts/` | No | Weights, datasets, run artifacts and anything else that stays on this machine. |
 | `artifacts/**/manifest.json`, `*.manifest.json`, `*.sha256`, `SHA256SUMS` | Yes | The manifests and hashes that describe those artifacts. |
 | `records/` | Yes | Doctor records, measurement records, milestone records and reports. |
-| `configs/` | Yes | Versioned configurations: what was measured, the model size chosen from it, and the design the generator draws. |
+| `configs/` | Yes | Versioned configurations: what was measured, the model size chosen from it, the design the generator draws, the layout families and the dataset configurations. |
 | `src/core_ultra/assets/` | Yes | The font, with its licence. Recorded in `ASSETS.md`. |
 
 Weight and array files (`*.pt`, `*.safetensors`, `*.npz` and similar) are ignored wherever they land.
@@ -211,4 +279,4 @@ Weight and array files (`*.pt`, `*.safetensors`, `*.npz` and similar) are ignore
 uv run pytest
 ```
 
-The tests run the real commands on the machine at hand; `measure step` is run on a configuration small enough to finish in seconds. The kernel tests ([tests/test_kernel.py](tests/test_kernel.py)) run commands against a real SQLite file and assert on what the kernel then reports, including after the store is closed and reopened. The scene session tests ([tests/test_scene_session.py](tests/test_scene_session.py)) build state in a real kernel and assert on the scene, its validity, the drawn image and hit-test answers; drawn text is judged against Qt's own text-to-path and a drawn shadow against its documented formula, not against the renderer's code. The design tests ([tests/test_design.py](tests/test_design.py)) draw one state in every visual preset and compare the scene with the values DESIGN.md writes, read from its YAML and not through the code that loads the configuration; they also change one value at a time in a copy of either file and assert that `design check` names it. `test_report_matches_the_tested_platform` asserts the tested platform above and fails on any other machine on purpose.
+The tests run the real commands on the machine at hand; `measure step` is run on a configuration small enough to finish in seconds. The kernel tests ([tests/test_kernel.py](tests/test_kernel.py)) run commands against a real SQLite file and assert on what the kernel then reports, including after the store is closed and reopened. The scene session tests ([tests/test_scene_session.py](tests/test_scene_session.py)) build state in a real kernel and assert on the scene, its validity, the drawn image and hit-test answers; drawn text is judged against Qt's own text-to-path and a drawn shadow against its documented formula, not against the renderer's code. The design tests ([tests/test_design.py](tests/test_design.py)) draw one state in every visual preset and compare the scene with the values DESIGN.md writes, read from its YAML and not through the code that loads the configuration; they also change one value at a time in a copy of either file and assert that `design check` names it. The data tests ([tests/test_cli_data_generate.py](tests/test_cli_data_generate.py)) run `data generate` on the tiny configuration and judge what it wrote without the generator: each record's state is reached again in a kernel of the test's own from the commands the record lists, its scene is asked of the scene session, its image is drawn again, and ten ways of putting the target or diagnostic metadata into the model inputs must each fail `data check`. `test_report_matches_the_tested_platform` asserts the tested platform above and fails on any other machine on purpose.

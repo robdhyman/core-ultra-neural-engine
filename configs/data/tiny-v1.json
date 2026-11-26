@@ -1,0 +1,37 @@
+{
+  "kind": "dataset-config",
+  "name": "tiny",
+  "version": 1,
+  "note": "The tiny dataset: four scripted sessions, one in each visual preset, in the one layout family. It exists to show the whole path from a scripted session to a traceable dataset record, and is small enough for the command-line test to generate in seconds. It is not the pilot. A changed dataset is a new version of this file, never an edit to this one.",
+  "seed": 20261126,
+  "design": "configs/design/v1.json",
+  "layout": "configs/layout/v1.json",
+  "layout_families": ["top-bar-list-left"],
+  "visual_presets": ["calm-blue", "warm-paper", "night-teal", "dense-ink"],
+  "viewports": [[960, 540], [1120, 630]],
+  "pixels_per_viewport_unit": 1,
+  "sessions_per_scenario": 1,
+  "scenarios": {
+    "first-documents": ["create", "create", "open", "edit", "save"],
+    "revise-and-undo": ["create", "open", "edit", "save", "edit", "undo", "undo"],
+    "find-and-sort": ["create", "create", "create", "sort", "filter", "filter-none", "filter-clear", "open"],
+    "rename-and-reorder": ["create", "create", "open", "rename", "sort", "undo"]
+  },
+  "content": {
+    "words": [
+      "plan", "notes", "café", "résumé", "août", "größe", "señal", "jaźń", "façade", "fjord",
+      "budget", "garden", "letter", "recipe", "voyage", "ledger", "atlas", "sketch", "trio", "übung"
+    ],
+    "title_words": [1, 3],
+    "lines": [
+      "Première ligne: déjà vu, garçon.",
+      "Zweite Zeile: Größe, Übermut, Äpfel.",
+      "Tercera línea: ¿mañana? ¡Sí!",
+      "Fjärde raden: små åar, öppna fält.",
+      "A plain line with nothing to add.",
+      "Żółta łódź płynie wolno."
+    ],
+    "body_lines": [1, 4],
+    "filter_misses": ["zzz", "qqq"]
+  }
+}

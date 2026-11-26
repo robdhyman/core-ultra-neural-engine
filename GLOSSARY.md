@@ -58,9 +58,23 @@ _Avoid_: Hybrid, composited mode
 A synthetic run of the app produced by the interaction generator, with no person involved.
 _Avoid_: Synthetic episode, bot run
 
+**Scenario**:
+The script a scripted session follows: a named list of actions in a dataset configuration.
+_Avoid_: Test case, flow, journey
+
 **Use log**:
 The record of a person's real pointer, key and text input inside the app's own window.
 _Avoid_: Telemetry, analytics, session recording
+
+### Data
+
+**Dataset record**:
+One generated example: the model inputs, the true scene, its reference image, what the application supplied and the diagnostic metadata, each kept apart from the others.
+_Avoid_: Sample, row, data point
+
+**Model inputs**:
+Everything the scene model is given for one frame and nothing else: the bound elements without their text, the viewport size, the design condition as factor values and the visual preset as token values.
+_Avoid_: Features, prompt, conditioning alone
 
 ### Experiments
 
@@ -77,5 +91,5 @@ A named, coherent set of original style values (colour, type, spacing, radius, e
 _Avoid_: Theme, skin, brand
 
 **Layout family**:
-A group of generated scenes that share one structural arrangement and differ only in content, state or visual preset. Held out whole in evaluation.
+A group of generated scenes that share one structural arrangement and differ only in content, state or visual preset. Declared as a named combination of design factor values. Held out whole in evaluation.
 _Avoid_: Template, layout type
