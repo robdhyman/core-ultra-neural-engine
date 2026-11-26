@@ -30,6 +30,10 @@ _Avoid_: Rasteriser, differentiable renderer alone
 The deterministic renderer that draws a scene as vectors in the running app. Visual results are always measured with it.
 _Avoid_: Rasteriser, compiler, display renderer
 
+**Scene export**:
+A scene written as an SVG file of separate objects, one for each element, for a person to open in a design tool. Visual results are never measured with it.
+_Avoid_: SVG renderer, vector render, design file
+
 ### Rendering
 
 **Rendering mode**:

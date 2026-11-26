@@ -1,0 +1,28 @@
+<!--
+The exported SVG drawn by a browser against the dataset's reference image (issue #32, by hand).
+
+Put this page in an empty folder as index.html with, for each record id listed
+in the script, <id>.svg (from `core-ultra scene export`) and <id>.png (from
+artifacts/datasets/tiny-v1/images/). Serve the folder on localhost, for example
+`python3 -m http.server 8732 --bind 127.0.0.1 --directory <folder>`, open the
+page and read `window.results` in the console. The browser needs Inter installed.
+Run on 2026-11-26 in the Claude app's built-in browser, Chrome 156.
+-->
+<!doctype html><meta charset="utf-8"><title>spot check</title>
+<body style="margin:0;background:#888"><div id="out"></div><script>
+const ids = ["first-documents-0.015","revise-and-undo-0.012","find-and-sort-0.024","rename-and-reorder-0.010"];
+const load = src => new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = src; });
+window.results = {};
+(async () => {
+  await document.fonts.ready;
+  for (const id of ids) {
+    const png = await load(id + ".png"), svg = await load(id + ".svg");
+    const w = png.naturalWidth, h = png.naturalHeight;
+    const px = img => { const c = document.createElement("canvas"); c.width = w; c.height = h; const g = c.getContext("2d", {willReadFrequently: true}); g.drawImage(img, 0, 0, w, h); document.body.appendChild(c); return g.getImageData(0, 0, w, h).data; };
+    const a = px(png), b = px(svg); let sum = 0, over = 0, max = 0;
+    for (let p = 0; p < a.length; p += 4) { let m = 0; for (let k = 0; k < 4; k++) { const d = Math.abs(a[p+k] - b[p+k]); sum += d; if (d > m) m = d; } if (m > 16) over++; if (m > max) max = m; }
+    window.results[id] = {pixels: [w, h], mean_absolute_difference: sum / a.length, share_of_pixels_over_16: over / (a.length / 4), largest_difference: max};
+  }
+  window.done = true;
+})();
+</script>

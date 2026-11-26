@@ -1,0 +1,101 @@
+{
+  "kind": "scene-export-manifest",
+  "schema_version": 1,
+  "note": "SVGs written by `core-ultra scene export` from records of the tiny dataset, for the hand-off in .scratch/scene-export/. The SVGs stay on this machine; this manifest is what git keeps.",
+  "dataset": {
+    "name": "tiny",
+    "version": 1,
+    "manifest_sha256": "85317d71559bb0ff9c74fdd0f9cae49561b0fef7c0413dbf0109d0f0f654cef3"
+  },
+  "exported_by": "core-ultra scene export",
+  "files": [
+    {
+      "file": "night-teal-saved.svg",
+      "sha256": "efbad59c767179feaae33931b822f90f54cc6acc8ee03a80d3027897c56b9db5",
+      "record": "first-documents-0.015",
+      "record_sha256": "9c6012ee8c6ab8b4cc26355c4f0eff22dae315d9ceda3230a352793b8045e972",
+      "visual_preset": "night-teal",
+      "viewport": {
+        "width": 960.0,
+        "height": 540.0
+      }
+    },
+    {
+      "file": "night-teal-save-hover.svg",
+      "sha256": "26905a1831ecfac2e5e7e4111cad3f36c8dc20724fe7877e9524433958cf9bf4",
+      "record": "first-documents-0.013",
+      "record_sha256": "5cb962c4013845202477e316d0eda07ae1328976e563fb459726c5012b8c17a7",
+      "visual_preset": "night-teal",
+      "viewport": {
+        "width": 960.0,
+        "height": 540.0
+      }
+    },
+    {
+      "file": "calm-blue-saved.svg",
+      "sha256": "f68a8c9dbe157dfdc2e88b52ff064f36016e38608cead073d31e33f691d7fca9",
+      "record": "revise-and-undo-0.012",
+      "record_sha256": "f139ea452ea44e888dc7e3347dfd86521df05000579b56cd8cb27815fe5b549b",
+      "visual_preset": "calm-blue",
+      "viewport": {
+        "width": 1120.0,
+        "height": 630.0
+      }
+    },
+    {
+      "file": "calm-blue-four-lines.svg",
+      "sha256": "ff28231be5251eb78ec212c23f0a7732b8514742f986f42926375cb4d2f9f4ba",
+      "record": "revise-and-undo-0.015",
+      "record_sha256": "c44821bc9d0308ac7ad61d723547cd8263a030db148db1cecce59544ce3ddeed",
+      "visual_preset": "calm-blue",
+      "viewport": {
+        "width": 1120.0,
+        "height": 630.0
+      }
+    },
+    {
+      "file": "dense-ink-open.svg",
+      "sha256": "6af26aae0ef4e214bd7ff68fa33174269aaaf6b5348f23da6abab807d9c5c2ac",
+      "record": "find-and-sort-0.024",
+      "record_sha256": "9ca89d66c5873e607e5af382df27de4ceec9ba77006c06bb24ed25c9ac06ee0e",
+      "visual_preset": "dense-ink",
+      "viewport": {
+        "width": 960.0,
+        "height": 540.0
+      }
+    },
+    {
+      "file": "dense-ink-filter-focused.svg",
+      "sha256": "8fc9bb2b61e2122ef9da8c6ee0032a85bfd5bc65617635140380a3e80c2c5f85",
+      "record": "find-and-sort-0.014",
+      "record_sha256": "433e93f9608540e152ef7ff3519126bc07e7d1bf2bd8f0c8cc7cb61abe80970e",
+      "visual_preset": "dense-ink",
+      "viewport": {
+        "width": 960.0,
+        "height": 540.0
+      }
+    },
+    {
+      "file": "warm-paper-renamed.svg",
+      "sha256": "c3ddf0f93cbfc1ceb50bdd8c1d44bdf4d00756e7d5e54e81f31613feb5cad19b",
+      "record": "rename-and-reorder-0.012",
+      "record_sha256": "190de58e69db82bdc794c81b6a9d82ab77643b7580acc892914fa4062790f1a4",
+      "visual_preset": "warm-paper",
+      "viewport": {
+        "width": 1120.0,
+        "height": 630.0
+      }
+    },
+    {
+      "file": "warm-paper-sort-pressed.svg",
+      "sha256": "f52d75415d3eea6b9f1b92aaf4b40e94d2f003ea8e55ec8d59820f4b0f06f489",
+      "record": "rename-and-reorder-0.014",
+      "record_sha256": "f7a7ad2d8902da115ae5d44a218d419aa87f7cb547de93f054cb1b9a18e9e64e",
+      "visual_preset": "warm-paper",
+      "viewport": {
+        "width": 1120.0,
+        "height": 630.0
+      }
+    }
+  ]
+}

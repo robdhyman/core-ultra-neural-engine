@@ -4,6 +4,9 @@
 `data check` exist so far. The spec's later verbs (`data gallery`,
 `renderer check`, `train`, `evaluate`, `report`) are added by the issues that
 build them.
+
+`scene export` and `scene compare` (issue #32) write a scene as an editable
+SVG and measure that SVG against the runtime renderer.
 """
 
 from __future__ import annotations
@@ -162,6 +165,45 @@ def _parser() -> argparse.ArgumentParser:
     )
     verify.add_argument("folder", type=Path, metavar="DIR", help="the dataset folder, the one that holds manifest.json")
     verify.set_defaults(run=_data_check)
+
+    scene = verbs.add_parser(
+        "scene",
+        help="write a scene as an editable SVG and measure the SVG against the runtime renderer",
+        description="A stored scene as an editable vector document. The SVG is an export, never what visual results are measured with.",
+    )
+    actions = scene.add_subparsers(dest="what", required=True, metavar="WHAT")
+    export = actions.add_parser(
+        "export",
+        help="write a dataset record's true scene, or a scene file, as one SVG",
+        description=(
+            "Write a validated scene as an SVG of separate objects, made to be opened in a design "
+            "tool: one group for each scene element, named by its id and nested by parent, with its "
+            "shape as a rectangle and its text as text in Inter. The same scene always gives the same "
+            "bytes. Exits 1 when the scene is invalid, listing every problem, or holds text that "
+            "cannot be written, and 2 when the file holds no scene or the SVG exists with other "
+            "contents; nothing is overwritten."
+        ),
+    )
+    export.add_argument("source", type=Path, metavar="PATH", help="a dataset record (its true scene is exported) or a scene file")
+    export.add_argument(
+        "--out", type=Path, default=None, metavar="FILE", help="the SVG to write (default: the input's name with .svg, in the current folder)"
+    )
+    export.set_defaults(run=_scene_export)
+    compare = actions.add_parser(
+        "compare",
+        help="measure every exported SVG of a dataset against the runtime renderer's image",
+        description=(
+            "For every record of a written dataset, export the true scene as SVG, rasterise the SVG "
+            "with Qt's SVG module and compare it pixel by pixel with the runtime renderer's image of "
+            "the same scene, whole and with every text emptied. Prints the differences overall and by "
+            "visual preset. Exits 2 when the folder is not a dataset whose every record can be "
+            "exported, or the record exists with other contents."
+        ),
+    )
+    compare.add_argument("folder", type=Path, metavar="DIR", help="the dataset folder, the one that holds manifest.json")
+    compare.add_argument("--out", type=Path, default=None, metavar="FILE", help="also write the comparison as a JSON record")
+    compare.add_argument("--json", action="store_true", help="print the comparison as JSON instead of text")
+    compare.set_defaults(run=_scene_compare)
     return parser
 
 
@@ -319,3 +361,69 @@ def _data_check(args: argparse.Namespace) -> int:
         return 1
     print(f"{args.folder} is the dataset its manifest describes, and generating it again gives the same bytes.")
     return 0
+
+
+def _scene_export(args: argparse.Namespace) -> int:
+    import hashlib
+
+    from core_ultra import scene_export
+    from core_ultra.scene import SceneInvalid
+    from core_ultra.typography import TextNotDrawable
+
+    out = args.out or Path(f"{args.source.stem}.svg")
+    try:
+        scene, source = scene_export.load(args.source)
+        data = scene_export.to_svg(scene).encode("utf-8")
+    except scene_export.SourceError as error:
+        print(f"core-ultra: {error}", file=sys.stderr)
+        return 2
+    except SceneInvalid as refused:
+        print(f"core-ultra: the scene in {args.source} is invalid and was not exported ({len(refused.problems)}):", file=sys.stderr)
+        for problem in refused.problems:
+            print(f"  - {problem}", file=sys.stderr)
+        return 1
+    except (TextNotDrawable, scene_export.NotExportable) as refused:
+        print(f"core-ultra: the scene in {args.source} was not exported: {refused}", file=sys.stderr)
+        return 1
+    if not _write_once(out, data):
+        return 2
+    print(f"Scene              {args.source} ({source})")
+    print(f"Elements           {len(scene.elements)} ({len(scene.bound_elements)} bound, {len(scene.structural_elements)} structural)")
+    print(f"Written to         {out}")
+    print(f"SVG SHA-256        {hashlib.sha256(data).hexdigest()}")
+    return 0
+
+
+def _scene_compare(args: argparse.Namespace) -> int:
+    from core_ultra import scene_export_comparison
+    from core_ultra.scene_export import SourceError
+
+    try:
+        record = scene_export_comparison.measure(args.folder)
+    except SourceError as error:
+        print(f"core-ultra: {error}", file=sys.stderr)
+        return 2
+    if args.out is not None and not _write_once(args.out, scene_export_comparison.to_json(record).encode("utf-8")):
+        return 2
+    sys.stdout.write(scene_export_comparison.to_json(record) if args.json else scene_export_comparison.to_text(record))
+    if args.out is not None:
+        # With --json, stdout stays a single JSON document.
+        print(f"Saved record       {args.out}", file=sys.stderr if args.json else sys.stdout)
+    return 0
+
+
+def _write_once(path: Path, data: bytes) -> bool:
+    """Write the file, or leave an identical one alone. False, with the reason
+    printed, when it exists with other contents or cannot be written."""
+    try:
+        if path.exists():
+            if path.read_bytes() == data:
+                return True
+            print(f"core-ultra: {path} already exists with other contents; nothing was written", file=sys.stderr)
+            return False
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(data)
+    except OSError as error:
+        print(f"core-ultra: {path} cannot be written: {error.strerror or error}", file=sys.stderr)
+        return False
+    return True
