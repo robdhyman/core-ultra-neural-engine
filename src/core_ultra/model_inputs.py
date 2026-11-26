@@ -18,8 +18,9 @@
   relationships. The text itself is not an input.
 - `text_width` is the advance width of the widest line of the text at
   `REFERENCE_TYPE_SIZE` and `REFERENCE_TYPE_WEIGHT`, in viewport units.
-- The design condition is its factor values. The visual preset is its token
-  values; its name is not an input.
+- The design condition is its factor values: the five every layout declares
+  and, from a layout that declares them, grouping and alignment. The visual
+  preset is its token values; its name is not an input.
 
 The true scene, a drawn image, validation results, a layout family's name, a
 visual preset's name, seeds and diagnostic metadata are never inputs. `build`
@@ -39,7 +40,7 @@ from typing import Any
 
 from core_ultra import typography
 from core_ultra.documents_adapter import RELATIONS, ROLES, STATES, BoundElement
-from core_ultra.layout_family import FACTORS
+from core_ultra.layout_family import FACTORS, OPTIONAL_FACTORS, REQUIRED_FACTORS
 
 REFERENCE_TYPE_SIZE = 16.0
 REFERENCE_TYPE_WEIGHT = 400.0
@@ -90,7 +91,7 @@ def build(
             for element in bound_elements
         ],
         "viewport": {"width": float(viewport[0]), "height": float(viewport[1])},
-        "design_condition": {factor: design_condition[factor] for factor in FACTORS},
+        "design_condition": {factor: design_condition[factor] for factor in FACTORS if factor in design_condition},
         "visual_preset": {
             group: {token: list(value) if isinstance(value, (list, tuple)) else value for token, value in visual_preset[group].items()}
             for group in TOKEN_GROUPS
@@ -150,8 +151,12 @@ def problems(inputs: Any) -> list[str]:
                 found.append(f"viewport.{name} is not a number above zero")
 
     condition = inputs["design_condition"]
-    if _exactly(condition, FACTORS, "design_condition", found):
-        for factor in FACTORS:
+    # The five factors of every layout, or all seven: a layout declares
+    # grouping and alignment together or not at all.
+    has_optional = isinstance(condition, dict) and any(factor in condition for factor in OPTIONAL_FACTORS)
+    factors = FACTORS if has_optional else REQUIRED_FACTORS
+    if _exactly(condition, factors, "design_condition", found):
+        for factor in factors:
             if not isinstance(condition[factor], str) or not condition[factor]:
                 found.append(f"design_condition.{factor} is not a factor value")
 

@@ -80,6 +80,18 @@ _Avoid_: Sample, row, data point
 Everything the scene model is given for one frame and nothing else: the bound elements without their text, the viewport size, the design condition as factor values and the visual preset as token values.
 _Avoid_: Features, prompt, conditioning alone
 
+**Validator**:
+A check a generated scene must pass before it is written as a dataset record: scene validation, text fit, element completeness, state consistency and hit targets, and, for a whole dataset, coverage. A validator enforces a validity constraint and never a design preference. Each rejection is recorded with its reason. A dataset record lists, with the validators it passed, the rule that its model inputs hold neither the target nor diagnostic metadata.
+_Avoid_: Linter, filter, quality check
+
+**Stress-test set**:
+The deliberately difficult or broken examples of a dataset, written apart from its dataset records and labelled as such. Each must be rejected by the validators for the reasons it records. It is never a training target.
+_Avoid_: Negative examples, bad samples, adversarial set
+
+**Content length**:
+A named range of title words and body lines that a scripted session writes with, declared in a dataset configuration.
+_Avoid_: Text size, verbosity
+
 ### Experiments
 
 **Variant**:

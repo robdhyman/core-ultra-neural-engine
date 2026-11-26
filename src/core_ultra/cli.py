@@ -143,9 +143,12 @@ def _parser() -> argparse.ArgumentParser:
         description=(
             "Run the scripted sessions of a dataset configuration against the application kernel, "
             "write the true scene of every state reached as a dataset record with its reference "
-            "image, and write a manifest of hashes. The same configuration always gives the same "
-            "bytes. Exits 2 when the configuration cannot be used or the folder already holds a "
-            "different dataset; a dataset is never overwritten."
+            "image, and write a manifest of hashes. A scene the validators reject is not written; "
+            "the manifest lists it with every reason, lists what the records do not cover, and "
+            "lists the stress-test set, which is written apart and is never a training target. The "
+            "same configuration always gives the same bytes. Exits 2 when the configuration cannot "
+            "be used, a stress test is not rejected for the reasons it states, or the folder "
+            "already holds a different dataset; a dataset is never overwritten."
         ),
     )
     generate.add_argument("--config", type=Path, required=True, metavar="PATH", help="dataset configuration, such as configs/data/tiny-v1.json")
@@ -158,8 +161,9 @@ def _parser() -> argparse.ArgumentParser:
         help="check a written dataset against its manifest and regenerate it",
         description=(
             "Check a written dataset: every file has the hash its manifest gives, no record's "
-            "model inputs hold the target or diagnostic metadata, every target is a valid scene, "
-            "and generating the dataset again from its own configuration gives the same bytes. "
+            "model inputs hold the target or diagnostic metadata, every target passes every "
+            "validator, every stress test is still rejected for the reasons it records, and "
+            "generating the dataset again from its own configuration gives the same bytes. "
             "Exits 1 and lists every problem when it does not hold."
         ),
     )
@@ -340,10 +344,22 @@ def _data_generate(args: argparse.Namespace) -> int:
     print(f"Records            {counts['records']} ({counts['application_states']} application states)")
     for name, count in counts["by_visual_preset"].items():
         print(f"  {name:<16} {count}")
+    for name, count in counts["by_layout_family"].items():
+        print(f"  {name:<22} {count}")
     print(f"Rejected           {counts['rejected']}")
     for rejection in manifest["rejected"]:
         codes = ", ".join(sorted({problem["code"] for problem in rejection["problems"]}))
         print(f"  {rejection['id']:<16} {codes}")
+    if counts["sessions_refused"]:
+        print(f"Sessions not run   {counts['sessions_refused']} (no viewport size fits)")
+        for session in manifest["sessions_refused"]:
+            print(f"  {session['id']:<16} {session['layout_family']}, {session['visual_preset']}")
+    print(f"Coverage gaps      {counts['coverage_gaps']}")
+    for gap in manifest["coverage"]["gaps"]:
+        print(f"  {gap['detail']}")
+    print(f"Stress-test set    {counts['stress_tests']} (rejected by the validators; never a training target)")
+    for case in manifest["stress_tests"]["records"]:
+        print(f"  {case['id']:<34} {', '.join(case['codes'])}")
     print(f"Written to         {out}")
     print(f"Manifest           {manifest_path}")
     print(f"Manifest SHA-256   {hashlib.sha256(manifest_path.read_bytes()).hexdigest()}")

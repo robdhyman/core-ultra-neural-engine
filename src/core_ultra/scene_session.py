@@ -81,7 +81,8 @@ class Conditioning:
     The viewport size; the visual preset by its name in the generator
     configuration (`core_ultra.design`), without a name the configuration's
     default preset; and the design condition as a value for each design factor
-    (`core_ultra.layout_family`), without one the default layout family's.
+    (`core_ultra.layout_family`), without one the default layout family's. The
+    condition must be one the scene session's layout declares.
     """
 
     viewport_width: float
@@ -189,7 +190,11 @@ class SessionReport:
 
 
 class SceneSession:
-    def __init__(self) -> None:
+    def __init__(self, layout: Any = None) -> None:
+        """`layout` is the layout (`core_ultra.layout_family.load`) whose
+        design conditions A, Reference draws; without one, the default layout
+        configuration's."""
+        self._layout = layout
         self._scenes = 0
         self._invalid: list[InvalidScene] = []
         self._projected: list[ProjectedScene] = []
@@ -215,7 +220,7 @@ class SceneSession:
             from core_ultra import design, layout_family, reference_layout
 
             preset = design.load().preset(conditioning.visual_preset)
-            condition = layout_family.load().condition(conditioning.design_condition)
+            condition = (self._layout or layout_family.load()).condition(conditioning.design_condition)
             candidate = reference_layout.write_scene(bound_elements, conditioning.viewport, preset, condition)
         else:
             raise ModeUnavailable(f"{mode.value} has no scene model yet")
