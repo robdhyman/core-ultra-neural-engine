@@ -1,0 +1,5770 @@
+{
+  "kind": "renderer-check",
+  "schema_version": 1,
+  "created_at": "2026-11-27T10:04:41Z",
+  "project": {
+    "name": "core-ultra",
+    "version": "0.0.1"
+  },
+  "doctor": {
+    "environment_id": "sha256:6b5d299af418a80202b1eafa91dbc1789f7df3cf640eddea7286f9138290ce58",
+    "sha256": "1462894c74d78fa7fa169f7e55805f41275644f86d5c3ed0f0f9d76cc1e4bf3b",
+    "record": "doctor/20261127T100434Z-6b5d299af418.json"
+  },
+  "torch": "2.15.0",
+  "training_renderer_stage": 1,
+  "config": {
+    "name": "renderer-check",
+    "version": 1,
+    "stage": 1,
+    "about": "The known scenes and tolerances `renderer check` verifies stage 1 of the training renderer with: the rounded rectangle with fill and opacity. A scene marked on_kinks has edges on pixel boundaries or a value on one of its bounds, where a gradient is one-sided, so finite differences are not taken there. Every other scene's numbers are chosen so that, at each scale, no edge and no centre of a corner's circle falls on a pixel's boundary or centre: a central difference taken exactly where the cover changes from one formula to the next is wrong in proportion to its step, whatever the gradient. A scene marked leaves_viewport is not a valid scene and is never drawn by the runtime renderer.",
+    "seed": 12,
+    "scales": [
+      1,
+      2
+    ],
+    "finite_differences": {
+      "step": 1e-05,
+      "absolute_tolerance": 1e-05,
+      "relative_tolerance": 1e-06
+    },
+    "apple_gpu_path": {
+      "image_tolerance": 0.0001,
+      "gradient_absolute_tolerance": 0.002,
+      "gradient_relative_tolerance": 0.002
+    },
+    "zero_tolerance": 1e-12,
+    "exact_cover_samples": 256,
+    "scenes": [
+      {
+        "name": "one-rounded",
+        "about": "One rounded rectangle on nothing.",
+        "viewport": [
+          48,
+          36
+        ],
+        "elements": [
+          {
+            "id": "root",
+            "parent": null,
+            "box": [
+              5.37,
+              4.21,
+              36.44,
+              26.83
+            ],
+            "fill": [
+              0.86,
+              0.42,
+              0.21,
+              0.9
+            ],
+            "corner_radius": 5.3,
+            "opacity": 0.85
+          }
+        ]
+      },
+      {
+        "name": "overlaps",
+        "about": "Translucent and opaque elements over one another, in drawing order.",
+        "viewport": [
+          64,
+          48
+        ],
+        "elements": [
+          {
+            "id": "root",
+            "parent": null,
+            "box": [
+              1.37,
+              0.83,
+              60.21,
+              45.12
+            ],
+            "fill": [
+              0.93,
+              0.94,
+              0.9,
+              0.95
+            ],
+            "corner_radius": 3.3,
+            "opacity": 0.97
+          },
+          {
+            "id": "under",
+            "parent": "root",
+            "box": [
+              6.31,
+              5.72,
+              30.44,
+              22.27
+            ],
+            "fill": [
+              0.9,
+              0.4,
+              0.2,
+              0.6
+            ],
+            "corner_radius": 6.1,
+            "opacity": 0.9
+          },
+          {
+            "id": "over",
+            "parent": "root",
+            "box": [
+              20.53,
+              12.26,
+              30.18,
+              26.09
+            ],
+            "fill": [
+              0.2,
+              0.5,
+              0.9,
+              0.5
+            ],
+            "corner_radius": 9.2,
+            "opacity": 0.7
+          },
+          {
+            "id": "inside",
+            "parent": "over",
+            "box": [
+              28.42,
+              18.63,
+              14.75,
+              10.36
+            ],
+            "fill": [
+              0.15,
+              0.7,
+              0.45,
+              0.96
+            ],
+            "corner_radius": 2.4,
+            "opacity": 0.93
+          },
+          {
+            "id": "last",
+            "parent": "root",
+            "box": [
+              38.17,
+              30.44,
+              20.3,
+              12.81
+            ],
+            "fill": [
+              0.95,
+              0.85,
+              0.2,
+              0.8
+            ],
+            "corner_radius": 4.7,
+            "opacity": 0.6
+          }
+        ]
+      },
+      {
+        "name": "radii",
+        "about": "Corner radii from under a pixel to nearly a circle.",
+        "viewport": [
+          72,
+          48
+        ],
+        "elements": [
+          {
+            "id": "root",
+            "parent": null,
+            "box": [
+              0.61,
+              0.47,
+              70.52,
+              46.88
+            ],
+            "fill": [
+              0.1,
+              0.1,
+              0.12,
+              0.98
+            ],
+            "corner_radius": 0.63,
+            "opacity": 0.99
+          },
+          {
+            "id": "r1",
+            "parent": "root",
+            "box": [
+              3.28,
+              3.64,
+              14.37,
+              9.21
+            ],
+            "fill": [
+              0.95,
+              0.95,
+              0.9,
+              0.97
+            ],
+            "corner_radius": 1.1,
+            "opacity": 0.96
+          },
+          {
+            "id": "r2",
+            "parent": "root",
+            "box": [
+              20.71,
+              3.39,
+              14.62,
+              9.48
+            ],
+            "fill": [
+              0.3,
+              0.8,
+              0.9,
+              0.95
+            ],
+            "corner_radius": 2.2,
+            "opacity": 0.98
+          },
+          {
+            "id": "r3",
+            "parent": "root",
+            "box": [
+              38.43,
+              3.57,
+              14.29,
+              9.73
+            ],
+            "fill": [
+              0.9,
+              0.5,
+              0.7,
+              0.97
+            ],
+            "corner_radius": 3.4,
+            "opacity": 0.95
+          },
+          {
+            "id": "r6",
+            "parent": "root",
+            "box": [
+              3.66,
+              16.32,
+              22.41,
+              14.57
+            ],
+            "fill": [
+              0.8,
+              0.8,
+              0.3,
+              0.96
+            ],
+            "corner_radius": 6.3,
+            "opacity": 0.97
+          },
+          {
+            "id": "r12",
+            "parent": "root",
+            "box": [
+              30.24,
+              16.71,
+              36.83,
+              27.42
+            ],
+            "fill": [
+              0.4,
+              0.9,
+              0.5,
+              0.98
+            ],
+            "corner_radius": 12.4,
+            "opacity": 0.94
+          },
+          {
+            "id": "round",
+            "parent": "root",
+            "box": [
+              5.52,
+              33.36,
+              11.27,
+              11.31
+            ],
+            "fill": [
+              0.95,
+              0.4,
+              0.3,
+              0.97
+            ],
+            "corner_radius": 5.4,
+            "opacity": 0.96
+          }
+        ]
+      },
+      {
+        "name": "thin",
+        "about": "Dividers thinner than a pixel, and one a pixel thick.",
+        "viewport": [
+          48,
+          36
+        ],
+        "elements": [
+          {
+            "id": "root",
+            "parent": null,
+            "box": [
+              0.43,
+              0.38,
+              46.71,
+              34.92
+            ],
+            "fill": [
+              0.96,
+              0.95,
+              0.93,
+              0.98
+            ],
+            "corner_radius": 1.7,
+            "opacity": 0.99
+          },
+          {
+            "id": "across",
+            "parent": "root",
+            "type": "divider",
+            "box": [
+              4.27,
+              9.31,
+              38.64,
+              0.42
+            ],
+            "fill": [
+              0.1,
+              0.1,
+              0.1,
+              0.9
+            ],
+            "corner_radius": 0.1,
+            "opacity": 0.95
+          },
+          {
+            "id": "down",
+            "parent": "root",
+            "type": "divider",
+            "box": [
+              22.36,
+              12.58,
+              0.37,
+              19.44
+            ],
+            "fill": [
+              0.1,
+              0.1,
+              0.1,
+              0.9
+            ],
+            "corner_radius": 0.1,
+            "opacity": 0.95
+          },
+          {
+            "id": "one",
+            "parent": "root",
+            "type": "divider",
+            "box": [
+              4.63,
+              20.27,
+              14.52,
+              1.04
+            ],
+            "fill": [
+              0.2,
+              0.2,
+              0.6,
+              0.94
+            ],
+            "corner_radius": 0.3,
+            "opacity": 0.9
+          }
+        ]
+      },
+      {
+        "name": "square-corners",
+        "about": "No corner radius anywhere: translucent boxes over one another and dividers thinner than a pixel, off the pixel grid. A radius of zero is on its bound.",
+        "viewport": [
+          48,
+          36
+        ],
+        "on_kinks": true,
+        "elements": [
+          {
+            "id": "root",
+            "parent": null,
+            "box": [
+              0.43,
+              0.38,
+              46.71,
+              34.92
+            ],
+            "fill": [
+              0.95,
+              0.95,
+              0.9,
+              1
+            ],
+            "corner_radius": 0,
+            "opacity": 1
+          },
+          {
+            "id": "under",
+            "parent": "root",
+            "box": [
+              5.31,
+              4.72,
+              20.44,
+              12.27
+            ],
+            "fill": [
+              0.2,
+              0.4,
+              0.8,
+              0.8
+            ],
+            "corner_radius": 0,
+            "opacity": 0.9
+          },
+          {
+            "id": "over",
+            "parent": "root",
+            "box": [
+              10.63,
+              9.26,
+              22.38,
+              14.81
+            ],
+            "fill": [
+              0.9,
+              0.3,
+              0.2,
+              0.5
+            ],
+            "corner_radius": 0,
+            "opacity": 1
+          },
+          {
+            "id": "across",
+            "parent": "root",
+            "type": "divider",
+            "box": [
+              4.27,
+              30.31,
+              30.04,
+              0.42
+            ],
+            "fill": [
+              0,
+              0,
+              0,
+              1
+            ],
+            "corner_radius": 0,
+            "opacity": 1
+          },
+          {
+            "id": "down",
+            "parent": "root",
+            "type": "divider",
+            "box": [
+              40.36,
+              6.58,
+              0.31,
+              20.04
+            ],
+            "fill": [
+              0,
+              0,
+              0,
+              1
+            ],
+            "corner_radius": 0,
+            "opacity": 1
+          }
+        ]
+      },
+      {
+        "name": "past-the-viewport",
+        "about": "Elements that cross each edge of the viewport and one corner, as a prediction may. Not a valid scene.",
+        "viewport": [
+          48,
+          36
+        ],
+        "leaves_viewport": true,
+        "elements": [
+          {
+            "id": "left",
+            "parent": null,
+            "box": [
+              -6.42,
+              9.37,
+              16.81,
+              12.26
+            ],
+            "fill": [
+              0.9,
+              0.3,
+              0.3,
+              0.9
+            ],
+            "corner_radius": 3.2,
+            "opacity": 0.9
+          },
+          {
+            "id": "top",
+            "parent": null,
+            "box": [
+              16.33,
+              -5.61,
+              14.72,
+              12.44
+            ],
+            "fill": [
+              0.3,
+              0.9,
+              0.3,
+              0.9
+            ],
+            "corner_radius": 2.6,
+            "opacity": 0.9
+          },
+          {
+            "id": "right",
+            "parent": null,
+            "box": [
+              39.27,
+              10.66,
+              15.38,
+              11.73
+            ],
+            "fill": [
+              0.3,
+              0.3,
+              0.9,
+              0.9
+            ],
+            "corner_radius": 4.1,
+            "opacity": 0.9
+          },
+          {
+            "id": "bottom",
+            "parent": null,
+            "box": [
+              15.72,
+              29.58,
+              16.21,
+              12.67
+            ],
+            "fill": [
+              0.9,
+              0.9,
+              0.3,
+              0.9
+            ],
+            "corner_radius": 3.7,
+            "opacity": 0.9
+          },
+          {
+            "id": "corner",
+            "parent": null,
+            "box": [
+              40.36,
+              28.41,
+              13.57,
+              12.22
+            ],
+            "fill": [
+              0.6,
+              0.3,
+              0.8,
+              0.9
+            ],
+            "corner_radius": 5.1,
+            "opacity": 0.9
+          }
+        ]
+      },
+      {
+        "name": "whole-numbers",
+        "about": "As a true scene is written: a surface that fills the viewport, boxes on whole numbers that meet edge to edge and touch the viewport's edges, square corners, a pill, an element of no opacity.",
+        "viewport": [
+          64,
+          48
+        ],
+        "on_kinks": true,
+        "elements": [
+          {
+            "id": "root",
+            "parent": null,
+            "type": "surface",
+            "box": [
+              0,
+              0,
+              64,
+              48
+            ],
+            "fill": [
+              0.97,
+              0.97,
+              0.95,
+              1
+            ],
+            "corner_radius": 0,
+            "opacity": 1
+          },
+          {
+            "id": "bar",
+            "parent": "root",
+            "box": [
+              0,
+              0,
+              64,
+              10
+            ],
+            "fill": [
+              0.16,
+              0.3,
+              0.62,
+              1
+            ],
+            "corner_radius": 0,
+            "opacity": 1
+          },
+          {
+            "id": "rail",
+            "parent": "root",
+            "box": [
+              0,
+              10,
+              16,
+              38
+            ],
+            "fill": [
+              0.9,
+              0.91,
+              0.94,
+              1
+            ],
+            "corner_radius": 0,
+            "opacity": 1
+          },
+          {
+            "id": "rule",
+            "parent": "root",
+            "type": "divider",
+            "box": [
+              16,
+              10,
+              1,
+              38
+            ],
+            "fill": [
+              0.7,
+              0.72,
+              0.78,
+              1
+            ],
+            "corner_radius": 0,
+            "opacity": 1
+          },
+          {
+            "id": "card",
+            "parent": "root",
+            "box": [
+              22,
+              16,
+              36,
+              20
+            ],
+            "fill": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "corner_radius": 4,
+            "opacity": 1
+          },
+          {
+            "id": "pill",
+            "parent": "card",
+            "box": [
+              26,
+              20,
+              20,
+              8
+            ],
+            "fill": [
+              0.16,
+              0.3,
+              0.62,
+              1
+            ],
+            "corner_radius": 4,
+            "opacity": 1
+          },
+          {
+            "id": "hidden",
+            "parent": "card",
+            "box": [
+              48,
+              20,
+              6,
+              6
+            ],
+            "fill": [
+              0.9,
+              0.2,
+              0.2,
+              1
+            ],
+            "corner_radius": 1,
+            "opacity": 0
+          },
+          {
+            "id": "veil",
+            "parent": "root",
+            "box": [
+              40,
+              30,
+              24,
+              18
+            ],
+            "fill": [
+              0,
+              0,
+              0,
+              0.4
+            ],
+            "corner_radius": 0,
+            "opacity": 0.5
+          }
+        ]
+      }
+    ],
+    "moves": [
+      {
+        "name": "across",
+        "about": "An element that overlaps its target moves onto it.",
+        "viewport": [
+          48,
+          36
+        ],
+        "steps": 8,
+        "from": {
+          "box": [
+            6.3,
+            10.2,
+            18.4,
+            12.6
+          ],
+          "fill": [
+            0.2,
+            0.4,
+            0.8,
+            1
+          ],
+          "corner_radius": 3.2,
+          "opacity": 1
+        },
+        "to": {
+          "box": [
+            17.7,
+            10.2,
+            18.4,
+            12.6
+          ],
+          "fill": [
+            0.2,
+            0.4,
+            0.8,
+            1
+          ],
+          "corner_radius": 3.2,
+          "opacity": 1
+        }
+      },
+      {
+        "name": "diagonal",
+        "about": "It moves on both axes at once.",
+        "viewport": [
+          48,
+          36
+        ],
+        "steps": 8,
+        "from": {
+          "box": [
+            5.4,
+            4.3,
+            18.4,
+            12.6
+          ],
+          "fill": [
+            0.2,
+            0.4,
+            0.8,
+            1
+          ],
+          "corner_radius": 3.2,
+          "opacity": 1
+        },
+        "to": {
+          "box": [
+            15.9,
+            11.8,
+            18.4,
+            12.6
+          ],
+          "fill": [
+            0.2,
+            0.4,
+            0.8,
+            1
+          ],
+          "corner_radius": 3.2,
+          "opacity": 1
+        }
+      },
+      {
+        "name": "size",
+        "about": "It grows to its target's size.",
+        "viewport": [
+          48,
+          36
+        ],
+        "steps": 8,
+        "from": {
+          "box": [
+            12.6,
+            9.4,
+            9.2,
+            6.7
+          ],
+          "fill": [
+            0.2,
+            0.4,
+            0.8,
+            1
+          ],
+          "corner_radius": 2.1,
+          "opacity": 1
+        },
+        "to": {
+          "box": [
+            12.6,
+            9.4,
+            24.8,
+            17.3
+          ],
+          "fill": [
+            0.2,
+            0.4,
+            0.8,
+            1
+          ],
+          "corner_radius": 2.1,
+          "opacity": 1
+        }
+      },
+      {
+        "name": "corner-radius",
+        "about": "Its corners round to its target's.",
+        "viewport": [
+          48,
+          36
+        ],
+        "steps": 8,
+        "from": {
+          "box": [
+            8.3,
+            6.6,
+            28.4,
+            20.7
+          ],
+          "fill": [
+            0.2,
+            0.4,
+            0.8,
+            1
+          ],
+          "corner_radius": 0.8,
+          "opacity": 1
+        },
+        "to": {
+          "box": [
+            8.3,
+            6.6,
+            28.4,
+            20.7
+          ],
+          "fill": [
+            0.2,
+            0.4,
+            0.8,
+            1
+          ],
+          "corner_radius": 9.6,
+          "opacity": 1
+        }
+      },
+      {
+        "name": "fill",
+        "about": "Its colour and alpha change to its target's.",
+        "viewport": [
+          48,
+          36
+        ],
+        "steps": 8,
+        "from": {
+          "box": [
+            8.3,
+            6.6,
+            28.4,
+            20.7
+          ],
+          "fill": [
+            0.9,
+            0.2,
+            0.3,
+            0.5
+          ],
+          "corner_radius": 4.2,
+          "opacity": 1
+        },
+        "to": {
+          "box": [
+            8.3,
+            6.6,
+            28.4,
+            20.7
+          ],
+          "fill": [
+            0.2,
+            0.6,
+            0.8,
+            0.95
+          ],
+          "corner_radius": 4.2,
+          "opacity": 1
+        }
+      },
+      {
+        "name": "opacity",
+        "about": "It fades in to its target's opacity.",
+        "viewport": [
+          48,
+          36
+        ],
+        "steps": 8,
+        "from": {
+          "box": [
+            8.3,
+            6.6,
+            28.4,
+            20.7
+          ],
+          "fill": [
+            0.2,
+            0.4,
+            0.8,
+            1
+          ],
+          "corner_radius": 4.2,
+          "opacity": 0.15
+        },
+        "to": {
+          "box": [
+            8.3,
+            6.6,
+            28.4,
+            20.7
+          ],
+          "fill": [
+            0.2,
+            0.4,
+            0.8,
+            1
+          ],
+          "corner_radius": 4.2,
+          "opacity": 0.9
+        }
+      },
+      {
+        "name": "everything",
+        "about": "Every value moves at once, over a backdrop that does not. The element starts inside its target, in a colour nearer the target's than the backdrop's.",
+        "viewport": [
+          48,
+          36
+        ],
+        "steps": 8,
+        "backdrop": {
+          "box": [
+            0,
+            0,
+            48,
+            36
+          ],
+          "fill": [
+            0.95,
+            0.94,
+            0.9,
+            1
+          ],
+          "corner_radius": 0,
+          "opacity": 1
+        },
+        "from": {
+          "box": [
+            17.3,
+            12.4,
+            14.2,
+            9.5
+          ],
+          "fill": [
+            0.35,
+            0.55,
+            0.7,
+            0.8
+          ],
+          "corner_radius": 1.4,
+          "opacity": 0.8
+        },
+        "to": {
+          "box": [
+            14.8,
+            10.6,
+            24.6,
+            17.9
+          ],
+          "fill": [
+            0.2,
+            0.5,
+            0.8,
+            0.95
+          ],
+          "corner_radius": 6.3,
+          "opacity": 0.95
+        }
+      }
+    ],
+    "zero_gradients": [
+      {
+        "name": "no-overlap-with-the-target",
+        "about": "A square-cornered element and its target do not touch. Moving it changes which pixels differ and not how much, so position has no gradient. Neither has a corner radius of zero: rounding a square corner a little takes away an area that grows as the radius squared. Size, fill and opacity have one.",
+        "viewport": [
+          64,
+          36
+        ],
+        "elements": [
+          {
+            "box": [
+              5.3,
+              8.45,
+              14.6,
+              12.27
+            ],
+            "fill": [
+              0.2,
+              0.4,
+              0.8,
+              1
+            ],
+            "corner_radius": 0,
+            "opacity": 0.9
+          }
+        ],
+        "target": [
+          {
+            "box": [
+              40.7,
+              14.3,
+              14.6,
+              12.27
+            ],
+            "fill": [
+              0.2,
+              0.4,
+              0.8,
+              1
+            ],
+            "corner_radius": 0,
+            "opacity": 0.9
+          }
+        ],
+        "element": 0,
+        "zero": [
+          "x",
+          "y",
+          "corner_radius"
+        ],
+        "non_zero": [
+          "width",
+          "height",
+          "fill",
+          "opacity"
+        ]
+      },
+      {
+        "name": "rounded-without-overlap",
+        "about": "The same with rounded corners. An arc is drawn as its tangent, so the element's whole cover changes a little with where its corners fall among the pixels, and position has a small gradient that the shape itself does not: a limit of this renderer, measured here.",
+        "viewport": [
+          64,
+          36
+        ],
+        "elements": [
+          {
+            "box": [
+              5.3,
+              8.45,
+              14.6,
+              12.27
+            ],
+            "fill": [
+              0.2,
+              0.4,
+              0.8,
+              1
+            ],
+            "corner_radius": 3.1,
+            "opacity": 0.9
+          }
+        ],
+        "target": [
+          {
+            "box": [
+              40.7,
+              14.3,
+              14.6,
+              12.27
+            ],
+            "fill": [
+              0.2,
+              0.4,
+              0.8,
+              1
+            ],
+            "corner_radius": 3.1,
+            "opacity": 0.9
+          }
+        ],
+        "element": 0,
+        "zero": [],
+        "non_zero": [
+          "x",
+          "y",
+          "width",
+          "height",
+          "corner_radius",
+          "fill",
+          "opacity"
+        ]
+      },
+      {
+        "name": "under-an-opaque-element",
+        "about": "The element lies wholly under a later opaque one, so nothing about it reaches a pixel.",
+        "viewport": [
+          48,
+          36
+        ],
+        "elements": [
+          {
+            "box": [
+              12.4,
+              9.3,
+              14.6,
+              10.2
+            ],
+            "fill": [
+              0.9,
+              0.3,
+              0.2,
+              0.8
+            ],
+            "corner_radius": 2.2,
+            "opacity": 0.9
+          },
+          {
+            "box": [
+              6.2,
+              4.1,
+              30.5,
+              24.6
+            ],
+            "fill": [
+              0.2,
+              0.4,
+              0.8,
+              1
+            ],
+            "corner_radius": 0,
+            "opacity": 1
+          }
+        ],
+        "target": [
+          {
+            "box": [
+              20.7,
+              14.3,
+              14.6,
+              10.2
+            ],
+            "fill": [
+              0.9,
+              0.3,
+              0.2,
+              0.8
+            ],
+            "corner_radius": 2.2,
+            "opacity": 0.9
+          },
+          {
+            "box": [
+              9.6,
+              6.3,
+              30.5,
+              24.6
+            ],
+            "fill": [
+              0.2,
+              0.4,
+              0.8,
+              1
+            ],
+            "corner_radius": 0,
+            "opacity": 1
+          }
+        ],
+        "element": 0,
+        "zero": [
+          "x",
+          "y",
+          "width",
+          "height",
+          "corner_radius",
+          "fill",
+          "opacity"
+        ],
+        "non_zero": []
+      },
+      {
+        "name": "no-opacity",
+        "about": "The element has no opacity, so nothing about its shape or colour reaches a pixel; its opacity does.",
+        "viewport": [
+          48,
+          36
+        ],
+        "elements": [
+          {
+            "box": [
+              8.4,
+              7.3,
+              20.6,
+              14.2
+            ],
+            "fill": [
+              0.9,
+              0.3,
+              0.2,
+              0.8
+            ],
+            "corner_radius": 3.2,
+            "opacity": 0
+          }
+        ],
+        "target": [
+          {
+            "box": [
+              12.7,
+              9.3,
+              20.6,
+              14.2
+            ],
+            "fill": [
+              0.9,
+              0.3,
+              0.2,
+              0.8
+            ],
+            "corner_radius": 3.2,
+            "opacity": 0.9
+          }
+        ],
+        "element": 0,
+        "zero": [
+          "x",
+          "y",
+          "width",
+          "height",
+          "corner_radius",
+          "fill"
+        ],
+        "non_zero": [
+          "opacity"
+        ]
+      }
+    ]
+  },
+  "config_sha256": "6a5018330f00541d0b46a731468200a43d08e012bcafb98603725e654ed5c4c3",
+  "definitions": {
+    "finite_difference": "(f(v + step) - f(v - step)) / (2 step), one number at a time, on the CPU in 64-bit floats",
+    "passes": "|autograd - other| <= absolute_tolerance + relative_tolerance * |other|, for every number of the attribute",
+    "render_loss": "the mean of |image - target image| over every channel of every pixel, both drawn by the training renderer",
+    "gradient_state": "disconnected: the number is not part of the computation. zero: it is, and every part of its gradient is within zero_tolerance of zero. non-zero: otherwise.",
+    "levels": "differences between images are in levels of 255 over RGBA with colour premultiplied by alpha",
+    "mean_absolute_difference": "mean of |a - b| over every channel of every pixel",
+    "share_of_pixels_over_16": "share of pixels in which some channel differs by more than 16 levels",
+    "largest_difference": "largest |a - b| of any channel of any pixel",
+    "exact_cover": "each pixel's cover by each element counted from exact_cover_samples sample points, no two in one column or row of the pixel, then composited as both renderers composite; computed here with numpy",
+    "verified": "drawn is verified when the Apple GPU path's image agrees with the CPU's and agreement with the runtime renderer was measured; an attribute is verified when its finite differences pass on the CPU and its gradient on the Apple GPU path agrees with the CPU's",
+    "scalars": {
+      "squared_difference_from_target": "the sum of (image - target image) squared over every channel of every pixel",
+      "weighted_sum": "the sum of the image times fixed pseudo-random weights in -1 to 1"
+    }
+  },
+  "passed": true,
+  "sections_passed": {
+    "finite_differences": true,
+    "apple_gpu_path": true,
+    "moves": true,
+    "zero_gradients": true
+  },
+  "support_matrix": [
+    {
+      "primitive": "rounded rectangle with fill and opacity",
+      "stage": 1,
+      "drawn": true,
+      "drawn_verified": true,
+      "attributes": [
+        {
+          "attribute": "x",
+          "gradient": true,
+          "finite_differences_on_cpu": true,
+          "apple_gpu_path": true,
+          "verified": true
+        },
+        {
+          "attribute": "y",
+          "gradient": true,
+          "finite_differences_on_cpu": true,
+          "apple_gpu_path": true,
+          "verified": true
+        },
+        {
+          "attribute": "width",
+          "gradient": true,
+          "finite_differences_on_cpu": true,
+          "apple_gpu_path": true,
+          "verified": true
+        },
+        {
+          "attribute": "height",
+          "gradient": true,
+          "finite_differences_on_cpu": true,
+          "apple_gpu_path": true,
+          "verified": true
+        },
+        {
+          "attribute": "corner_radius",
+          "gradient": true,
+          "finite_differences_on_cpu": true,
+          "apple_gpu_path": true,
+          "verified": true
+        },
+        {
+          "attribute": "fill",
+          "gradient": true,
+          "finite_differences_on_cpu": true,
+          "apple_gpu_path": true,
+          "verified": true
+        },
+        {
+          "attribute": "opacity",
+          "gradient": true,
+          "finite_differences_on_cpu": true,
+          "apple_gpu_path": true,
+          "verified": true
+        }
+      ],
+      "not_differentiable": [
+        "drawing order"
+      ]
+    },
+    {
+      "primitive": "border",
+      "stage": 2,
+      "drawn": false,
+      "drawn_verified": null,
+      "attributes": [],
+      "not_differentiable": []
+    },
+    {
+      "primitive": "text",
+      "stage": 2,
+      "drawn": false,
+      "drawn_verified": null,
+      "attributes": [],
+      "not_differentiable": [
+        "font choice",
+        "shaping",
+        "line wrapping"
+      ]
+    },
+    {
+      "primitive": "shadow",
+      "stage": 3,
+      "drawn": false,
+      "drawn_verified": null,
+      "attributes": [],
+      "not_differentiable": []
+    }
+  ],
+  "not_drawn": [
+    "border",
+    "text",
+    "shadow"
+  ],
+  "limits": [
+    "An arc is drawn as its tangent, which never covers less than the arc: a corner of radius under about two pixels is drawn too full on its own few pixels, and a rounded element's whole cover changes a little with where its corners fall among the pixels.",
+    "Position, size and corner radius receive a gradient only from the pixels the outline crosses. An element that shares no differing pixel with its target has no gradient in position.",
+    "A corner radius past half the box's shorter side is drawn as that half and receives no gradient; a prediction is kept inside the bound to be learned.",
+    "A box with a width or height at or below zero draws nothing and receives no gradient.",
+    "Colour channels and opacity are used as given, in or out of 0 to 1.",
+    "Drawing order is the order the elements are given in and receives no gradient."
+  ],
+  "finite_differences": {
+    "device": "cpu",
+    "dtype": "float64",
+    "step": 1e-05,
+    "absolute_tolerance": 1e-05,
+    "relative_tolerance": 1e-06,
+    "scenes_left_out": [
+      "square-corners",
+      "whole-numbers"
+    ],
+    "rows": [
+      {
+        "scene": "one-rounded",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "x",
+        "numbers": 1,
+        "largest_gradient": 22.289631090188774,
+        "largest_error": 1.9680292950852163e-09,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "y",
+        "numbers": 1,
+        "largest_gradient": 21.709951693082985,
+        "largest_error": 1.3327934311746503e-09,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "width",
+        "numbers": 1,
+        "largest_gradient": 12.925007068531611,
+        "largest_error": 4.230743755329058e-09,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "height",
+        "numbers": 1,
+        "largest_gradient": 13.583749335310811,
+        "largest_error": 1.445586761406048e-09,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "corner_radius",
+        "numbers": 1,
+        "largest_gradient": 8.797809645955113,
+        "largest_error": 2.8693136755464366e-10,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "fill",
+        "numbers": 4,
+        "largest_gradient": 454.55311056770137,
+        "largest_error": 2.076092187053291e-09,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "opacity",
+        "numbers": 1,
+        "largest_gradient": 481.2915288347596,
+        "largest_error": 3.828120043181116e-09,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "x",
+        "numbers": 1,
+        "largest_gradient": 2.1266300857192277,
+        "largest_error": 3.1463720517876936e-11,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "y",
+        "numbers": 1,
+        "largest_gradient": 6.855043843412289,
+        "largest_error": 5.31568566941587e-10,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "width",
+        "numbers": 1,
+        "largest_gradient": 0.48315314780111857,
+        "largest_error": 1.7259310647332882e-10,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "height",
+        "numbers": 1,
+        "largest_gradient": 1.404647814062798,
+        "largest_error": 1.3058976122692911e-10,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "corner_radius",
+        "numbers": 1,
+        "largest_gradient": 0.6331852516083813,
+        "largest_error": 2.458888648249058e-10,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "fill",
+        "numbers": 4,
+        "largest_gradient": 14.279584996224058,
+        "largest_error": 1.7694112841581955e-10,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "opacity",
+        "numbers": 1,
+        "largest_gradient": 15.119560583887191,
+        "largest_error": 3.5725555846966017e-10,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "x",
+        "numbers": 1,
+        "largest_gradient": 24.069162293471887,
+        "largest_error": 2.02245686864444e-09,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "y",
+        "numbers": 1,
+        "largest_gradient": 116.03321468953708,
+        "largest_error": 4.462776814762037e-09,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "width",
+        "numbers": 1,
+        "largest_gradient": 58.67117489515294,
+        "largest_error": 1.9657242944504105e-08,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "height",
+        "numbers": 1,
+        "largest_gradient": 65.85540992318784,
+        "largest_error": 7.403144763884484e-09,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "corner_radius",
+        "numbers": 1,
+        "largest_gradient": 39.47906900805265,
+        "largest_error": 1.4569963013855158e-09,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "fill",
+        "numbers": 4,
+        "largest_gradient": 1856.1024892221665,
+        "largest_error": 3.201876097591594e-09,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "opacity",
+        "numbers": 1,
+        "largest_gradient": 1965.284988574467,
+        "largest_error": 1.5174236978054978e-08,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "x",
+        "numbers": 1,
+        "largest_gradient": 9.660132379174513,
+        "largest_error": 7.245990474302744e-10,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "y",
+        "numbers": 1,
+        "largest_gradient": 9.211324691804634,
+        "largest_error": 9.259650823878474e-10,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "width",
+        "numbers": 1,
+        "largest_gradient": 6.849765816063779,
+        "largest_error": 1.7128849449932204e-09,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "height",
+        "numbers": 1,
+        "largest_gradient": 5.237965203264139,
+        "largest_error": 6.417515407974861e-10,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "corner_radius",
+        "numbers": 1,
+        "largest_gradient": 2.346834322786151,
+        "largest_error": 3.8892444820248784e-10,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "fill",
+        "numbers": 4,
+        "largest_gradient": 28.59781724104948,
+        "largest_error": 8.14559975026441e-10,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "opacity",
+        "numbers": 1,
+        "largest_gradient": 5.101833337839423,
+        "largest_error": 5.690541371450308e-10,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "x",
+        "numbers": 5,
+        "largest_gradient": 138.1654711678948,
+        "largest_error": 3.2687523798813345e-09,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "y",
+        "numbers": 5,
+        "largest_gradient": 231.97476738801012,
+        "largest_error": 7.512198862968944e-09,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "width",
+        "numbers": 5,
+        "largest_gradient": 26.904389432047534,
+        "largest_error": 7.159297155112654e-09,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "height",
+        "numbers": 5,
+        "largest_gradient": 298.44516796231346,
+        "largest_error": 9.765273034645361e-08,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "corner_radius",
+        "numbers": 5,
+        "largest_gradient": 13.183195443389193,
+        "largest_error": 1.7514298900067615e-09,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "fill",
+        "numbers": 20,
+        "largest_gradient": 1496.8500795419002,
+        "largest_error": 7.49992068449501e-09,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "opacity",
+        "numbers": 5,
+        "largest_gradient": 1465.9871912982678,
+        "largest_error": 1.3000317267142236e-08,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "x",
+        "numbers": 5,
+        "largest_gradient": 4.426469272189593,
+        "largest_error": 1.0531007177405627e-09,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "y",
+        "numbers": 5,
+        "largest_gradient": 3.366411196381591,
+        "largest_error": 3.5537839337962396e-10,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "width",
+        "numbers": 5,
+        "largest_gradient": 6.236729857889144,
+        "largest_error": 2.076018468244456e-09,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "height",
+        "numbers": 5,
+        "largest_gradient": 8.653705396000078,
+        "largest_error": 2.868933535182805e-09,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "corner_radius",
+        "numbers": 5,
+        "largest_gradient": 0.6697087403750857,
+        "largest_error": 9.246414762326127e-10,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "fill",
+        "numbers": 20,
+        "largest_gradient": 39.89140677376213,
+        "largest_error": 1.1732481652870774e-09,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "opacity",
+        "numbers": 5,
+        "largest_gradient": 39.06890354414827,
+        "largest_error": 1.68575553516348e-09,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "x",
+        "numbers": 5,
+        "largest_gradient": 211.02090302065332,
+        "largest_error": 1.1174535075042513e-08,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "y",
+        "numbers": 5,
+        "largest_gradient": 753.7140592148716,
+        "largest_error": 4.820333288080292e-08,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "width",
+        "numbers": 5,
+        "largest_gradient": 100.81564068968872,
+        "largest_error": 3.545422089246131e-08,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "height",
+        "numbers": 5,
+        "largest_gradient": 1256.8814994210697,
+        "largest_error": 4.1097223402175587e-07,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "corner_radius",
+        "numbers": 5,
+        "largest_gradient": 62.173748460736526,
+        "largest_error": 4.0267797984938625e-09,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "fill",
+        "numbers": 20,
+        "largest_gradient": 6223.905389492756,
+        "largest_error": 3.3526703191455454e-08,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "opacity",
+        "numbers": 5,
+        "largest_gradient": 6095.577443318233,
+        "largest_error": 3.2247953640762717e-08,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "x",
+        "numbers": 5,
+        "largest_gradient": 32.051809134969744,
+        "largest_error": 1.4856595953460783e-09,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "y",
+        "numbers": 5,
+        "largest_gradient": 10.142388942568914,
+        "largest_error": 2.630419437821274e-09,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "width",
+        "numbers": 5,
+        "largest_gradient": 9.285880624076981,
+        "largest_error": 2.8392683759648207e-09,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "height",
+        "numbers": 5,
+        "largest_gradient": 33.1547305670199,
+        "largest_error": 1.029846430355974e-08,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "corner_radius",
+        "numbers": 5,
+        "largest_gradient": 5.627205237601628,
+        "largest_error": 1.3123571673823164e-09,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "fill",
+        "numbers": 20,
+        "largest_gradient": 54.98985372192066,
+        "largest_error": 2.9432136727791658e-09,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "opacity",
+        "numbers": 5,
+        "largest_gradient": 28.145108098698298,
+        "largest_error": 2.4968045408968464e-09,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "x",
+        "numbers": 7,
+        "largest_gradient": 33.461704987303165,
+        "largest_error": 5.500199392827199e-06,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "y",
+        "numbers": 7,
+        "largest_gradient": 36.82015443189357,
+        "largest_error": 2.9410429647214187e-09,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "width",
+        "numbers": 7,
+        "largest_gradient": 11.525745890139659,
+        "largest_error": 5.4989981459474535e-06,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "height",
+        "numbers": 7,
+        "largest_gradient": 47.761345240360235,
+        "largest_error": 1.5044705037325912e-08,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "corner_radius",
+        "numbers": 7,
+        "largest_gradient": 4.682665448285661,
+        "largest_error": 5.4976863097522255e-06,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "fill",
+        "numbers": 28,
+        "largest_gradient": 396.6418808033722,
+        "largest_error": 4.398678754569119e-09,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "opacity",
+        "numbers": 7,
+        "largest_gradient": 357.7450853640584,
+        "largest_error": 5.0687845032371115e-09,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "x",
+        "numbers": 7,
+        "largest_gradient": 7.615507382752184,
+        "largest_error": 4.920225214810614e-06,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "y",
+        "numbers": 7,
+        "largest_gradient": 7.271865043634306,
+        "largest_error": 9.105223242045213e-10,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "width",
+        "numbers": 7,
+        "largest_gradient": 5.360018865729899,
+        "largest_error": 4.91987874706723e-06,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "height",
+        "numbers": 7,
+        "largest_gradient": 5.797893285119925,
+        "largest_error": 1.5396084407370836e-09,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "corner_radius",
+        "numbers": 7,
+        "largest_gradient": 2.5138274821756568,
+        "largest_error": 4.9184848091299305e-06,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "fill",
+        "numbers": 28,
+        "largest_gradient": 30.438508919417014,
+        "largest_error": 5.346798559457966e-10,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "opacity",
+        "numbers": 7,
+        "largest_gradient": 28.136125156308363,
+        "largest_error": 9.110792120736733e-10,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "x",
+        "numbers": 7,
+        "largest_gradient": 266.2426940332807,
+        "largest_error": 3.118695701687102e-08,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "y",
+        "numbers": 7,
+        "largest_gradient": 346.68612704535917,
+        "largest_error": 3.951834059989778e-08,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "width",
+        "numbers": 7,
+        "largest_gradient": 52.384162881935474,
+        "largest_error": 2.6095548832927307e-08,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "height",
+        "numbers": 7,
+        "largest_gradient": 382.3209275765293,
+        "largest_error": 1.2889483969047433e-07,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "corner_radius",
+        "numbers": 7,
+        "largest_gradient": 19.019262572328444,
+        "largest_error": 3.555995631288056e-08,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "fill",
+        "numbers": 28,
+        "largest_gradient": 1649.743055725139,
+        "largest_error": 1.3509975360648241e-08,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "opacity",
+        "numbers": 7,
+        "largest_gradient": 1473.740440133042,
+        "largest_error": 1.9556182451196946e-08,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "x",
+        "numbers": 7,
+        "largest_gradient": 18.202884771767458,
+        "largest_error": 4.595312574906529e-09,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "y",
+        "numbers": 7,
+        "largest_gradient": 20.609490816525522,
+        "largest_error": 4.35365827555767e-06,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "width",
+        "numbers": 7,
+        "largest_gradient": 9.706289142741298,
+        "largest_error": 3.988171570767918e-09,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "height",
+        "numbers": 7,
+        "largest_gradient": 9.990506469392813,
+        "largest_error": 4.353032547754765e-06,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "corner_radius",
+        "numbers": 7,
+        "largest_gradient": 5.357097170133329,
+        "largest_error": 4.354290464858579e-06,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "fill",
+        "numbers": 28,
+        "largest_gradient": 89.66775666365832,
+        "largest_error": 3.0466082989732968e-09,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "opacity",
+        "numbers": 7,
+        "largest_gradient": 88.7620217511653,
+        "largest_error": 1.1202931915477166e-09,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "x",
+        "numbers": 4,
+        "largest_gradient": 120.91376389946616,
+        "largest_error": 7.677499525016174e-09,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "y",
+        "numbers": 4,
+        "largest_gradient": 33.2262736606026,
+        "largest_error": 2.745096594480856e-09,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "width",
+        "numbers": 4,
+        "largest_gradient": 13.843265807622627,
+        "largest_error": 6.145130626578066e-09,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "height",
+        "numbers": 4,
+        "largest_gradient": 97.9344215494393,
+        "largest_error": 3.0488010338558524e-08,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "corner_radius",
+        "numbers": 4,
+        "largest_gradient": 6.839631672050927,
+        "largest_error": 1.693311268979869e-09,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "fill",
+        "numbers": 16,
+        "largest_gradient": 2129.553119024763,
+        "largest_error": 9.206360118696466e-09,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "opacity",
+        "numbers": 4,
+        "largest_gradient": 2108.042481455641,
+        "largest_error": 1.2329110177233815e-08,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "x",
+        "numbers": 4,
+        "largest_gradient": 5.134122403660513,
+        "largest_error": 5.30659427511182e-09,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "y",
+        "numbers": 4,
+        "largest_gradient": 1.0041877734678906,
+        "largest_error": 4.750111415319225e-10,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "width",
+        "numbers": 4,
+        "largest_gradient": 16.00845170415255,
+        "largest_error": 5.725379281784626e-09,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "height",
+        "numbers": 4,
+        "largest_gradient": 6.356725195288958,
+        "largest_error": 2.005354993173114e-09,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "corner_radius",
+        "numbers": 4,
+        "largest_gradient": 0.29483477099745414,
+        "largest_error": 7.953947500638492e-10,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "fill",
+        "numbers": 16,
+        "largest_gradient": 19.273378316775336,
+        "largest_error": 8.253095984400716e-10,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "opacity",
+        "numbers": 4,
+        "largest_gradient": 19.078697727081817,
+        "largest_error": 9.030500791595841e-10,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "x",
+        "numbers": 4,
+        "largest_gradient": 63.43408495013136,
+        "largest_error": 1.4604829345898906e-08,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "y",
+        "numbers": 4,
+        "largest_gradient": 441.94663909138393,
+        "largest_error": 1.4053838981453737e-08,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "width",
+        "numbers": 4,
+        "largest_gradient": 98.43308157542195,
+        "largest_error": 4.5098985879121756e-08,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "height",
+        "numbers": 4,
+        "largest_gradient": 765.0169568705677,
+        "largest_error": 2.5563599592715036e-07,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "corner_radius",
+        "numbers": 4,
+        "largest_gradient": 34.85483255190047,
+        "largest_error": 1.0228781266441445e-08,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "fill",
+        "numbers": 16,
+        "largest_gradient": 8927.298438095477,
+        "largest_error": 3.928653313778341e-08,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "opacity",
+        "numbers": 4,
+        "largest_gradient": 8837.1237063825,
+        "largest_error": 5.393485480453819e-08,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "x",
+        "numbers": 4,
+        "largest_gradient": 25.939666834062788,
+        "largest_error": 1.7979004951484967e-09,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "y",
+        "numbers": 4,
+        "largest_gradient": 8.48780540820826,
+        "largest_error": 1.2496332857381276e-09,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "width",
+        "numbers": 4,
+        "largest_gradient": 17.56186463381937,
+        "largest_error": 5.446878503789776e-09,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "height",
+        "numbers": 4,
+        "largest_gradient": 12.427371151346732,
+        "largest_error": 9.407123968685482e-10,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "corner_radius",
+        "numbers": 4,
+        "largest_gradient": 3.515829362044087,
+        "largest_error": 1.0292890983976122e-09,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "fill",
+        "numbers": 16,
+        "largest_gradient": 65.8783978515487,
+        "largest_error": 1.9520882688084384e-09,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "opacity",
+        "numbers": 4,
+        "largest_gradient": 10.445904599265532,
+        "largest_error": 1.7495764836894523e-09,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "x",
+        "numbers": 5,
+        "largest_gradient": 23.601686799423756,
+        "largest_error": 4.349905324829706e-09,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "y",
+        "numbers": 5,
+        "largest_gradient": 20.785556488078782,
+        "largest_error": 6.806868402264854e-10,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "width",
+        "numbers": 5,
+        "largest_gradient": 13.23355250519853,
+        "largest_error": 2.636639351294434e-09,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "height",
+        "numbers": 5,
+        "largest_gradient": 15.499681911279593,
+        "largest_error": 1.4210854715202002e-09,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "corner_radius",
+        "numbers": 5,
+        "largest_gradient": 2.391055494399552,
+        "largest_error": 4.645102080758079e-10,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "fill",
+        "numbers": 20,
+        "largest_gradient": 73.52963563036496,
+        "largest_error": 9.560814362430392e-10,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "opacity",
+        "numbers": 5,
+        "largest_gradient": 73.52963563036496,
+        "largest_error": 9.560814362430392e-10,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "x",
+        "numbers": 5,
+        "largest_gradient": 1.8671424821370406,
+        "largest_error": 4.681663945405035e-10,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "y",
+        "numbers": 5,
+        "largest_gradient": 4.6466046359050495,
+        "largest_error": 3.609859078324007e-10,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "width",
+        "numbers": 5,
+        "largest_gradient": 1.8671424821370406,
+        "largest_error": 3.5527136788005004e-10,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "height",
+        "numbers": 5,
+        "largest_gradient": 1.3659768786311586,
+        "largest_error": 2.6645352591003757e-10,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "corner_radius",
+        "numbers": 5,
+        "largest_gradient": 0.8046669270456163,
+        "largest_error": 2.4013202537531697e-10,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "fill",
+        "numbers": 20,
+        "largest_gradient": 9.887459359347872,
+        "largest_error": 2.1890045331929286e-10,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "opacity",
+        "numbers": 5,
+        "largest_gradient": 9.88745935943669,
+        "largest_error": 1.9988100063983438e-10,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "x",
+        "numbers": 5,
+        "largest_gradient": 77.14013266024722,
+        "largest_error": 9.125379563101887e-09,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "y",
+        "numbers": 5,
+        "largest_gradient": 87.93470971966143,
+        "largest_error": 4.358099658929859e-09,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "width",
+        "numbers": 5,
+        "largest_gradient": 50.99624597733054,
+        "largest_error": 6.0403362311944875e-09,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "height",
+        "numbers": 5,
+        "largest_gradient": 60.19843766864596,
+        "largest_error": 5.666059621489694e-09,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "corner_radius",
+        "numbers": 5,
+        "largest_gradient": 12.621271793022968,
+        "largest_error": 2.427601258903067e-09,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "fill",
+        "numbers": 20,
+        "largest_gradient": 317.3245687293047,
+        "largest_error": 4.209269377497549e-09,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "opacity",
+        "numbers": 5,
+        "largest_gradient": 317.3245687293047,
+        "largest_error": 5.491529009304941e-09,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "x",
+        "numbers": 5,
+        "largest_gradient": 8.74489978848203,
+        "largest_error": 5.946485526209244e-10,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "y",
+        "numbers": 5,
+        "largest_gradient": 12.361517817360832,
+        "largest_error": 1.1831104984594276e-09,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "width",
+        "numbers": 5,
+        "largest_gradient": 3.6062922855961683,
+        "largest_error": 1.5987211554602252e-09,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "height",
+        "numbers": 5,
+        "largest_gradient": 12.361517817360832,
+        "largest_error": 2.4868995751603507e-09,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "corner_radius",
+        "numbers": 5,
+        "largest_gradient": 4.325676082572727,
+        "largest_error": 5.852758278024339e-10,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "fill",
+        "numbers": 20,
+        "largest_gradient": 25.29896849736701,
+        "largest_error": 1.1060503624094054e-09,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "opacity",
+        "numbers": 5,
+        "largest_gradient": 21.54298845677971,
+        "largest_error": 6.911289318622948e-10,
+        "passed": true
+      }
+    ]
+  },
+  "apple_gpu_path": {
+    "dtype": "float32",
+    "compared_with": "the CPU in 64-bit floats",
+    "tolerances": {
+      "image_tolerance": 0.0001,
+      "gradient_absolute_tolerance": 0.002,
+      "gradient_relative_tolerance": 0.002
+    },
+    "available": true,
+    "ran_without_cpu_fallback": true,
+    "error": null,
+    "unsupported_operations": [],
+    "cpu_fallback_operations": [],
+    "profile": {
+      "ok": true,
+      "error": null,
+      "profiler_output_seen": true,
+      "profiler_fallback_operations": [],
+      "profiler_reported_no_fallbacks": true,
+      "copies": [
+        {
+          "kind": "CPU to MPS",
+          "count": 126,
+          "size": "1.27 MiB"
+        },
+        {
+          "kind": "MPS to CPU",
+          "count": 94,
+          "size": "1.26 MiB"
+        },
+        {
+          "kind": "MPS to MPS",
+          "count": 1778,
+          "size": "23.32 MiB"
+        }
+      ]
+    },
+    "forward": [
+      {
+        "scene": "one-rounded",
+        "scale": 1,
+        "pixels": [
+          48,
+          36
+        ],
+        "largest_difference": 1.9010543785835665e-06,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 2,
+        "pixels": [
+          96,
+          72
+        ],
+        "largest_difference": 3.698396675300142e-06,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 1,
+        "pixels": [
+          64,
+          48
+        ],
+        "largest_difference": 1.8260192855557023e-06,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 2,
+        "pixels": [
+          128,
+          96
+        ],
+        "largest_difference": 3.6643171278938347e-06,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 1,
+        "pixels": [
+          72,
+          48
+        ],
+        "largest_difference": 2.9399208645863872e-06,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 2,
+        "pixels": [
+          144,
+          96
+        ],
+        "largest_difference": 5.70070342109652e-06,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 1,
+        "pixels": [
+          48,
+          36
+        ],
+        "largest_difference": 2.728521754591373e-06,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 2,
+        "pixels": [
+          96,
+          72
+        ],
+        "largest_difference": 5.571816626748216e-06,
+        "passed": true
+      },
+      {
+        "scene": "square-corners",
+        "scale": 1,
+        "pixels": [
+          48,
+          36
+        ],
+        "largest_difference": 1.3165473916609827e-06,
+        "passed": true
+      },
+      {
+        "scene": "square-corners",
+        "scale": 2,
+        "pixels": [
+          96,
+          72
+        ],
+        "largest_difference": 3.7808418241747077e-06,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 1,
+        "pixels": [
+          48,
+          36
+        ],
+        "largest_difference": 1.1775319890272584e-06,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 2,
+        "pixels": [
+          96,
+          72
+        ],
+        "largest_difference": 3.2633126579861838e-06,
+        "passed": true
+      },
+      {
+        "scene": "whole-numbers",
+        "scale": 1,
+        "pixels": [
+          64,
+          48
+        ],
+        "largest_difference": 1.0809713957282696e-07,
+        "passed": true
+      },
+      {
+        "scene": "whole-numbers",
+        "scale": 2,
+        "pixels": [
+          128,
+          96
+        ],
+        "largest_difference": 2.783368281411569e-07,
+        "passed": true
+      }
+    ],
+    "backward": [
+      {
+        "scene": "one-rounded",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "x",
+        "numbers": 1,
+        "largest_gradient": 22.289631092156803,
+        "largest_error": 0.00017527380999382558,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "y",
+        "numbers": 1,
+        "largest_gradient": 21.70995169441578,
+        "largest_error": 3.462593433312122e-05,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "width",
+        "numbers": 1,
+        "largest_gradient": 12.925007064300868,
+        "largest_error": 0.00017567392000827908,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "height",
+        "numbers": 1,
+        "largest_gradient": 13.583749336756398,
+        "largest_error": 5.097910053564192e-05,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "corner_radius",
+        "numbers": 1,
+        "largest_gradient": 8.797809646242044,
+        "largest_error": 1.8619366670691306e-06,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "fill",
+        "numbers": 4,
+        "largest_gradient": 454.55311056977746,
+        "largest_error": 0.0001930893087092045,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "opacity",
+        "numbers": 1,
+        "largest_gradient": 481.29152883858774,
+        "largest_error": 0.00023855538461248216,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "x",
+        "numbers": 1,
+        "largest_gradient": 2.1266300857506915,
+        "largest_error": 2.2049320502759429e-07,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "y",
+        "numbers": 1,
+        "largest_gradient": 6.855043843943857,
+        "largest_error": 1.3863632908339696e-06,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "width",
+        "numbers": 1,
+        "largest_gradient": 0.48315314797371167,
+        "largest_error": 1.8313309504414121e-06,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "height",
+        "numbers": 1,
+        "largest_gradient": 1.4046478141933878,
+        "largest_error": 4.89792207902795e-07,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "corner_radius",
+        "numbers": 1,
+        "largest_gradient": 0.6331852518542702,
+        "largest_error": 1.3268963401369405e-06,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "fill",
+        "numbers": 4,
+        "largest_gradient": 14.279584996230867,
+        "largest_error": 7.563845892732957e-06,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "opacity",
+        "numbers": 1,
+        "largest_gradient": 15.119560584244446,
+        "largest_error": 3.425452277383556e-07,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "x",
+        "numbers": 1,
+        "largest_gradient": 24.069162295494344,
+        "largest_error": 0.0013829010388590746,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "y",
+        "numbers": 1,
+        "largest_gradient": 116.0332146850743,
+        "largest_error": 0.0004769531407049499,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "width",
+        "numbers": 1,
+        "largest_gradient": 58.671174875495694,
+        "largest_error": 0.001348367927334948,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "height",
+        "numbers": 1,
+        "largest_gradient": 65.85540993059098,
+        "largest_error": 0.00044791853011361127,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "corner_radius",
+        "numbers": 1,
+        "largest_gradient": 39.479069009509644,
+        "largest_error": 1.8820080200043776e-05,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "fill",
+        "numbers": 4,
+        "largest_gradient": 1856.1024892235505,
+        "largest_error": 0.00068258292549217,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "opacity",
+        "numbers": 1,
+        "largest_gradient": 1965.2849885896412,
+        "largest_error": 0.0009309724537160946,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "x",
+        "numbers": 1,
+        "largest_gradient": 9.660132379899112,
+        "largest_error": 3.5257706729296956e-05,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "y",
+        "numbers": 1,
+        "largest_gradient": 9.2113246927306,
+        "largest_error": 2.0981793099394963e-05,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "width",
+        "numbers": 1,
+        "largest_gradient": 6.849765814350894,
+        "largest_error": 1.1480854800183238e-05,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "height",
+        "numbers": 1,
+        "largest_gradient": 5.237965202622387,
+        "largest_error": 1.4209456470126725e-05,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "corner_radius",
+        "numbers": 1,
+        "largest_gradient": 2.3468343231750755,
+        "largest_error": 2.524621608657185e-06,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "fill",
+        "numbers": 4,
+        "largest_gradient": 28.597817240800634,
+        "largest_error": 1.6032304539947972e-05,
+        "passed": true
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "opacity",
+        "numbers": 1,
+        "largest_gradient": 5.101833337270369,
+        "largest_error": 7.623159040903715e-06,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "x",
+        "numbers": 5,
+        "largest_gradient": 138.16547116682906,
+        "largest_error": 0.0010937745771855134,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "y",
+        "numbers": 5,
+        "largest_gradient": 231.97476739552232,
+        "largest_error": 8.172657700811214e-05,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "width",
+        "numbers": 5,
+        "largest_gradient": 26.904389424888237,
+        "largest_error": 0.0011206108013226412,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "height",
+        "numbers": 5,
+        "largest_gradient": 298.44516786466073,
+        "largest_error": 6.898770760699335e-05,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "corner_radius",
+        "numbers": 5,
+        "largest_gradient": 13.183195443934824,
+        "largest_error": 2.1310634043203436e-05,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "fill",
+        "numbers": 20,
+        "largest_gradient": 1496.8500795494,
+        "largest_error": 0.0007143150251067709,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "opacity",
+        "numbers": 5,
+        "largest_gradient": 1465.9871913112681,
+        "largest_error": 0.0007411159556340863,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "x",
+        "numbers": 5,
+        "largest_gradient": 4.426469271136492,
+        "largest_error": 3.3927429026192613e-06,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "y",
+        "numbers": 5,
+        "largest_gradient": 3.3664111960505703,
+        "largest_error": 4.1008214637372475e-06,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "width",
+        "numbers": 5,
+        "largest_gradient": 6.236729855813126,
+        "largest_error": 2.3816472229931662e-06,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "height",
+        "numbers": 5,
+        "largest_gradient": 8.653705393131144,
+        "largest_error": 4.0184899496864546e-06,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "corner_radius",
+        "numbers": 5,
+        "largest_gradient": 0.6697087402217878,
+        "largest_error": 2.1343357072822755e-06,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "fill",
+        "numbers": 20,
+        "largest_gradient": 39.891406774935376,
+        "largest_error": 1.1133163177134975e-05,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "opacity",
+        "numbers": 5,
+        "largest_gradient": 39.068903542462515,
+        "largest_error": 5.347083696705113e-06,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "x",
+        "numbers": 5,
+        "largest_gradient": 211.02090302410068,
+        "largest_error": 0.008744803047761707,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "y",
+        "numbers": 5,
+        "largest_gradient": 753.7140592630749,
+        "largest_error": 0.002005190050113015,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "width",
+        "numbers": 5,
+        "largest_gradient": 100.8156406542345,
+        "largest_error": 0.008778776793093357,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "height",
+        "numbers": 5,
+        "largest_gradient": 1256.8814990100975,
+        "largest_error": 0.0019238414649862534,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "corner_radius",
+        "numbers": 5,
+        "largest_gradient": 62.17374845763467,
+        "largest_error": 4.240294717305915e-05,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "fill",
+        "numbers": 20,
+        "largest_gradient": 6223.905389526282,
+        "largest_error": 0.0015809325323061785,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "opacity",
+        "numbers": 5,
+        "largest_gradient": 6095.577443350481,
+        "largest_error": 0.0007831942311895546,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "x",
+        "numbers": 5,
+        "largest_gradient": 32.051809136455404,
+        "largest_error": 5.1323955403859145e-05,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "y",
+        "numbers": 5,
+        "largest_gradient": 10.142388943447642,
+        "largest_error": 2.973333795441846e-05,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "width",
+        "numbers": 5,
+        "largest_gradient": 9.285880621237713,
+        "largest_error": 1.9816419650320327e-05,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "height",
+        "numbers": 5,
+        "largest_gradient": 33.15473055672143,
+        "largest_error": 1.4277235969029078e-05,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "corner_radius",
+        "numbers": 5,
+        "largest_gradient": 5.627205238856643,
+        "largest_error": 1.560262617417152e-05,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "fill",
+        "numbers": 20,
+        "largest_gradient": 54.98985372279715,
+        "largest_error": 3.896449636897614e-05,
+        "passed": true
+      },
+      {
+        "scene": "overlaps",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "opacity",
+        "numbers": 5,
+        "largest_gradient": 28.14510809820526,
+        "largest_error": 2.2059265443630238e-05,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "x",
+        "numbers": 7,
+        "largest_gradient": 33.46171048750256,
+        "largest_error": 0.0004362715306456266,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "y",
+        "numbers": 7,
+        "largest_gradient": 36.82015443483461,
+        "largest_error": 0.00032501677542740026,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "width",
+        "numbers": 7,
+        "largest_gradient": 11.525745883710998,
+        "largest_error": 0.0004381885324593604,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "height",
+        "numbers": 7,
+        "largest_gradient": 47.76134522531553,
+        "largest_error": 0.0003163042254854531,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "corner_radius",
+        "numbers": 7,
+        "largest_gradient": 4.682665450040762,
+        "largest_error": 3.63324713248403e-06,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "fill",
+        "numbers": 28,
+        "largest_gradient": 396.64188080549235,
+        "largest_error": 0.00021517641596346948,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "opacity",
+        "numbers": 7,
+        "largest_gradient": 357.7450853691272,
+        "largest_error": 0.00020884142890054136,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "x",
+        "numbers": 7,
+        "largest_gradient": 7.615502462526969,
+        "largest_error": 2.5836747818974715e-06,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "y",
+        "numbers": 7,
+        "largest_gradient": 7.271865044020567,
+        "largest_error": 1.813995623489717e-06,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "width",
+        "numbers": 7,
+        "largest_gradient": 5.3600139458511515,
+        "largest_error": 6.082335616497403e-06,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "height",
+        "numbers": 7,
+        "largest_gradient": 5.797893283580317,
+        "largest_error": 2.1558060145920876e-06,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "corner_radius",
+        "numbers": 7,
+        "largest_gradient": 2.5138274817277093,
+        "largest_error": 5.72112413310677e-06,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "fill",
+        "numbers": 28,
+        "largest_gradient": 30.43850891959432,
+        "largest_error": 4.411418930949651e-05,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "opacity",
+        "numbers": 7,
+        "largest_gradient": 28.136125157219443,
+        "largest_error": 8.036750283935135e-06,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "x",
+        "numbers": 7,
+        "largest_gradient": 266.2426940243902,
+        "largest_error": 0.0034912783441996,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "y",
+        "numbers": 7,
+        "largest_gradient": 346.68612704516215,
+        "largest_error": 0.0025326228065978285,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "width",
+        "numbers": 7,
+        "largest_gradient": 52.38416288954772,
+        "largest_error": 0.0035156189440392893,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "height",
+        "numbers": 7,
+        "largest_gradient": 382.32092744763446,
+        "largest_error": 0.00249784533428965,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "corner_radius",
+        "numbers": 7,
+        "largest_gradient": 19.019262586480856,
+        "largest_error": 1.5428725482991013e-05,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "fill",
+        "numbers": 28,
+        "largest_gradient": 1649.7430557262412,
+        "largest_error": 0.0014222904153484706,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "opacity",
+        "numbers": 7,
+        "largest_gradient": 1473.7404401525982,
+        "largest_error": 0.00134997127315728,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "x",
+        "numbers": 7,
+        "largest_gradient": 18.202884768337363,
+        "largest_error": 9.331684664370954e-05,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "y",
+        "numbers": 7,
+        "largest_gradient": 20.609490816049167,
+        "largest_error": 8.950907959537346e-05,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "width",
+        "numbers": 7,
+        "largest_gradient": 9.706289138753126,
+        "largest_error": 3.448490410029592e-05,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "height",
+        "numbers": 7,
+        "largest_gradient": 9.990502116360265,
+        "largest_error": 0.0001453220678073741,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "corner_radius",
+        "numbers": 7,
+        "largest_gradient": 5.357097170509832,
+        "largest_error": 7.238180924140636e-05,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "fill",
+        "numbers": 28,
+        "largest_gradient": 89.66775666670493,
+        "largest_error": 9.708042369993564e-05,
+        "passed": true
+      },
+      {
+        "scene": "radii",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "opacity",
+        "numbers": 7,
+        "largest_gradient": 88.76202175087963,
+        "largest_error": 4.069919057325677e-05,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "x",
+        "numbers": 4,
+        "largest_gradient": 120.91376390714366,
+        "largest_error": 0.00022992830555779165,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "y",
+        "numbers": 4,
+        "largest_gradient": 33.226273657857504,
+        "largest_error": 0.00028884214249558227,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "width",
+        "numbers": 4,
+        "largest_gradient": 13.843265801477497,
+        "largest_error": 0.00023487191206683633,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "height",
+        "numbers": 4,
+        "largest_gradient": 97.9344215189513,
+        "largest_error": 0.00023267617785904804,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "corner_radius",
+        "numbers": 4,
+        "largest_gradient": 6.839631673744238,
+        "largest_error": 6.082603418278154e-06,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "fill",
+        "numbers": 16,
+        "largest_gradient": 2129.5531190339693,
+        "largest_error": 0.0003846589693239366,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "opacity",
+        "numbers": 4,
+        "largest_gradient": 2108.04248146797,
+        "largest_error": 0.0004892804699920816,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "x",
+        "numbers": 4,
+        "largest_gradient": 5.134122398353918,
+        "largest_error": 5.218528405848133e-06,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "y",
+        "numbers": 4,
+        "largest_gradient": 1.0041877739429017,
+        "largest_error": 1.3541459991550653e-05,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "width",
+        "numbers": 4,
+        "largest_gradient": 16.00845169842717,
+        "largest_error": 5.485410721206563e-06,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "height",
+        "numbers": 4,
+        "largest_gradient": 6.356725193283603,
+        "largest_error": 1.3805649325959735e-05,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "corner_radius",
+        "numbers": 4,
+        "largest_gradient": 0.2948347717928489,
+        "largest_error": 5.742867032698662e-06,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "fill",
+        "numbers": 16,
+        "largest_gradient": 19.273378317045946,
+        "largest_error": 1.0945359107950026e-05,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "opacity",
+        "numbers": 4,
+        "largest_gradient": 19.078697727984867,
+        "largest_error": 2.0646175529215327e-06,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "x",
+        "numbers": 4,
+        "largest_gradient": 63.434084964736186,
+        "largest_error": 0.0018929710548292178,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "y",
+        "numbers": 4,
+        "largest_gradient": 441.9466391015867,
+        "largest_error": 0.0020590234616975067,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "width",
+        "numbers": 4,
+        "largest_gradient": 98.43308153032297,
+        "largest_error": 0.001913927783903091,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "height",
+        "numbers": 4,
+        "largest_gradient": 765.0169566149317,
+        "largest_error": 0.002003001650450642,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "corner_radius",
+        "numbers": 4,
+        "largest_gradient": 34.85483255602114,
+        "largest_error": 1.9933950824224667e-05,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "fill",
+        "numbers": 16,
+        "largest_gradient": 8927.298438134763,
+        "largest_error": 0.0015631347632734105,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "opacity",
+        "numbers": 4,
+        "largest_gradient": 8837.123706436434,
+        "largest_error": 0.0026126864340767497,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "x",
+        "numbers": 4,
+        "largest_gradient": 25.939666835488723,
+        "largest_error": 2.8069166486233144e-05,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "y",
+        "numbers": 4,
+        "largest_gradient": 8.487805409457893,
+        "largest_error": 6.090362550281725e-06,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "width",
+        "numbers": 4,
+        "largest_gradient": 17.56186462837249,
+        "largest_error": 3.2200393974335384e-05,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "height",
+        "numbers": 4,
+        "largest_gradient": 12.427371151092949,
+        "largest_error": 1.1412964665780123e-05,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "corner_radius",
+        "numbers": 4,
+        "largest_gradient": 3.515829363073376,
+        "largest_error": 1.83965816766829e-05,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "fill",
+        "numbers": 16,
+        "largest_gradient": 65.87839785089665,
+        "largest_error": 3.574749385393261e-05,
+        "passed": true
+      },
+      {
+        "scene": "thin",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "opacity",
+        "numbers": 4,
+        "largest_gradient": 10.445904601015108,
+        "largest_error": 4.2784608858426054e-05,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "x",
+        "numbers": 5,
+        "largest_gradient": 23.601686800774033,
+        "largest_error": 2.065772206094607e-05,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "y",
+        "numbers": 5,
+        "largest_gradient": 20.785556488316093,
+        "largest_error": 5.2814488609165267e-05,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "width",
+        "numbers": 5,
+        "largest_gradient": 13.233552507835169,
+        "largest_error": 2.331308768255269e-05,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "height",
+        "numbers": 5,
+        "largest_gradient": 15.49968191189988,
+        "largest_error": 1.863436476767788e-05,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "corner_radius",
+        "numbers": 5,
+        "largest_gradient": 2.3910554948640623,
+        "largest_error": 1.0287129438957265e-05,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "fill",
+        "numbers": 20,
+        "largest_gradient": 73.52963562996456,
+        "largest_error": 0.0001251319176844845,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 1,
+        "scalar": "squared_difference_from_target",
+        "attribute": "opacity",
+        "numbers": 5,
+        "largest_gradient": 73.52963562996456,
+        "largest_error": 0.0001251319176844845,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "x",
+        "numbers": 5,
+        "largest_gradient": 1.867142482185538,
+        "largest_error": 6.777582875816535e-06,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "y",
+        "numbers": 5,
+        "largest_gradient": 4.646604636266035,
+        "largest_error": 2.7427442892413723e-06,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "width",
+        "numbers": 5,
+        "largest_gradient": 1.867142482185538,
+        "largest_error": 3.583866554190962e-06,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "height",
+        "numbers": 5,
+        "largest_gradient": 1.3659768787267281,
+        "largest_error": 9.809506231750476e-07,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "corner_radius",
+        "numbers": 5,
+        "largest_gradient": 0.8046669268054842,
+        "largest_error": 2.6449591410404594e-06,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "fill",
+        "numbers": 20,
+        "largest_gradient": 9.887459359473677,
+        "largest_error": 2.145524173435831e-06,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 1,
+        "scalar": "weighted_sum",
+        "attribute": "opacity",
+        "numbers": 5,
+        "largest_gradient": 9.887459359473677,
+        "largest_error": 9.487058392210201e-07,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "x",
+        "numbers": 5,
+        "largest_gradient": 77.14013266362923,
+        "largest_error": 0.0001143229637392551,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "y",
+        "numbers": 5,
+        "largest_gradient": 87.93470972231674,
+        "largest_error": 0.0001546686058020441,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "width",
+        "numbers": 5,
+        "largest_gradient": 50.99624598088947,
+        "largest_error": 7.665094646824855e-05,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "height",
+        "numbers": 5,
+        "largest_gradient": 60.19843766822283,
+        "largest_error": 0.0001488096414519191,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "corner_radius",
+        "numbers": 5,
+        "largest_gradient": 12.621271794498139,
+        "largest_error": 3.394434599179874e-05,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "fill",
+        "numbers": 20,
+        "largest_gradient": 317.32456873183423,
+        "largest_error": 0.0004720521467334038,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 2,
+        "scalar": "squared_difference_from_target",
+        "attribute": "opacity",
+        "numbers": 5,
+        "largest_gradient": 317.32456873183423,
+        "largest_error": 0.0004720521467334038,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "x",
+        "numbers": 5,
+        "largest_gradient": 8.744899789016937,
+        "largest_error": 2.8726250139499143e-05,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "y",
+        "numbers": 5,
+        "largest_gradient": 12.361517818112594,
+        "largest_error": 1.3356998152858068e-05,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "width",
+        "numbers": 5,
+        "largest_gradient": 3.6062922857155746,
+        "largest_error": 5.8376974223506295e-06,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "height",
+        "numbers": 5,
+        "largest_gradient": 12.361517818112594,
+        "largest_error": 4.713953984492036e-06,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "corner_radius",
+        "numbers": 5,
+        "largest_gradient": 4.325676081987451,
+        "largest_error": 9.809426680273958e-06,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "fill",
+        "numbers": 20,
+        "largest_gradient": 25.298968497215782,
+        "largest_error": 3.237923836252321e-05,
+        "passed": true
+      },
+      {
+        "scene": "past-the-viewport",
+        "scale": 2,
+        "scalar": "weighted_sum",
+        "attribute": "opacity",
+        "numbers": 5,
+        "largest_gradient": 21.542988457280853,
+        "largest_error": 3.237923836252321e-05,
+        "passed": true
+      }
+    ],
+    "forward_passed": true,
+    "backward_passed": true,
+    "passed": true,
+    "statement": "Forward and backward ran on the Apple GPU path with no unsupported operation and no CPU fallback."
+  },
+  "moves": [
+    {
+      "name": "across",
+      "about": "An element that overlaps its target moves onto it.",
+      "scale": 1,
+      "render_loss": [
+        0.09974651317988509,
+        0.0872825396595615,
+        0.07481222924307393,
+        0.062331739230092414,
+        0.049879396955566424,
+        0.037400365481632336,
+        0.024930130940573367,
+        0.012465497753361554,
+        0.0
+      ],
+      "slope_along_the_move": [
+        -0.09982682096783736,
+        -0.09967709151923422,
+        -0.10014636875737633,
+        -0.09998787721882617,
+        -0.09892940793229643,
+        -0.10009956427971455,
+        -0.100485572480343,
+        -0.09988666186173106
+      ],
+      "loss_falls_at_every_step": true,
+      "loss_is_zero_on_the_target": true,
+      "gradient_points_along_the_move": true,
+      "passed": true
+    },
+    {
+      "name": "across",
+      "about": "An element that overlaps its target moves onto it.",
+      "scale": 2,
+      "render_loss": [
+        0.09975101657209332,
+        0.08728039578943864,
+        0.07481330494739158,
+        0.06234463712770296,
+        0.04987575708184166,
+        0.037407544268459735,
+        0.024939751933079887,
+        0.012469152460181245,
+        0.0
+      ],
+      "slope_along_the_move": [
+        -0.09947050767678396,
+        -0.09946256234236808,
+        -0.09978078190254873,
+        -0.09982359793893084,
+        -0.0984109600825525,
+        -0.09976805446145892,
+        -0.09946400000835019,
+        -0.09946887969274214
+      ],
+      "loss_falls_at_every_step": true,
+      "loss_is_zero_on_the_target": true,
+      "gradient_points_along_the_move": true,
+      "passed": true
+    },
+    {
+      "name": "diagonal",
+      "about": "It moves on both axes at once.",
+      "scale": 1,
+      "render_loss": [
+        0.1300028845221659,
+        0.11933658782019026,
+        0.10695660464961236,
+        0.09292118531492397,
+        0.07716392050432547,
+        0.05960568026539791,
+        0.040597863487971224,
+        0.020541563225939058,
+        0.0
+      ],
+      "slope_along_the_move": [
+        -0.07654447916148374,
+        -0.09702548533273933,
+        -0.10380094656392948,
+        -0.1175121454124223,
+        -0.1385687889893792,
+        -0.14427914762636276,
+        -0.15691850540808577,
+        -0.1610625330890292
+      ],
+      "loss_falls_at_every_step": true,
+      "loss_is_zero_on_the_target": true,
+      "gradient_points_along_the_move": true,
+      "passed": true
+    },
+    {
+      "name": "diagonal",
+      "about": "It moves on both axes at once.",
+      "scale": 2,
+      "render_loss": [
+        0.12995792371680037,
+        0.11931119466665373,
+        0.10696370861346634,
+        0.09287083866320078,
+        0.07712036507926709,
+        0.05963876432800741,
+        0.04063813833012367,
+        0.020555154109180965,
+        0.0
+      ],
+      "slope_along_the_move": [
+        -0.07625125248937362,
+        -0.09346182789611457,
+        -0.1037597851075994,
+        -0.1168700889948055,
+        -0.13488184965772498,
+        -0.14448962342230737,
+        -0.1573643153787847,
+        -0.16355665554913212
+      ],
+      "loss_falls_at_every_step": true,
+      "loss_is_zero_on_the_target": true,
+      "gradient_points_along_the_move": true,
+      "passed": true
+    },
+    {
+      "name": "size",
+      "about": "It grows to its target's size.",
+      "scale": 1,
+      "render_loss": [
+        0.12757433766955117,
+        0.11790422601013881,
+        0.10643935651190456,
+        0.09318717753652635,
+        0.07814351763500485,
+        0.06128566688022525,
+        0.042651369491773033,
+        0.022238631465715385,
+        0.0
+      ],
+      "slope_along_the_move": [
+        -0.06952436181087998,
+        -0.08479077194628351,
+        -0.09845127240657456,
+        -0.11157712293865277,
+        -0.12823423334072262,
+        -0.14189860468007875,
+        -0.15651020612187194,
+        -0.1716210942576872
+      ],
+      "loss_falls_at_every_step": true,
+      "loss_is_zero_on_the_target": true,
+      "gradient_points_along_the_move": true,
+      "passed": true
+    },
+    {
+      "name": "size",
+      "about": "It grows to its target's size.",
+      "scale": 2,
+      "render_loss": [
+        0.1275678732463021,
+        0.11789980243383792,
+        0.10644048897646244,
+        0.09318602717089011,
+        0.07813585695110926,
+        0.06129326578826025,
+        0.042658605558475934,
+        0.022222298215486713,
+        0.0
+      ],
+      "slope_along_the_move": [
+        -0.06998404874358752,
+        -0.08461123526455869,
+        -0.09871066255188113,
+        -0.11310212148905002,
+        -0.12765157433168467,
+        -0.1419472555936494,
+        -0.09842102937122796,
+        -0.16998783712504506
+      ],
+      "loss_falls_at_every_step": true,
+      "loss_is_zero_on_the_target": true,
+      "gradient_points_along_the_move": true,
+      "passed": true
+    },
+    {
+      "name": "corner-radius",
+      "about": "Its corners round to its target's.",
+      "scale": 1,
+      "render_loss": [
+        0.027249991708670745,
+        0.026411547169756758,
+        0.024792944728584017,
+        0.022447604555849272,
+        0.01942221086671905,
+        0.015644086348789388,
+        0.0111439042945213,
+        0.005949758998901262,
+        0.0
+      ],
+      "slope_along_the_move": [
+        -0.0038008998554999217,
+        -0.010278290993162544,
+        -0.014948568402387383,
+        -0.021311418068073924,
+        -0.027463740292435455,
+        -0.03285198414834214,
+        -0.03891397026274895,
+        -0.0446194043896961
+      ],
+      "loss_falls_at_every_step": true,
+      "loss_is_zero_on_the_target": true,
+      "gradient_points_along_the_move": true,
+      "passed": true
+    },
+    {
+      "name": "corner-radius",
+      "about": "Its corners round to its target's.",
+      "scale": 2,
+      "render_loss": [
+        0.027279901638141313,
+        0.02639205175590509,
+        0.024785543677540774,
+        0.02246060865647826,
+        0.019411155824145116,
+        0.015638082112842278,
+        0.011146771257492182,
+        0.005935561511247267,
+        0.0
+      ],
+      "slope_along_the_move": [
+        -0.004159409348156674,
+        -0.01021091307263619,
+        -0.01564857799970705,
+        -0.02132252068267079,
+        -0.027290783113080634,
+        -0.03317948985483878,
+        -0.038717200025181114,
+        -0.04445726951277777
+      ],
+      "loss_falls_at_every_step": true,
+      "loss_is_zero_on_the_target": true,
+      "gradient_points_along_the_move": true,
+      "passed": true
+    },
+    {
+      "name": "fill",
+      "about": "Its colour and alpha change to its target's.",
+      "scale": 1,
+      "render_loss": [
+        0.14838092033049757,
+        0.13636123684003829,
+        0.1224764300493353,
+        0.10672649995838863,
+        0.08911144656719827,
+        0.06963126987576422,
+        0.04828596988408652,
+        0.025075546592165092,
+        0.0
+      ],
+      "slope_along_the_move": [
+        -0.08869697472269968,
+        -0.1036179611246491,
+        -0.11853894752659863,
+        -0.1334599339285481,
+        -0.1483809203304976,
+        -0.16330190673244702,
+        -0.1782228931343965,
+        -0.19314387953634599
+      ],
+      "loss_falls_at_every_step": true,
+      "loss_is_zero_on_the_target": true,
+      "gradient_points_along_the_move": true,
+      "passed": true
+    },
+    {
+      "name": "fill",
+      "about": "Its colour and alpha change to its target's.",
+      "scale": 2,
+      "render_loss": [
+        0.14834092243454813,
+        0.13632447899711264,
+        0.12244341502628205,
+        0.10669773052205628,
+        0.08908742548443535,
+        0.06961249991341922,
+        0.048272953809008,
+        0.025068787171201562,
+        0.0
+      ],
+      "slope_along_the_move": [
+        -0.08867306536590308,
+        -0.10359002963306432,
+        -0.11850699390022562,
+        -0.13342395816738686,
+        -0.14834092243454816,
+        -0.16325788670170938,
+        -0.17817485096887065,
+        -0.1930918152360319
+      ],
+      "loss_falls_at_every_step": true,
+      "loss_is_zero_on_the_target": true,
+      "gradient_points_along_the_move": true,
+      "passed": true
+    },
+    {
+      "name": "opacity",
+      "about": "It fades in to its target's opacity.",
+      "scale": 1,
+      "render_loss": [
+        0.1492098640194948,
+        0.13055863101705795,
+        0.11190739801462112,
+        0.09325616501218424,
+        0.0746049320097474,
+        0.05595369900731056,
+        0.0373024660048737,
+        0.018651233002436856,
+        0.0
+      ],
+      "slope_along_the_move": [
+        -0.1492098640194948,
+        -0.1492098640194948,
+        -0.1492098640194948,
+        -0.1492098640194948,
+        -0.1492098640194948,
+        -0.1492098640194948,
+        -0.1492098640194948,
+        -0.1492098640194948
+      ],
+      "loss_falls_at_every_step": true,
+      "loss_is_zero_on_the_target": true,
+      "gradient_points_along_the_move": true,
+      "passed": true
+    },
+    {
+      "name": "opacity",
+      "about": "It fades in to its target's opacity.",
+      "scale": 2,
+      "render_loss": [
+        0.14916964267161262,
+        0.13052343733766106,
+        0.11187723200370948,
+        0.09323102666975791,
+        0.07458482133580631,
+        0.05593861600185474,
+        0.037292410667903154,
+        0.018646205333951588,
+        0.0
+      ],
+      "slope_along_the_move": [
+        -0.1491696426716127,
+        -0.1491696426716127,
+        -0.1491696426716127,
+        -0.1491696426716127,
+        -0.1491696426716127,
+        -0.1491696426716127,
+        -0.1491696426716127,
+        -0.1491696426716127
+      ],
+      "loss_falls_at_every_step": true,
+      "loss_is_zero_on_the_target": true,
+      "gradient_points_along_the_move": true,
+      "passed": true
+    },
+    {
+      "name": "everything",
+      "about": "Every value moves at once, over a backdrop that does not. The element starts inside its target, in a colour nearer the target's than the backdrop's.",
+      "scale": 1,
+      "render_loss": [
+        0.05499570819982566,
+        0.051207962925341605,
+        0.04676800912086039,
+        0.04146633241657575,
+        0.035338135355536815,
+        0.02822029759010137,
+        0.019999671676923222,
+        0.010658817468052322,
+        0.0
+      ],
+      "slope_along_the_move": [
+        -0.026833109288223887,
+        -0.031247007583422165,
+        -0.04063070601443778,
+        -0.047646504653158714,
+        -0.05379911100633984,
+        -0.06199634433391524,
+        -0.07031823126096515,
+        -0.08030261646938029
+      ],
+      "loss_falls_at_every_step": true,
+      "loss_is_zero_on_the_target": true,
+      "gradient_points_along_the_move": true,
+      "passed": true
+    },
+    {
+      "name": "everything",
+      "about": "Every value moves at once, over a backdrop that does not. The element starts inside its target, in a colour nearer the target's than the backdrop's.",
+      "scale": 2,
+      "render_loss": [
+        0.05513980257934573,
+        0.05131918457461686,
+        0.04685245706506959,
+        0.041522628525891093,
+        0.03540891598243825,
+        0.02827806736982488,
+        0.02006017771157695,
+        0.01068844890516993,
+        0.0
+      ],
+      "slope_along_the_move": [
+        -0.024467036541810785,
+        -0.03277313979381534,
+        -0.03880878608005158,
+        -0.045075551611676645,
+        -0.051001654738539855,
+        -0.06048299005637607,
+        -0.07026812122973755,
+        -0.08061510045959733
+      ],
+      "loss_falls_at_every_step": true,
+      "loss_is_zero_on_the_target": true,
+      "gradient_points_along_the_move": true,
+      "passed": true
+    }
+  ],
+  "zero_gradients": [
+    {
+      "name": "no-overlap-with-the-target",
+      "about": "A square-cornered element and its target do not touch. Moving it changes which pixels differ and not how much, so position has no gradient. Neither has a corner radius of zero: rounding a square corner a little takes away an area that grows as the radius squared. Size, fill and opacity have one.",
+      "scale": 1,
+      "render_loss": 0.08397281250000001,
+      "attributes": [
+        {
+          "attribute": "x",
+          "expected": "zero",
+          "state": "zero",
+          "largest_gradient": 0.0,
+          "image_depends_on_it": true,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "y",
+          "expected": "zero",
+          "state": "zero",
+          "largest_gradient": 0.0,
+          "image_depends_on_it": true,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "width",
+          "expected": "non-zero",
+          "state": "non-zero",
+          "largest_gradient": 0.00287578125,
+          "image_depends_on_it": true,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "height",
+          "expected": "non-zero",
+          "state": "non-zero",
+          "largest_gradient": 0.0034218749999999996,
+          "image_depends_on_it": true,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "corner_radius",
+          "expected": "zero",
+          "state": "zero",
+          "largest_gradient": 0.0,
+          "image_depends_on_it": false,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "fill",
+          "expected": "non-zero",
+          "state": "non-zero",
+          "largest_gradient": 0.04198640625,
+          "image_depends_on_it": true,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "opacity",
+          "expected": "non-zero",
+          "state": "non-zero",
+          "largest_gradient": 0.04665156249999999,
+          "image_depends_on_it": true,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "name": "no-overlap-with-the-target",
+      "about": "A square-cornered element and its target do not touch. Moving it changes which pixels differ and not how much, so position has no gradient. Neither has a corner radius of zero: rounding a square corner a little takes away an area that grows as the radius squared. Size, fill and opacity have one.",
+      "scale": 2,
+      "render_loss": 0.08397281250000001,
+      "attributes": [
+        {
+          "attribute": "x",
+          "expected": "zero",
+          "state": "zero",
+          "largest_gradient": 0.0,
+          "image_depends_on_it": true,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "y",
+          "expected": "zero",
+          "state": "zero",
+          "largest_gradient": 0.0,
+          "image_depends_on_it": true,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "width",
+          "expected": "non-zero",
+          "state": "non-zero",
+          "largest_gradient": 0.0028757812500000007,
+          "image_depends_on_it": true,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "height",
+          "expected": "non-zero",
+          "state": "non-zero",
+          "largest_gradient": 0.0034218749999999996,
+          "image_depends_on_it": true,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "corner_radius",
+          "expected": "zero",
+          "state": "zero",
+          "largest_gradient": 0.0,
+          "image_depends_on_it": false,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "fill",
+          "expected": "non-zero",
+          "state": "non-zero",
+          "largest_gradient": 0.04198640625,
+          "image_depends_on_it": true,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "opacity",
+          "expected": "non-zero",
+          "state": "non-zero",
+          "largest_gradient": 0.04665156249999998,
+          "image_depends_on_it": true,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "name": "rounded-without-overlap",
+      "about": "The same with rounded corners. An arc is drawn as its tangent, so the element's whole cover changes a little with where its corners fall among the pixels, and position has a small gradient that the shape itself does not: a limit of this renderer, measured here.",
+      "scale": 1,
+      "render_loss": 0.08023441396791381,
+      "attributes": [
+        {
+          "attribute": "x",
+          "expected": "non-zero",
+          "state": "non-zero",
+          "largest_gradient": 4.642361819270002e-05,
+          "image_depends_on_it": true,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "y",
+          "expected": "non-zero",
+          "state": "non-zero",
+          "largest_gradient": 3.961636450626558e-05,
+          "image_depends_on_it": true,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "width",
+          "expected": "non-zero",
+          "state": "non-zero",
+          "largest_gradient": 0.002913590698799426,
+          "image_depends_on_it": true,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "height",
+          "expected": "non-zero",
+          "state": "non-zero",
+          "largest_gradient": 0.0034480175451947637,
+          "image_depends_on_it": true,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "corner_radius",
+          "expected": "non-zero",
+          "state": "non-zero",
+          "largest_gradient": 0.0012410545148578839,
+          "image_depends_on_it": true,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "fill",
+          "expected": "non-zero",
+          "state": "non-zero",
+          "largest_gradient": 0.040105080964397175,
+          "image_depends_on_it": true,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "opacity",
+          "expected": "non-zero",
+          "state": "non-zero",
+          "largest_gradient": 0.04456120107155241,
+          "image_depends_on_it": true,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "name": "rounded-without-overlap",
+      "about": "The same with rounded corners. An arc is drawn as its tangent, so the element's whole cover changes a little with where its corners fall among the pixels, and position has a small gradient that the shape itself does not: a limit of this renderer, measured here.",
+      "scale": 2,
+      "render_loss": 0.08013769725118111,
+      "attributes": [
+        {
+          "attribute": "x",
+          "expected": "non-zero",
+          "state": "non-zero",
+          "largest_gradient": 3.3838507958435307e-06,
+          "image_depends_on_it": true,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "y",
+          "expected": "non-zero",
+          "state": "non-zero",
+          "largest_gradient": 4.12361307852889e-06,
+          "image_depends_on_it": true,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "width",
+          "expected": "non-zero",
+          "state": "non-zero",
+          "largest_gradient": 0.0028755669257706845,
+          "image_depends_on_it": true,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "height",
+          "expected": "non-zero",
+          "state": "non-zero",
+          "largest_gradient": 0.003423688003793745,
+          "image_depends_on_it": true,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "corner_radius",
+          "expected": "non-zero",
+          "state": "non-zero",
+          "largest_gradient": 0.0012485493841365887,
+          "image_depends_on_it": true,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "fill",
+          "expected": "non-zero",
+          "state": "non-zero",
+          "largest_gradient": 0.04006843897622895,
+          "image_depends_on_it": true,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "opacity",
+          "expected": "non-zero",
+          "state": "non-zero",
+          "largest_gradient": 0.044520487751365495,
+          "image_depends_on_it": true,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "name": "under-an-opaque-element",
+      "about": "The element lies wholly under a later opaque one, so nothing about it reaches a pixel.",
+      "scale": 1,
+      "render_loss": 0.09925694444444443,
+      "attributes": [
+        {
+          "attribute": "x",
+          "expected": "zero",
+          "state": "zero",
+          "largest_gradient": 0.0,
+          "image_depends_on_it": false,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "y",
+          "expected": "zero",
+          "state": "zero",
+          "largest_gradient": 0.0,
+          "image_depends_on_it": false,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "width",
+          "expected": "zero",
+          "state": "zero",
+          "largest_gradient": 0.0,
+          "image_depends_on_it": false,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "height",
+          "expected": "zero",
+          "state": "zero",
+          "largest_gradient": 0.0,
+          "image_depends_on_it": false,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "corner_radius",
+          "expected": "zero",
+          "state": "zero",
+          "largest_gradient": 0.0,
+          "image_depends_on_it": false,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "fill",
+          "expected": "zero",
+          "state": "zero",
+          "largest_gradient": 0.0,
+          "image_depends_on_it": false,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "opacity",
+          "expected": "zero",
+          "state": "zero",
+          "largest_gradient": 0.0,
+          "image_depends_on_it": false,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "name": "under-an-opaque-element",
+      "about": "The element lies wholly under a later opaque one, so nothing about it reaches a pixel.",
+      "scale": 2,
+      "render_loss": 0.09943055555555556,
+      "attributes": [
+        {
+          "attribute": "x",
+          "expected": "zero",
+          "state": "zero",
+          "largest_gradient": 0.0,
+          "image_depends_on_it": false,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "y",
+          "expected": "zero",
+          "state": "zero",
+          "largest_gradient": 0.0,
+          "image_depends_on_it": false,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "width",
+          "expected": "zero",
+          "state": "zero",
+          "largest_gradient": 0.0,
+          "image_depends_on_it": false,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "height",
+          "expected": "zero",
+          "state": "zero",
+          "largest_gradient": 0.0,
+          "image_depends_on_it": false,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "corner_radius",
+          "expected": "zero",
+          "state": "zero",
+          "largest_gradient": 0.0,
+          "image_depends_on_it": false,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "fill",
+          "expected": "zero",
+          "state": "zero",
+          "largest_gradient": 0.0,
+          "image_depends_on_it": false,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "opacity",
+          "expected": "zero",
+          "state": "zero",
+          "largest_gradient": 0.0,
+          "image_depends_on_it": false,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "name": "no-opacity",
+      "about": "The element has no opacity, so nothing about its shape or colour reaches a pixel; its opacity does.",
+      "scale": 1,
+      "render_loss": 0.07100710996785081,
+      "attributes": [
+        {
+          "attribute": "x",
+          "expected": "zero",
+          "state": "zero",
+          "largest_gradient": 0.0,
+          "image_depends_on_it": false,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "y",
+          "expected": "zero",
+          "state": "zero",
+          "largest_gradient": 0.0,
+          "image_depends_on_it": false,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "width",
+          "expected": "zero",
+          "state": "zero",
+          "largest_gradient": 0.0,
+          "image_depends_on_it": false,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "height",
+          "expected": "zero",
+          "state": "zero",
+          "largest_gradient": 0.0,
+          "image_depends_on_it": false,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "corner_radius",
+          "expected": "zero",
+          "state": "zero",
+          "largest_gradient": 0.0,
+          "image_depends_on_it": false,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "fill",
+          "expected": "zero",
+          "state": "zero",
+          "largest_gradient": 0.0,
+          "image_depends_on_it": false,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "opacity",
+          "expected": "non-zero",
+          "state": "non-zero",
+          "largest_gradient": 0.057832009549139675,
+          "image_depends_on_it": true,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "name": "no-opacity",
+      "about": "The element has no opacity, so nothing about its shape or colour reaches a pixel; its opacity does.",
+      "scale": 2,
+      "render_loss": 0.07094798505251888,
+      "attributes": [
+        {
+          "attribute": "x",
+          "expected": "zero",
+          "state": "zero",
+          "largest_gradient": 0.0,
+          "image_depends_on_it": false,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "y",
+          "expected": "zero",
+          "state": "zero",
+          "largest_gradient": 0.0,
+          "image_depends_on_it": false,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "width",
+          "expected": "zero",
+          "state": "zero",
+          "largest_gradient": 0.0,
+          "image_depends_on_it": false,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "height",
+          "expected": "zero",
+          "state": "zero",
+          "largest_gradient": 0.0,
+          "image_depends_on_it": false,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "corner_radius",
+          "expected": "zero",
+          "state": "zero",
+          "largest_gradient": 0.0,
+          "image_depends_on_it": false,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "fill",
+          "expected": "zero",
+          "state": "zero",
+          "largest_gradient": 0.0,
+          "image_depends_on_it": false,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        },
+        {
+          "attribute": "opacity",
+          "expected": "non-zero",
+          "state": "non-zero",
+          "largest_gradient": 0.05608165750611526,
+          "image_depends_on_it": true,
+          "state_when_cut_out": "disconnected",
+          "passed": true
+        }
+      ],
+      "passed": true
+    }
+  ],
+  "agreement": {
+    "scenes_left_out": [
+      "past-the-viewport"
+    ],
+    "exact_cover_samples": 256,
+    "overall": {
+      "scenes_drawn": 12,
+      "training_against_runtime": {
+        "mean_absolute_difference": 0.39083148505106086,
+        "largest_share_of_pixels_over_16": 0.008101851851851851,
+        "largest_difference": 33.93544678994502
+      },
+      "training_against_exact_cover": {
+        "mean_absolute_difference": 0.02942163523405456,
+        "largest_share_of_pixels_over_16": 7.233796296296296e-05,
+        "largest_difference": 16.926817210490967
+      },
+      "runtime_against_exact_cover": {
+        "mean_absolute_difference": 0.3766537799394132,
+        "largest_share_of_pixels_over_16": 0.006944444444444444,
+        "largest_difference": 31.20726562499999
+      }
+    },
+    "without_corner_radius": {
+      "scenes_drawn": 2,
+      "training_against_runtime": {
+        "mean_absolute_difference": 0.33575757445705334,
+        "largest_share_of_pixels_over_16": 0.0,
+        "largest_difference": 2.0633999999993478
+      },
+      "training_against_exact_cover": {
+        "mean_absolute_difference": 0.028193176569825396,
+        "largest_share_of_pixels_over_16": 0.0,
+        "largest_difference": 1.2431249999998055
+      },
+      "runtime_against_exact_cover": {
+        "mean_absolute_difference": 0.328036223060316,
+        "largest_share_of_pixels_over_16": 0.0,
+        "largest_difference": 1.92626953125
+      }
+    },
+    "rows": [
+      {
+        "scene": "one-rounded",
+        "scale": 1,
+        "pixels": [
+          48,
+          36
+        ],
+        "has_corner_radius": true,
+        "training_against_runtime": {
+          "mean_absolute_difference": 0.4074340368279292,
+          "share_of_pixels_over_16": 0.007523148148148148,
+          "largest_difference": 21.93887588001249
+        },
+        "training_against_exact_cover": {
+          "mean_absolute_difference": 0.026665143586536925,
+          "share_of_pixels_over_16": 0.0,
+          "largest_difference": 7.2371727599743565
+        },
+        "runtime_against_exact_cover": {
+          "mean_absolute_difference": 0.39200933041984665,
+          "share_of_pixels_over_16": 0.006944444444444444,
+          "largest_difference": 20.35205078125
+        }
+      },
+      {
+        "scene": "one-rounded",
+        "scale": 2,
+        "pixels": [
+          96,
+          72
+        ],
+        "has_corner_radius": true,
+        "training_against_runtime": {
+          "mean_absolute_difference": 0.26332056735696446,
+          "share_of_pixels_over_16": 0.0,
+          "largest_difference": 12.743376587380752
+        },
+        "training_against_exact_cover": {
+          "mean_absolute_difference": 0.011662039630032999,
+          "share_of_pixels_over_16": 0.0,
+          "largest_difference": 4.445273641759229
+        },
+        "runtime_against_exact_cover": {
+          "mean_absolute_difference": 0.255693484234308,
+          "share_of_pixels_over_16": 0.0,
+          "largest_difference": 11.253710937500003
+        }
+      },
+      {
+        "scene": "overlaps",
+        "scale": 1,
+        "pixels": [
+          64,
+          48
+        ],
+        "has_corner_radius": true,
+        "training_against_runtime": {
+          "mean_absolute_difference": 0.4544568145435807,
+          "share_of_pixels_over_16": 0.0,
+          "largest_difference": 15.509637702211904
+        },
+        "training_against_exact_cover": {
+          "mean_absolute_difference": 0.05136002897699186,
+          "share_of_pixels_over_16": 0.0,
+          "largest_difference": 9.24180567096191
+        },
+        "runtime_against_exact_cover": {
+          "mean_absolute_difference": 0.4223774162113796,
+          "share_of_pixels_over_16": 0.0,
+          "largest_difference": 12.327050781250009
+        }
+      },
+      {
+        "scene": "overlaps",
+        "scale": 2,
+        "pixels": [
+          128,
+          96
+        ],
+        "has_corner_radius": true,
+        "training_against_runtime": {
+          "mean_absolute_difference": 0.38680257746240515,
+          "share_of_pixels_over_16": 0.0008138020833333334,
+          "largest_difference": 33.93544678994502
+        },
+        "training_against_exact_cover": {
+          "mean_absolute_difference": 0.015819640343562417,
+          "share_of_pixels_over_16": 0.0,
+          "largest_difference": 8.137573127539305
+        },
+        "runtime_against_exact_cover": {
+          "mean_absolute_difference": 0.3835732391822595,
+          "share_of_pixels_over_16": 0.0006510416666666666,
+          "largest_difference": 31.20726562499999
+        }
+      },
+      {
+        "scene": "radii",
+        "scale": 1,
+        "pixels": [
+          72,
+          48
+        ],
+        "has_corner_radius": true,
+        "training_against_runtime": {
+          "mean_absolute_difference": 0.7076942403652206,
+          "share_of_pixels_over_16": 0.008101851851851851,
+          "largest_difference": 25.115277687879313
+        },
+        "training_against_exact_cover": {
+          "mean_absolute_difference": 0.06650655841949181,
+          "share_of_pixels_over_16": 0.0,
+          "largest_difference": 13.514901417585207
+        },
+        "runtime_against_exact_cover": {
+          "mean_absolute_difference": 0.6608496834340043,
+          "share_of_pixels_over_16": 0.005497685185185185,
+          "largest_difference": 21.84381217664216
+        }
+      },
+      {
+        "scene": "radii",
+        "scale": 2,
+        "pixels": [
+          144,
+          96
+        ],
+        "has_corner_radius": true,
+        "training_against_runtime": {
+          "mean_absolute_difference": 0.5426848407259093,
+          "share_of_pixels_over_16": 0.00267650462962963,
+          "largest_difference": 27.969783009535348
+        },
+        "training_against_exact_cover": {
+          "mean_absolute_difference": 0.023320888756684328,
+          "share_of_pixels_over_16": 7.233796296296296e-05,
+          "largest_difference": 16.926817210490967
+        },
+        "runtime_against_exact_cover": {
+          "mean_absolute_difference": 0.5329048926947316,
+          "share_of_pixels_over_16": 0.0025318287037037037,
+          "largest_difference": 27.638549237594972
+        }
+      },
+      {
+        "scene": "thin",
+        "scale": 1,
+        "pixels": [
+          48,
+          36
+        ],
+        "has_corner_radius": true,
+        "training_against_runtime": {
+          "mean_absolute_difference": 0.4618377122019979,
+          "share_of_pixels_over_16": 0.0,
+          "largest_difference": 8.150127257947887
+        },
+        "training_against_exact_cover": {
+          "mean_absolute_difference": 0.0555938166190583,
+          "share_of_pixels_over_16": 0.0,
+          "largest_difference": 8.34739527539405
+        },
+        "runtime_against_exact_cover": {
+          "mean_absolute_difference": 0.4333910299523526,
+          "share_of_pixels_over_16": 0.0,
+          "largest_difference": 2.560498519019575
+        }
+      },
+      {
+        "scene": "thin",
+        "scale": 2,
+        "pixels": [
+          96,
+          72
+        ],
+        "has_corner_radius": true,
+        "training_against_runtime": {
+          "mean_absolute_difference": 0.39878003149516283,
+          "share_of_pixels_over_16": 0.0,
+          "largest_difference": 12.870294516853846
+        },
+        "training_against_exact_cover": {
+          "mean_absolute_difference": 0.03333451305789108,
+          "share_of_pixels_over_16": 0.0,
+          "largest_difference": 13.03091971286409
+        },
+        "runtime_against_exact_cover": {
+          "mean_absolute_difference": 0.39508934812294183,
+          "share_of_pixels_over_16": 0.0,
+          "largest_difference": 4.22743359375
+        }
+      },
+      {
+        "scene": "square-corners",
+        "scale": 1,
+        "pixels": [
+          48,
+          36
+        ],
+        "has_corner_radius": false,
+        "training_against_runtime": {
+          "mean_absolute_difference": 0.35565616106118647,
+          "share_of_pixels_over_16": 0.0,
+          "largest_difference": 1.9761499999996488
+        },
+        "training_against_exact_cover": {
+          "mean_absolute_difference": 0.034470936307230145,
+          "share_of_pixels_over_16": 0.0,
+          "largest_difference": 1.2431249999998055
+        },
+        "runtime_against_exact_cover": {
+          "mean_absolute_difference": 0.3443220412869678,
+          "share_of_pixels_over_16": 0.0,
+          "largest_difference": 1.92626953125
+        }
+      },
+      {
+        "scene": "square-corners",
+        "scale": 2,
+        "pixels": [
+          96,
+          72
+        ],
+        "has_corner_radius": false,
+        "training_against_runtime": {
+          "mean_absolute_difference": 0.3158589878529202,
+          "share_of_pixels_over_16": 0.0,
+          "largest_difference": 2.0633999999993478
+        },
+        "training_against_exact_cover": {
+          "mean_absolute_difference": 0.021915416832420646,
+          "share_of_pixels_over_16": 0.0,
+          "largest_difference": 0.9356906249993813
+        },
+        "runtime_against_exact_cover": {
+          "mean_absolute_difference": 0.31175040483366423,
+          "share_of_pixels_over_16": 0.0,
+          "largest_difference": 1.9228515624999716
+        }
+      },
+      {
+        "scene": "whole-numbers",
+        "scale": 1,
+        "pixels": [
+          64,
+          48
+        ],
+        "has_corner_radius": true,
+        "training_against_runtime": {
+          "mean_absolute_difference": 0.22274415991977556,
+          "share_of_pixels_over_16": 0.0,
+          "largest_difference": 13.362304997690899
+        },
+        "training_against_exact_cover": {
+          "mean_absolute_difference": 0.009101303049354097,
+          "share_of_pixels_over_16": 0.0,
+          "largest_difference": 4.608128157742328
+        },
+        "runtime_against_exact_cover": {
+          "mean_absolute_difference": 0.21540069262186656,
+          "share_of_pixels_over_16": 0.0,
+          "largest_difference": 12.832812500000003
+        }
+      },
+      {
+        "scene": "whole-numbers",
+        "scale": 2,
+        "pixels": [
+          128,
+          96
+        ],
+        "has_corner_radius": true,
+        "training_against_runtime": {
+          "mean_absolute_difference": 0.1727076907996786,
+          "share_of_pixels_over_16": 0.0,
+          "largest_difference": 6.668845563282687
+        },
+        "training_against_exact_cover": {
+          "mean_absolute_difference": 0.0033093372294001216,
+          "share_of_pixels_over_16": 0.0,
+          "largest_difference": 3.650876813282693
+        },
+        "runtime_against_exact_cover": {
+          "mean_absolute_difference": 0.17248379627863542,
+          "share_of_pixels_over_16": 0.0,
+          "largest_difference": 6.3648437499999915
+        }
+      }
+    ]
+  }
+}
