@@ -67,7 +67,7 @@ The chosen size is recorded in `configs/scene-model/v1.json`, which names the me
 ### `measure generation`
 
 ```bash
-uv run core-ultra measure generation --config configs/data/pilot-v1.json
+uv run core-ultra measure generation --config configs/data/pilot-v2.json
 ```
 
 `measure generation` measures what one example of a dataset costs to generate and to keep, so that the full dataset can be sized. It runs `data generate` on the configuration three times, each as a process of its own writing into a new folder that is deleted afterwards, and saves a measurement record with the doctor record it is tied to. It reads the wall-clock time of the whole command, the processor time and peak resident memory of the process, and the disk the files use, by part, as written and as the file system allocated it. Per example means divided by the number of dataset records. Every run must write the same manifest.
@@ -115,7 +115,7 @@ uv run core-ultra data generate --config configs/data/tiny-v1.json
 
 `data generate` runs the scripted sessions of a dataset configuration against the application kernel. For every state a session reaches, the reference layout engine writes the true scene, the validators judge it, the runtime renderer draws it, and one dataset record and one reference image are written. The stress-test set is written apart, and a manifest of hashes is written last. The same configuration always gives the same bytes. A state whose true scene a validator rejects is not written; the manifest lists it under `rejected` with every reason. The manifest also lists what the records do not cover (`coverage.gaps`), which the command prints and does not fail on.
 
-`configs/data/families-v2.json` is the configuration with every layout family, and takes about eight seconds. `configs/data/pilot-v1.json` is the pilot.
+`configs/data/families-v2.json` is the configuration with every layout family, and takes about eight seconds. `configs/data/pilot-v2.json` is the pilot.
 
 It exits 2, writing nothing, when the configuration cannot be used, a stress test is not rejected for the reasons it states, or the folder already holds a different dataset. A dataset is never overwritten.
 
@@ -135,15 +135,15 @@ uv run core-ultra data check artifacts/datasets/tiny-v1
 ### `data gallery`
 
 ```bash
-uv run core-ultra data gallery artifacts/datasets/pilot-v1
-open artifacts/galleries/pilot-v1/index.html
+uv run core-ultra data gallery artifacts/datasets/pilot-v2
+open artifacts/galleries/pilot-v2/index.html
 ```
 
 `data gallery` builds the review gallery of a written dataset: one local page for a person to judge, with every reference image beside it. The page opens from disk and loads nothing from a network. It has three parts.
 
 - **The coverage summary** counts the records, and the scripted sessions they come from, by layout family, visual preset, density, content length, element state and viewport size, and by each pair of layout family and visual preset. A value the dataset configuration declares and no record shows has a count of zero and is named as not shown. The command prints the same summary.
 - **The dataset records**, grouped by layout family, then visual preset, then scripted session. Each picture is labelled with its layout family, its visual preset, its design condition and its state: the element pointed at and how, then every element state the frame shows. Three filters narrow the page by layout family, visual preset and element state, and a picture opens larger when it is chosen.
-- **What the validators rejected, shown apart** and never among the records, each with every reason: the states the manifest lists under `rejected`, the viewport sizes a session was refused with the first state rejected there, the sessions no viewport size fits, and the stress-test set, labelled as never a training target. A rejected state has no image in the dataset, so the gallery makes its scene again from the dataset's own configuration and draws it with the runtime renderer. A state scene validation refuses cannot be drawn, and the page says so in place of a picture. Nor is a rejected state drawn when the dataset was written by another version of the generator or from a design or layout file that has since changed, because the scene made again would not be the one that was judged.
+- **What the validators rejected, shown apart** and never among the records, each with every reason: the states the manifest lists under `rejected`, the viewport sizes a session was refused with the first state rejected there, the sessions no viewport size fits, and the stress-test set, labelled as never a training target. A rejected state has no image in the dataset, so the gallery makes its scene again from the dataset's own configuration and draws it with the runtime renderer. A reason is the manifest's sentence with its measurements rounded to one decimal place. A state scene validation refuses cannot be drawn, and the page says so in place of a picture. Nor is a rejected state drawn when the dataset was written by another version of the generator or from a design or layout file that has since changed, because the scene made again would not be the one that was judged.
 
 Every label and count is read from the dataset's records and manifest. The gallery judges nothing, and nothing is measured with it. The same dataset always gives the same bytes.
 
@@ -155,7 +155,7 @@ It exits 2, writing nothing, when the folder is not a dataset whose files are th
 | `--out DIR` | Folder the gallery is written to. Default: `artifacts/galleries/<name>-v<version>`. |
 
 ```
-artifacts/galleries/pilot-v1/
+artifacts/galleries/pilot-v2/
   manifest.json        what the page shows, the coverage summary and the hash of every file; the only file in git
   index.html           the page
   images/<id>.png      the reference image of every dataset record, byte for byte
@@ -186,11 +186,12 @@ All text is drawn in Inter, kept in this repository under the SIL Open Font Lice
 
 ## Datasets
 
-A dataset is generated, never collected. There are four configurations.
+A dataset is generated, never collected. There are five configurations.
 
 | Configuration | Holds |
 | --- | --- |
-| `configs/data/pilot-v1.json` | The pilot: thirty-two scripted sessions, so that each of the eight layout families meets each of the four visual presets in one session, in five viewport sizes and three content lengths: 476 records, none rejected, no coverage gap, and the stress-test set of 20. It takes about eleven seconds. Its review gallery is what Rob judges before anything is scaled (issue #10). |
+| `configs/data/pilot-v2.json` | The pilot: thirty-two scripted sessions, so that each of the eight layout families meets each of the four visual presets in one session, in five viewport sizes and three content lengths, in layout version 4: 476 records, none rejected, no coverage gap, and the stress-test set of 20. It takes about eleven seconds. Its review gallery is what Rob judges before anything is scaled (issue #10). |
+| `configs/data/pilot-v1.json` | The first pilot: the same sessions in layout version 3, where `dense-ink` at compact density set text 3 to 4 units from the edge of its box. Version 2 replaces it and differs from it in those 36 records only; its configuration and manifest stay. |
 | `configs/data/tiny-v1.json` | Four scripted sessions, one in each visual preset, in one layout family: 82 records. It shows the whole path. Its committed manifest was written by generator version 1; the model inputs and targets it lists are still what the configuration generates. |
 | `configs/data/families-v2.json` | Sixteen scripted sessions across the eight layout families of layout version 3, four visual presets, five viewport sizes and three content lengths: 358 records, none rejected, and a stress-test set of 20. |
 | `configs/data/families-v1.json` | The same in layout version 2, which has no grouping and no alignment of its own. Version 2 replaces it; its manifest stays, and a test holds its model inputs and targets to it. |
@@ -207,19 +208,21 @@ artifacts/datasets/families-v2/
 
 **Scripted sessions.** A scenario is a script, a list of actions such as `create`, `open`, `edit`, `save`. A scripted session carries a script out on an empty kernel the way a person would: the pointer moves onto a bound element, the element is pressed or focused, and the command its action binding names is given to the kernel. Each of those three is a moment and each moment becomes a record, so every state in a dataset is one the application can reach. Titles, bodies and which row is opened come from a random source seeded with the configuration's seed and the session's id. A session runs in one design, chosen whole: one layout family, one visual preset, one viewport size and one content length (a named range of title words and body lines), dealt out in seeded orders so that the sessions cover each evenly. No factor value and no style token is drawn on its own.
 
-**Design condition and layout family.** A design condition is one value for each design factor a layout declares. Every layout declares five: navigation position, panel arrangement, density, spacing and notification location. Layout version 3 declares two more, grouping and alignment. A layout family is a named combination of those values. `configs/layout/v1.json` declares one, `top-bar-list-left`; `configs/layout/v2.json` and `configs/layout/v3.json` declare eight each. The reference layout engine turns application state, viewport size, visual preset and design condition into exactly one scene, with no random choice, and refuses a factor value it does not draw.
+**Design condition and layout family.** A design condition is one value for each design factor a layout declares. Every layout declares five: navigation position, panel arrangement, density, spacing and notification location. Layout version 3 declares two more, grouping and alignment. A layout family is a named combination of those values. `configs/layout/v1.json` declares one, `top-bar-list-left`; `configs/layout/v2.json`, `configs/layout/v3.json` and `configs/layout/v4.json` declare eight each. The reference layout engine turns application state, viewport size, visual preset and design condition into exactly one scene, with no random choice, and refuses a factor value it does not draw.
 
 | Factor | Values the engine draws |
 | --- | --- |
 | Navigation position | `top` (a bar across the top), `left` (a rail down the left side, the toolbar's elements stacked), `bottom` (a bar across the bottom) |
 | Panel arrangement | `list-left`, `list-right` (the list as a column beside the editor), `list-top` (the list as a grid of rows above the editor) |
-| Density | `compact`, `preset`, `roomy`: the visual preset's heights times 0.85, 1 and 1.15 |
+| Density | `compact`, `preset`, `roomy`: the visual preset's heights times 0.85, 1 and 1.15. In layout version 4, `compact` stops short of the least text inset, below |
 | Spacing | `tight`, `preset`, `loose`: the visual preset's distances times 0.75, 1 and 1.25 |
 | Notification location | `bottom-right`, `bottom-left`, `bottom-centre` of the area the navigation leaves free |
 | Grouping | `parts` (one container for each part of the workspace), `tasks` (the toolbar's elements in two containers, with a divider between them), `sheet` (the list and the editor on one panel, with a divider between them) |
 | Alignment | `justified` (the toolbar's elements at both ends of a bar, or as wide as a rail), `start` (packed from the left, a rail's buttons as wide as their text), `centre` (centred, and with them the list's heading, the label of an empty list and the editor's revision) |
 
 The engine draws any of the 2 187 combinations. The eight families are the combinations a dataset samples, each value is in at least two of them, and none is the correct one: a family is a preference, declared in the layout configuration, and no validator knows it. Grouping changes which container holds an element and never a bound element's box. Alignment moves boxes and never changes a container. Neither changes where text sits inside its own box, which is the runtime renderer's rule. A design condition from a layout that declares neither is drawn in `parts` and `justified`, and the scene model is then given five factor values, not seven. `configs/layout/v3.json` also lists, under `out_of_scope`, the variation the generator does not produce.
+
+**The least text inset.** The runtime renderer starts a text as far from the left edge of its box as the line is from the top, so a low box sets its text near its edge. Layout version 4 declares `"least_text_inset": 6`: compact density lowers an element that holds text only as far as leaves 6 units above and below its line, and never makes it higher than the visual preset states. It acts in `dense-ink` and in no other visual preset, where compact already leaves more: a row is 27.7 units high where it was 23.8, and the filter field keeps the preset's own 26, which leaves 5.1. Layout versions 1 to 3 declare none and are drawn as before.
 
 **Viewport sizes.** With `"viewport_choice": "fitting"` a session is given the least used viewport size in which every one of its states passes the validators, so a roomy visual preset or a wide arrangement gets a size that holds it. The sizes it was refused are in the manifest with the element and the reason. Without it the sizes are dealt out in turn and a state that does not fit is rejected.
 
@@ -259,7 +262,7 @@ The text itself, the true scene, any image, validation results, the layout famil
 
 Limits of this version:
 
-- Nothing scrolls, text never wraps, and a scene holds at most 32 bound elements. `out_of_scope` in `configs/layout/v3.json` has the full list of what is not varied.
+- Nothing scrolls, text never wraps, and a scene holds at most 32 bound elements. `out_of_scope` in `configs/layout/v4.json` has the full list of what is not varied.
 - A coverage gap is recorded and printed. It does not fail `data generate`.
 - What a stress test is rejected for depends on the content its seed writes, so its expected codes belong to the configuration they are written in.
 - The measured text width is at one weight, 400. An element drawn at another weight is not exactly that width scaled.

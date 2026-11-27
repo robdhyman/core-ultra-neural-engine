@@ -469,6 +469,7 @@ def _fit(
     preset: design_source.VisualPreset,
     order: Sequence[tuple[float, float]],
     used: Counter,
+    least_text_inset: float = 0.0,
 ) -> tuple[tuple[float, float] | None, list[dict[str, Any]]]:
     """The viewport size a session is given under the viewport choice
     `fitting`: the least used size, earliest in the seeded order among equals,
@@ -480,7 +481,7 @@ def _fit(
         rejection = None
         related: dict[int, scene_schema.Scene] = {}
         for moment in moments:
-            _, scene, found = _judged(moment.bound_elements, viewport, preset, family)
+            _, scene, found = _judged(moment.bound_elements, viewport, preset, family, least_text_inset=least_text_inset)
             if scene is not None and moment.application_state in related:
                 found = (*found, *validators.related_findings(related[moment.application_state], scene))
             if found:
@@ -505,13 +506,14 @@ def _judged(
     family: layout_family.LayoutFamily,
     broken: Mapping[str, Any] | None = None,
     where: str = "",
+    least_text_inset: float = 0.0,
 ) -> tuple[Any, scene_schema.Scene | None, tuple[validators.Finding, ...]]:
     """The candidate scene the reference layout writes, changed by `broken`
     if given; the same as a validated scene, or None when scene validation
     refuses it; and what the validators find in it. The candidate too is None
     when the font cannot draw a text the reference layout measures."""
     try:
-        candidate = reference_layout.write_scene(bound_elements, viewport, preset, family.design_condition)
+        candidate = reference_layout.write_scene(bound_elements, viewport, preset, family.design_condition, least_text_inset)
     except TextNotDrawable as refused:
         return None, None, (validators.Finding(validators.TEXT_FIT, "text_not_drawable", None, str(refused)),)
     if broken is not None:
@@ -540,7 +542,7 @@ def rejected_scene(config: Config, session_id: str, moment: int, viewport: tuple
         raise ConfigError([f"session {session_id} has no moment {moment}"])
     family = config.layout.family(session.layout_family)
     preset = config.design.preset(session.visual_preset)
-    return _judged(moments[moment].bound_elements, viewport, preset, family)[1]
+    return _judged(moments[moment].bound_elements, viewport, preset, family, least_text_inset=config.layout.least_text_inset)[1]
 
 
 # --- generating ------------------------------------------------------------------
@@ -570,7 +572,7 @@ def generate(config: Config) -> Iterator[tuple[str, bytes]]:
             raise ConfigError([f"scenarios.{session.scenario}, session {session.id}: {error}"]) from None
 
         if session.viewport is None:
-            viewport, tried = _fit(moments, family, preset, order, used)
+            viewport, tried = _fit(moments, family, preset, order, used, config.layout.least_text_inset)
             session = dataclasses.replace(session, viewport=viewport, viewports_refused=tuple(tried))
             if viewport is None:
                 refused.append(session)
@@ -800,7 +802,7 @@ def _stress_record(config: Config, case: StressTest) -> tuple[dict[str, Any], li
         moment = list(scripted_session.run(case.script, case.content, random.Random(seed)))[-1]
     except ScriptError as error:
         raise ConfigError([f"{where}: {error}"]) from None
-    candidate, scene, found = _judged(moment.bound_elements, case.viewport, preset, family, case.break_, where)
+    candidate, scene, found = _judged(moment.bound_elements, case.viewport, preset, family, case.break_, where, config.layout.least_text_inset)
     codes = tuple(sorted({finding.code for finding in found}))
     if codes != case.expect:
         got = f"rejected it for {', '.join(codes)}" if codes else "did not reject it"
@@ -954,7 +956,7 @@ def stress_problems(record: Any, config: Config) -> list[str]:
         recorded = sorted({problem["code"] for problem in record["rejection"]["problems"]})
         candidate = record["candidate"]
         if candidate is None:
-            found = _judged(supplied, viewport, preset, family)[2]
+            found = _judged(supplied, viewport, preset, family, least_text_inset=config.layout.least_text_inset)[2]
         else:
             found = validators.judge(candidate["scene"], supplied, viewport, preset)[1]
     except (KeyError, TypeError, ValueError, AttributeError) as error:

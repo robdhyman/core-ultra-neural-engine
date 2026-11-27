@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -28,9 +29,13 @@ from PySide6.QtGui import QImage
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 FAMILIES = REPO_ROOT / "configs" / "data" / "families-v2.json"
-PILOT = REPO_ROOT / "configs" / "data" / "pilot-v1.json"
-COMMITTED_PILOT_MANIFEST = REPO_ROOT / "artifacts" / "datasets" / "pilot-v1" / "manifest.json"
-COMMITTED_GALLERY_MANIFEST = REPO_ROOT / "artifacts" / "galleries" / "pilot-v1" / "manifest.json"
+PILOT = REPO_ROOT / "configs" / "data" / "pilot-v2.json"
+COMMITTED_PILOT_MANIFEST = REPO_ROOT / "artifacts" / "datasets" / "pilot-v2" / "manifest.json"
+COMMITTED_GALLERY_MANIFEST = REPO_ROOT / "artifacts" / "galleries" / "pilot-v2" / "manifest.json"
+# The first pilot, in layout version 3, which version 2 replaces. Its configuration and manifest stay.
+FIRST_PILOT = REPO_ROOT / "configs" / "data" / "pilot-v1.json"
+COMMITTED_FIRST_PILOT_MANIFEST = REPO_ROOT / "artifacts" / "datasets" / "pilot-v1" / "manifest.json"
+LAYOUT_V4 = REPO_ROOT / "configs" / "layout" / "v4.json"
 
 STATES = ("default", "hover", "pressed", "focused", "disabled")
 STRESS_CASES = ("viewport-too-small", "titles-too-long", "characters-the-font-lacks", "covered-button")
@@ -196,6 +201,13 @@ def pilot(folder) -> dict:
     return build(out, folder / "pilot" / "gallery")
 
 
+def as_shown(detail: str) -> str:
+    """A reason as the page words it: its measurements to one decimal place at
+    most. None of the reasons in these datasets quotes text with a decimal."""
+    shorter = re.sub(r"\d+\.\d+", lambda number: f"{float(number.group()):.1f}".removesuffix(".0"), detail)
+    return " ".join(shorter.split())
+
+
 def record_figures(page: Page) -> list[dict]:
     return [figure for figure in page.figures if "records" in figure["sections"]]
 
@@ -293,7 +305,7 @@ def test_rejected_states_are_shown_apart_each_with_every_reason(run):
         assert rejection["layout_family"] in figure["text"] and rejection["visual_preset"] in figure["text"]
         for problem in rejection["problems"]:
             assert problem["code"] in figure["text"] and problem["validator"] in figure["text"]
-            assert " ".join(problem["detail"].split()) in figure["text"]
+            assert as_shown(problem["detail"]) in figure["text"]
         assert figure["attrs"]["data-codes"] == ", ".join(sorted({problem["code"] for problem in rejection["problems"]}))
         reasons[rejection["reason"]] += 1
         size = rejection["viewport"]
@@ -345,7 +357,7 @@ def test_refused_viewport_sizes_are_shown_apart_with_the_first_state_rejected_th
         figure = figures[f"{session['id']}.{refusal['moment']:03d} at {size['width']:g} by {size['height']:g}"]
         assert figure["sections"] == ["apart", "viewports-refused"]
         assert f"the session was given {session['viewport']['width']:g} by {session['viewport']['height']:g}" in figure["text"]
-        assert all(problem["code"] in figure["text"] and " ".join(problem["detail"].split()) in figure["text"] for problem in refusal["problems"])
+        assert all(problem["code"] in figure["text"] and as_shown(problem["detail"]) in figure["text"] for problem in refusal["problems"])
     assert apart_figures(made["page"], "rejected") == {}
     assert "No state was rejected." in made["page"].text
 
@@ -401,7 +413,7 @@ def test_the_stress_test_set_is_shown_apart_and_labelled_never_a_training_target
         assert "stress test: never a training target" in figure["text"]
         assert " ".join(record["why"].split()) in figure["text"]
         assert all(code in figure["text"] for code in case["codes"])
-        assert all(" ".join(problem["detail"].split()) in figure["text"] for problem in record["rejection"]["problems"])
+        assert all(as_shown(problem["detail"]) in figure["text"] for problem in record["rejection"]["problems"])
         if case["image"] is None:
             assert figure["img"] is None and "No picture" in figure["text"]
         else:
@@ -409,6 +421,25 @@ def test_the_stress_test_set_is_shown_apart_and_labelled_never_a_training_target
             assert (run["out"] / figure["img"]["src"]).read_bytes() == (run["dataset"] / case["image"]["file"]).read_bytes()
     assert 0 < with_picture < len(cases)
     assert all(entry["training_target"] is False and entry["set"] == "stress-test" for entry in run["manifest"]["shown_apart"]["stress_tests"])
+
+
+def test_a_reason_is_shown_with_its_measurements_rounded_and_quoted_text_left_as_it_is(run):
+    from core_ultra import gallery
+
+    manifest = run["dataset_manifest"]
+    longest = max((problem["detail"] for rejection in manifest["rejected"] for problem in rejection["problems"]), key=len)
+    assert re.search(r"\d\.\d{3,}", longest), "the dataset has no measurement written out at length"
+    shown = " ".join(figure["text"] for figure in run["page"].figures if "apart" in figure["sections"])
+    assert as_shown(longest) in shown and longest not in shown
+    # No measurement on the page has more than one decimal place, and none ends in ".0".
+    # A record's id ends in its moment, as in `note-1.000`, and is no measurement.
+    measured = re.sub(r"[a-z-]+-\d+\.\d{3}\b", "", shown)
+    assert not re.search(r"\d\.\d{2,}", measured) and not re.search(r"\d\.0(?!\d)", measured)
+    # The manifest keeps the full figures.
+    assert longest in (run["dataset"] / "manifest.json").read_text()
+    assert gallery._rounded("'Version 3.14159 of 2.50' runs from x 298.60 to 775.0; the box is 0.04 wide") == (
+        "'Version 3.14159 of 2.50' runs from x 298.6 to 775; the box is 0.04 wide"
+    )
 
 
 # --- the coverage summary --------------------------------------------------------------
@@ -654,6 +685,74 @@ def test_the_committed_pilot_manifest_is_the_pilot_configuration_generated(pilot
     assert COMMITTED_PILOT_MANIFEST.read_bytes() == (pilot["dataset"] / "manifest.json").read_bytes()
 
 
+def test_no_text_of_the_pilot_sits_nearer_than_five_units_to_the_edge_of_its_box(pilot):
+    """A text starts as far from the left edge of its box as its line is from
+    the top, so the room above the line is the room before it. Layout version 4
+    keeps compact density from taking it below 6 units, or below what the
+    visual preset's own height leaves, which is 5.1 at the least."""
+    from core_ultra import typography
+
+    least = {}
+    for record in pilot["records"]:
+        preset = record["diagnostics"]["visual_preset"]
+        for element in record["target"]["scene"]["elements"]:
+            bound = element.get("bound")
+            if bound is None or not bound["text"] or bound["role"] not in ("button", "text-field", "list-item", "status"):
+                continue
+            line = typography.line_height(element["style"]["type_size"], element["style"]["type_weight"])
+            room = (element["box"]["height"] - line) / 2
+            least[preset] = min(least.get(preset, room), room)
+    assert set(least) == {"calm-blue", "warm-paper", "night-teal", "dense-ink"}
+    assert all(room >= 5.0 for room in least.values()), least
+    assert least["dense-ink"] == pytest.approx(5.13, abs=0.05)
+
+
+def test_a_state_made_again_is_the_scene_the_layout_of_its_dataset_writes(pilot):
+    """What the generator judges when it fits a viewport size, and what the
+    gallery draws for a rejected state, is the scene in the dataset's own
+    layout, least text inset and all: made again for a state that was
+    written, it is that record's target."""
+    from core_ultra import generator
+
+    config = generator.load_config(pilot["dataset"] / "config.json")
+    assert config.layout.least_text_inset == 6.0
+    families = json.loads(LAYOUT_V4.read_text())["families"]
+    compact = [
+        record for record in pilot["records"]
+        if record["diagnostics"]["visual_preset"] == "dense-ink"
+        and families[record["diagnostics"]["layout_family"]]["design_condition"]["density"] == "compact"
+        and record["diagnostics"]["scenario"]["moment"] in (0, 9)
+    ]  # fmt: skip
+    assert len(compact) == 6
+    for record in compact:
+        scenario, size = record["diagnostics"]["scenario"], record["inputs"]["viewport"]
+        again = generator.rejected_scene(config, scenario["session"], scenario["moment"], (size["width"], size["height"]))
+        assert again.to_json() == record["target"]["scene"], record["id"]
+
+
+def test_the_second_pilot_differs_from_the_first_only_in_dense_ink_at_compact():
+    """Read from the two committed manifests: the same records, the same
+    model inputs and viewport sizes, and the same targets but where the
+    least text inset of layout version 4 acts."""
+    first, second = json.loads(COMMITTED_FIRST_PILOT_MANIFEST.read_text()), json.loads(COMMITTED_PILOT_MANIFEST.read_text())
+    assert json.loads(FIRST_PILOT.read_text())["layout"] == "configs/layout/v3.json" and json.loads(PILOT.read_text())["layout"] == "configs/layout/v4.json"
+    families = json.loads(LAYOUT_V4.read_text())["families"]
+    before, after = ({entry["id"]: entry for entry in manifest["records"]} for manifest in (first, second))
+    assert list(before) == list(after) and len(after) == 476
+    changed = set()
+    for record_id, entry in after.items():
+        was = before[record_id]
+        assert (entry["inputs_sha256"], entry["viewport"], entry["layout_family"], entry["visual_preset"]) == (
+            was["inputs_sha256"], was["viewport"], was["layout_family"], was["visual_preset"],
+        )  # fmt: skip
+        acts = entry["visual_preset"] == "dense-ink" and families[entry["layout_family"]]["design_condition"]["density"] == "compact"
+        assert (entry["target_sha256"] != was["target_sha256"]) == acts, record_id
+        assert (entry["image"]["sha256"] != was["image"]["sha256"]) == acts, record_id
+        if acts:
+            changed.add(record_id.rsplit(".", 1)[0])
+    assert len(changed) == 3 and len([i for i in after if i.rsplit(".", 1)[0] in changed]) == 36
+
+
 def test_the_pilot_gallery_shows_every_record_labelled_and_every_declared_value(pilot):
     figures = record_figures(pilot["page"])
     assert len(figures) == len(pilot["records"])
@@ -681,8 +780,8 @@ def test_git_ignores_the_gallery_and_keeps_its_manifest():
     def ignored(path: str) -> bool:
         return subprocess.run(["git", "check-ignore", "-q", path], cwd=REPO_ROOT).returncode == 0
 
-    assert ignored("artifacts/galleries/pilot-v1/index.html")
-    assert ignored("artifacts/galleries/pilot-v1/images/quick-note-0.000.png")
-    assert ignored("artifacts/datasets/pilot-v1/records/quick-note-0.000.json")
-    assert not ignored("artifacts/galleries/pilot-v1/manifest.json")
-    assert not ignored("artifacts/datasets/pilot-v1/manifest.json")
+    assert ignored("artifacts/galleries/pilot-v2/index.html")
+    assert ignored("artifacts/galleries/pilot-v2/images/quick-note-0.000.png")
+    assert ignored("artifacts/datasets/pilot-v2/records/quick-note-0.000.json")
+    assert not ignored("artifacts/galleries/pilot-v2/manifest.json")
+    assert not ignored("artifacts/datasets/pilot-v2/manifest.json")

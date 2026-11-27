@@ -206,9 +206,11 @@ def to_text(record: dict[str, Any]) -> str:
     swap = [state["swap_used_bytes"] for state in before if state["swap_used_bytes"] is not None]
     power = sorted({str(state["power_source"]) for state in before})
     low = sorted({{True: "on", False: "off", None: "unknown"}[state["low_power_mode"]] for state in before})
-    lines.append(
+    # Before the runs, where the state of the machine belongs.
+    lines.insert(
+        5,
         f"Conditions         power {', '.join(power)}; Low Power Mode {', '.join(low)}; least free memory before a run "
-        f"{_size(min(free)) if free else 'unknown'}; most swap in use {_size(max(swap)) if swap else 'unknown'}"
+        f"{_size(min(free)) if free else 'unknown'}; most swap in use {_size(max(swap)) if swap else 'unknown'}",
     )
     if not record["runs_wrote_the_same_manifest"]:
         lines.append("                   the runs did not write the same manifest, so no figure per example is given")

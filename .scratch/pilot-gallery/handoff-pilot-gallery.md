@@ -7,17 +7,17 @@ Written 2026-11-26 by the session that implemented issue #9, on branch `issue-9-
 The gallery is a folder on this Mac, built from the pilot dataset. It is git-ignored, like the dataset; its manifest is committed.
 
 ```bash
-open artifacts/galleries/pilot-v1/index.html
+open artifacts/galleries/pilot-v2/index.html
 ```
 
 If the folder is not there (another checkout, or after a clean), these two commands make it again, byte for byte, in about twelve seconds:
 
 ```bash
-uv run core-ultra data generate --config configs/data/pilot-v1.json
+uv run core-ultra data generate --config configs/data/pilot-v2.json
 ```
 
 ```bash
-uv run core-ultra data gallery artifacts/datasets/pilot-v1
+uv run core-ultra data gallery artifacts/datasets/pilot-v2
 ```
 
 The page opens from disk and loads nothing from a network. Nothing was installed, and nothing records what you do in it.
@@ -45,15 +45,29 @@ Issue #10 asks one thing: do these look coherent enough to scale? A go lets issu
 The questions earlier records left for this gallery:
 
 1. **Does each visual preset read as intentional**, and does each of the 32 pairs? Any family may meet any preset: `dense-ink` meets compact, `warm-paper` meets roomy and loose.
-2. **Compact changes heights and not type.** `dense-ink` at compact has buttons 22 units high around 12 unit type. Filter to `dense-ink` and look at `top-bar-list-top`, `left-rail-list-left` and `bottom-bar-list-right`.
+2. **Compact changes heights and not type.** Since layout version 4 it stops at 6 units around the text, so `dense-ink` at compact has buttons 26 units high around 12 unit type, where they were 22. Filter to `dense-ink` and look at `top-bar-list-top`, `left-rail-list-left` and `bottom-bar-list-right`.
 3. **A centred heading stands over rows whose text starts at the left** (`top-bar-list-top`, `left-rail-list-left`). Alignment moves boxes, never the text inside one; changing that is a change to the scene schema.
 4. **The two groups of `tasks` are seen only by the divider between them** (`left-rail-list-left`, `left-rail-list-right`, `bottom-bar-list-right`).
 5. **Field borders are faint in `calm-blue`**, at about 1.9 to 1.
 6. **A rail leaves empty room** between its upper and lower buttons in a tall viewport (the `left-rail` families at 1440 by 900). This one is mine, from the sheet above; no record raised it.
 
+## Text overflow and type, checked again
+
+You asked for a second check, and chose the fix for what it found.
+
+**No record has text that overflows.** Every one of the 4 633 texts in the 476 pictures was measured against its box, and then checked pixel by pixel, by drawing each scene again with that one text emptied. The only pictures with overflowing text are the two refused viewport sizes and the stress-test set, which are shown apart for that reason.
+
+**Cramped text in `dense-ink` at compact density is fixed, as you chose.** It was 3 to 4 units from the edge of its field or row, and nowhere else under 5.9. Layout version 4 adds a floor: compact may not bring a text closer than 6 units to the edge of its box, and never makes an element higher than the visual preset states. The pilot is now **version 2**, in that layout. It differs from version 1 in the 36 `dense-ink` compact records and in nothing else: same sessions, same viewport sizes, same model inputs.
+
+![The two tightest records before and after, enlarged three times](tight-text.png)
+
+One thing the floor does not reach: the filter field in `dense-ink` is 26 units high at the preset's own density, which leaves 5.1 units, so at compact it now keeps 26 and has 5.1, not 6. Raising it further would make compact higher than the preset.
+
+**The gallery page itself had type problems on a narrow screen**: names broken over three lines, a heading covered by the bar at the top, labels run together in the larger view, measurements written to eight decimal places. Those are fixed.
+
 ## Measured, to size the full dataset
 
-`measure generation` on the pilot, three runs on this Mac: 10.5 s for the pilot, 22.1 ms an example; 33.1 MiB on disk, 68.9 KiB an example; peak memory 159 MiB. Multiplied out, and not measured: 20,000 examples would be about 7.4 minutes and 1.31 GiB. Neither time nor disk limits the full dataset's size. The record is `records/measurements/generation/20261126T222414Z-pilot-v1-6b5d299af418.json`.
+`measure generation` on pilot version 2, three runs on this Mac: 10.6 s for the pilot, 22.3 ms an example; 33.1 MiB on disk, 68.9 KiB an example; peak memory 159 MiB. Multiplied out, and not measured: 20,000 examples would be about 7.4 minutes and 1.31 GiB. Neither time nor disk limits the full dataset's size. The record is `records/measurements/generation/20261127T005300Z-pilot-v2-6b5d299af418.json`; version 1's, 10.5 s and 22.1 ms, is beside it.
 
 ## Decisions I made that you may want to overrule
 

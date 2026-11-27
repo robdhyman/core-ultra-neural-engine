@@ -220,8 +220,9 @@ class SceneSession:
             from core_ultra import design, layout_family, reference_layout
 
             preset = design.load().preset(conditioning.visual_preset)
-            condition = (self._layout or layout_family.load()).condition(conditioning.design_condition)
-            candidate = reference_layout.write_scene(bound_elements, conditioning.viewport, preset, condition)
+            layout = self._layout or layout_family.load()
+            condition = layout.condition(conditioning.design_condition)
+            candidate = reference_layout.write_scene(bound_elements, conditioning.viewport, preset, condition, layout.least_text_inset)
         else:
             raise ModeUnavailable(f"{mode.value} has no scene model yet")
         return self._frame(bound_elements, conditioning, candidate, scale, mode.value, project=False)

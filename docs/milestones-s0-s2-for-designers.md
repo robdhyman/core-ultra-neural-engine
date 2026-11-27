@@ -396,8 +396,8 @@ Before thousands of examples are made, a few hundred are made and looked at. Tha
 One command builds it, and it opens as a page from disk with no network:
 
 ```bash
-uv run core-ultra data gallery artifacts/datasets/pilot-v1
-open artifacts/galleries/pilot-v1/index.html
+uv run core-ultra data gallery artifacts/datasets/pilot-v2
+open artifacts/galleries/pilot-v2/index.html
 ```
 
 - **Every example is a picture with four labels**: its layout family, its preset, its design condition (the seven layout settings) and its state (what the pointer is on, and which element states the screen shows).
@@ -413,8 +413,8 @@ Measured on this Mac, three runs: the pilot takes 10.5 seconds to generate, whic
 
 ### How it was checked
 
-- **45 new tests.** They read the page with a plain HTML parser and work out from the dataset itself what every label and every count should be.
-- **40 deliberate breakages** of the new code, one at a time. Every one made a test fail.
+- **56 new tests.** They read the page with a plain HTML parser and work out from the dataset itself what every label and every count should be.
+- **44 deliberate breakages** of the new code, one at a time. 43 made a test fail at once; the other now has a test that does.
 - **An independent review** read the code and checked every number in the write-up against the files. It found one wrong count and a few ways a hand-altered dataset could crash the gallery; all are fixed.
 - **The page was opened and used** in a browser: filters, the larger view, the rejected part.
 
@@ -423,6 +423,7 @@ Measured on this Mac, three runs: the pilot takes 10.5 seconds to generate, whic
 - **Lists are mostly short.** 28 of the 32 sessions never have more than three documents. The seven-document list appears in four of the eight layout families.
 - **Each scenario meets four of the eight families**, so not every kind of session is seen in every arrangement.
 - **A title can repeat in one list.** Short titles are a single word drawn from 24.
+- **Text was cramped in one pairing, and that is fixed.** A second check of all 476 pictures, pixel by pixel, found no text that overflows. It did find text 3 to 4 units from the edge of its field or row in `dense-ink` at compact density. Rob chose a floor: compact may not bring text closer than 6 units to its edge. That is layout version 4, and the pilot is now version 2. Only the 36 `dense-ink` compact examples changed. One field there keeps the preset's own height, which leaves 5.1 units.
 - **Only the hand-built drawing is shown.** There is no network yet, so nothing in the gallery was predicted.
 
 ## Where a designer's eye is needed

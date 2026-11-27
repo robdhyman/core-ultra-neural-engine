@@ -38,6 +38,8 @@ dataset always gives the same gallery, byte for byte, and a gallery is never
 overwritten by a different one.
 
 Every label and every count is read from the dataset's records and manifest.
+A reason is the manifest's sentence with its measurements rounded to one
+decimal place, so that it can be read; the manifest keeps the full figures.
 Nothing here judges a scene, and nothing is measured with the page.
 """
 
@@ -46,6 +48,7 @@ from __future__ import annotations
 import hashlib
 import html
 import json
+import re
 from collections import Counter
 from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass
@@ -533,16 +536,19 @@ _CSS = """
 body { margin: 0; background: var(--page); color: var(--ink); font: 14px/1.45 -apple-system, "Helvetica Neue", Arial, sans-serif; }
 main { max-width: 1680px; margin: 0 auto; padding: 24px 16px 96px; }
 h1 { font-size: 26px; margin: 0 0 6px; } h2 { font-size: 22px; margin: 48px 0 6px; } h3 { font-size: 18px; margin: 40px 0 6px; } h4 { font-size: 15px; margin: 24px 0 4px; }
-h5 { font-size: 13px; margin: 14px 0 8px; color: var(--soft); font-weight: 600; } [id] { scroll-margin-top: 64px; }
+h5 { font-size: 13px; margin: 14px 0 8px; color: var(--soft); font-weight: 600; } [id] { scroll-margin-top: 12px; }
 p { margin: 6px 0; max-width: 100ch; } code { font: 12px/1.4 ui-monospace, Menlo, monospace; } a { color: inherit; }
 .soft, figcaption, .facts dt, th { color: var(--soft); }
-nav { position: sticky; top: 0; z-index: 2; background: var(--page); border-bottom: 1px solid var(--line); padding: 8px 0; margin: 16px 0 0; display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; }
+nav { background: var(--page); border-bottom: 1px solid var(--line); padding: 8px 0; margin: 16px 0 0; display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; }
+#filters { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; }
+@media (min-width: 900px) { nav { position: sticky; top: 0; z-index: 2; } [id] { scroll-margin-top: 88px; } }
 nav a { text-decoration: none; border-bottom: 1px solid var(--line); } nav select { font: inherit; max-width: 100%; } nav label { white-space: nowrap; }
-.facts { display: grid; grid-template-columns: max-content 1fr; gap: 2px 16px; margin: 12px 0; } .facts dd { margin: 0; overflow-wrap: anywhere; }
+.facts { display: grid; grid-template-columns: max-content 1fr; gap: 2px 16px; margin: 12px 0; } .facts dd { margin: 0; } .facts code { overflow-wrap: anywhere; }
 .tables { display: flex; flex-wrap: wrap; gap: 20px 32px; align-items: flex-start; } .scroll { overflow-x: auto; max-width: 100%; }
 table { border-collapse: collapse; } caption { text-align: left; font-weight: 600; padding-bottom: 4px; }
-th, td { text-align: left; padding: 3px 12px 3px 0; border-bottom: 1px solid var(--line); vertical-align: top; } td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 3px 12px 3px 0; border-bottom: 1px solid var(--line); vertical-align: top; } td:first-child, th { white-space: nowrap; } td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
 td.bar { min-width: 120px; padding-right: 0; } td.bar i { display: block; height: 10px; margin-top: 5px; background: var(--bar); }
+@media (max-width: 520px) { td.bar, th.bar { display: none; } }
 .none td, .warn { color: var(--mark); font-weight: 600; }
 .chips { display: flex; flex-wrap: wrap; gap: 4px 6px; margin: 6px 0; padding: 0; list-style: none; } .chips li { border: 1px solid var(--line); border-radius: 4px; padding: 0 6px; background: var(--card); }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 14px; }
@@ -557,7 +563,8 @@ figcaption ul { margin: 4px 0 0; padding-left: 16px; color: var(--ink); }
 #view { width: 100vw; height: 100vh; max-width: none; max-height: none; margin: 0; border: 0; padding: 0; background: #0d0d10; color: #eee; }
 #view[open] { display: grid; grid-template-rows: 1fr auto; }
 #view img { max-width: 100%; max-height: 100%; margin: auto; display: block; min-height: 0; } #view .pic { min-height: 0; display: grid; padding: 12px; }
-#view p { margin: 0; padding: 10px 16px 14px; max-width: none; font-size: 13px; overflow-wrap: anywhere; } #view button { font: inherit; margin-right: 8px; }
+#view .cap { padding: 10px 16px 14px; max-height: 42vh; overflow-y: auto; } #view .cap p { margin: 0 0 8px; } #view button { font: inherit; margin-right: 8px; }
+#view figcaption { padding: 0; font-size: 13px; color: #b9bbc2; max-width: 110ch; } #view figcaption b, #view figcaption dd, #view figcaption ul { color: #f1f1ee; }
 """
 
 # The page works without this script: every picture is on it and every link
@@ -589,14 +596,16 @@ _SCRIPT = """
   document.getElementById('filters').hidden = false;
   apply();
 
-  var view = document.getElementById('view'), picture = view.querySelector('img'), words = view.querySelector('span'), at = null;
+  var view = document.getElementById('view'), picture = view.querySelector('img'), words = view.querySelector('.words'), at = null;
   if (!view.showModal) return;
   function all() { return Array.prototype.slice.call(document.querySelectorAll('figure:not([hidden])')).filter(function (f) { return f.querySelector('img'); }); }
   function show(figure) {
     at = figure;
     picture.src = figure.querySelector('img').getAttribute('src');
     picture.alt = figure.querySelector('img').alt;
-    words.textContent = figure.querySelector('figcaption').innerText.replace(/\\s*\\n\\s*/g, '  ·  ');
+    // The caption as the page shows it, label beside value, not run together.
+    words.textContent = '';
+    words.appendChild(figure.querySelector('figcaption').cloneNode(true));
     if (!view.open) view.showModal();
   }
   function move(by) { var list = all(), i = list.indexOf(at); if (i >= 0) show(list[(i + by + list.length) % list.length]); }
@@ -606,7 +615,7 @@ _SCRIPT = """
   });
   view.addEventListener('click', function (event) {
     var name = event.target.getAttribute('data-do');
-    if (name === 'back') move(-1); else if (name === 'on') move(1); else view.close();
+    if (name === 'back') move(-1); else if (name === 'on') move(1); else if (name === 'close' || !event.target.closest('.cap')) view.close();
   });
   view.addEventListener('close', function () {
     var link = at && at.querySelector('a');
@@ -628,9 +637,9 @@ def _page(dataset: Dataset, views: Sequence[Shown], summary: Mapping[str, Any], 
     facts = [
         ("Dataset", f"{config.name} version {config.version}, seed {config.seed}"),
         ("Records", f"{len(views)} from {summary['sessions']} scripted sessions, {counts.get('application_states', 'an unrecorded number of')} application states"),
-        ("Drawn in", f"{manifest.get('rendering_mode', 'unrecorded')}, by the runtime renderer, at {config.scale:g} pixels per viewport unit"),
+        ("Drawn in", f"{manifest.get('rendering_mode', 'unrecorded')}, by the runtime renderer, at {config.scale:g} {'pixel' if config.scale == 1 else 'pixels'} per viewport unit"),
         ("Generator", f"{generated.get('name', 'unrecorded')}, version {generated.get('version', 'unrecorded')}"),
-        ("Dataset manifest", f"SHA-256 {dataset.manifest_sha256}"),
+        ("Dataset manifest SHA-256", dataset.manifest_sha256),
         (
             "Shown apart",
             f"{len(apart['rejected'])} rejected states, {len(apart['viewports_refused'])} viewport sizes refused, "
@@ -647,14 +656,16 @@ def _page(dataset: Dataset, views: Sequence[Shown], summary: Mapping[str, Any], 
         "<p>Every dataset record of the dataset as its reference image, to be judged for visual coherence before anything is scaled. "
         "Each picture is labelled with its layout family, its visual preset, its design condition and its state. "
         "What the validators rejected is at the end, apart from the records. A picture opens larger when it is chosen.</p>",
-        '<dl class="facts">' + "".join(f"<dt>{_e(name)}</dt><dd>{_e(value)}</dd>" for name, value in facts) + "</dl>",
+        '<dl class="facts">'
+        + "".join(f"<dt>{_e(name)}</dt><dd>{'<code>' + _e(value) + '</code>' if 'SHA-256' in name else _e(value)}</dd>" for name, value in facts)
+        + "</dl>",
         _navigation(config, summary),
         _coverage(summary),
         _records(config, views),
         _shown_apart(apart),
         '<dialog id="view" aria-label="A picture, larger"><div class="pic"><img alt=""></div>'
-        '<p><button type="button" data-do="back">Previous</button><button type="button" data-do="on">Next</button>'
-        '<button type="button" data-do="close">Close</button><span></span></p></dialog>',
+        '<div class="cap"><p><button type="button" data-do="back">Previous</button><button type="button" data-do="on">Next</button>'
+        '<button type="button" data-do="close">Close</button></p><div class="words"></div></div></dialog>',
         f"<script>{_SCRIPT}</script>",
         "</main></body></html>",
     ]
@@ -692,7 +703,7 @@ def _coverage(summary: Mapping[str, Any]) -> str:
                 cells += f'<td class="n">{count["elements"]}</td>'
             cells += f'<td class="bar"><i style="width:{100 * count["records"] / total:.1f}%"></i></td>'
             rows.append(f"<tr{'' if count['records'] else ' class=\"none\"'}>{cells}</tr>")
-        head = '<th scope="col">Value</th><th scope="col" class="n">Records</th><th scope="col" class="n">Sessions</th>' + ('<th scope="col" class="n">Elements</th>' if elements else "") + '<th scope="col"></th>'
+        head = '<th scope="col">Value</th><th scope="col" class="n">Records</th><th scope="col" class="n">Sessions</th>' + ('<th scope="col" class="n">Elements</th>' if elements else "") + '<th scope="col" class="bar"></th>'
         missing = f'<p class="warn">Not shown: {_e(", ".join(entry["not_shown"]))}</p>' if entry["not_shown"] else ""
         tables.append(
             f'<div class="scroll"><table><caption>{_e(dimension.capitalize())}</caption><tr>{head}</tr>{"".join(rows)}</table>{missing}</div>'
@@ -833,7 +844,7 @@ def _apart_figure(item: Mapping[str, Any], group: str) -> str:
         )
     codes = ", ".join(sorted({problem["code"] for problem in item["problems"]}))
     reasons = "".join(
-        f"<li><code>{_e(problem['code'])}</code> ({_e(problem['validator'])}{', ' + _e(problem['element']) if problem.get('element') else ''}): {_e(problem['detail'])}</li>"
+        f"<li><code>{_e(problem['code'])}</code> ({_e(problem['validator'])}{', ' + _e(problem['element']) if problem.get('element') else ''}): {_e(_rounded(problem['detail']))}</li>"
         for problem in item["problems"]
     )
     rows = [
@@ -861,6 +872,23 @@ def _apart_figure(item: Mapping[str, Any], group: str) -> str:
 
 # A design factor as a caption names it, where its full name is long.
 _SHORT = {"navigation_position": "navigation", "panel_arrangement": "panels", "notification_location": "notification"}
+
+
+_QUOTED_OR_NUMBER = re.compile(r"""('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*")|(?<![\w.])(\d+\.\d+)(?![\w.])""")
+
+
+def _rounded(detail: str) -> str:
+    """A reason as the page words it: every measurement to one decimal place
+    at most, `376.42171875` as `376.4` and `12.0` as `12`, and to two below 1. Text the reason
+    quotes is left exactly as it is. The manifest keeps the full figures."""
+
+    def shorter(match: re.Match[str]) -> str:
+        if match.group(1) is not None:
+            return match.group(1)
+        value = float(match.group(2))
+        return (f"{value:.1f}" if abs(value) >= 1 else f"{value:.2f}".rstrip("0")).removesuffix(".0").removesuffix(".")
+
+    return _QUOTED_OR_NUMBER.sub(shorter, str(detail))
 
 
 def _factor(name: str) -> str:

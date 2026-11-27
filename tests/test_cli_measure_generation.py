@@ -23,9 +23,9 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 TINY = REPO_ROOT / "configs" / "data" / "tiny-v1.json"
-PILOT = REPO_ROOT / "configs" / "data" / "pilot-v1.json"
+PILOT = REPO_ROOT / "configs" / "data" / "pilot-v2.json"
 COMMITTED = REPO_ROOT / "records" / "measurements" / "generation"
-COMMITTED_PILOT_MANIFEST = REPO_ROOT / "artifacts" / "datasets" / "pilot-v1" / "manifest.json"
+COMMITTED_PILOT_MANIFEST = REPO_ROOT / "artifacts" / "datasets" / "pilot-v2" / "manifest.json"
 RUNS = 2
 
 
@@ -201,7 +201,7 @@ def committed() -> dict:
     pilot_sha256 = hashlib.sha256(PILOT.read_bytes()).hexdigest()
     records = [json.loads(path.read_text()) for path in sorted(COMMITTED.glob("*.json"))]
     matching = [record for record in records if record["configuration"]["sha256"] == pilot_sha256]
-    assert matching, "no committed generation measurement is of configs/data/pilot-v1.json as it stands"
+    assert matching, "no committed generation measurement is of configs/data/pilot-v2.json as it stands"
     return matching[-1]
 
 

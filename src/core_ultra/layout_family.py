@@ -8,11 +8,14 @@ thing in two vocabularies: the scene model is given the factor values, and the
 family's name is diagnostic metadata that it never sees, so a held-out family
 is a combination it has not met and not an unknown identifier.
 
-A layout configuration (`configs/layout/v1.json` to `v3.json`) declares the
+A layout configuration (`configs/layout/v1.json` to `v4.json`) declares the
 factors, the values each may take and the families. Version 1 has one family.
 Version 2 has eight, and lists under `out_of_scope` the variation the
 generator does not produce. Version 3 declares two more factors, grouping and
-alignment, and its eight families vary in them too. `load()` without a path
+alignment, and its eight families vary in them too. Version 4 is version 3
+with `least_text_inset`, the least distance compact density may leave between
+a text and the edges of its box (`core_ultra.reference_layout` says how it is
+drawn); a layout that declares none has zero. `load()` without a path
 reads version 1, which is what a scene session draws A, Reference in unless
 it is given another layout.
 
@@ -36,6 +39,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import re
 from collections.abc import Mapping
 from dataclasses import dataclass
@@ -98,6 +102,9 @@ class Layout:
     default_family: str
     families: Mapping[str, LayoutFamily]
     out_of_scope: tuple[str, ...] = ()
+    # The least distance, in viewport units, that compact density may leave
+    # between a text and the edges of its box. Zero: the layout declares none.
+    least_text_inset: float = 0.0
 
     def family(self, name: str | None = None) -> LayoutFamily:
         """The layout family of this name, or the default one."""
@@ -162,6 +169,7 @@ def _load(path: str) -> Layout:
         default_family=raw["default_family"],
         families=MappingProxyType(families),
         out_of_scope=tuple(raw.get("out_of_scope", ())),
+        least_text_inset=float(raw.get("least_text_inset", 0.0)),
     )
 
 
@@ -187,6 +195,10 @@ def _config_problems(raw: Any) -> list[str]:
         problems.append("name is missing")
     if not isinstance(raw.get("version"), int) or isinstance(raw.get("version"), bool):
         problems.append("version is not a whole number")
+
+    inset = raw.get("least_text_inset", 0)
+    if isinstance(inset, bool) or not isinstance(inset, (int, float)) or not math.isfinite(inset) or inset < 0:
+        problems.append("least_text_inset is not a number at or above zero")
 
     stated = raw.get("out_of_scope", [])
     if not isinstance(stated, list) or not all(isinstance(item, str) and item for item in stated):
