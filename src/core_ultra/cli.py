@@ -1,8 +1,8 @@
 """The project's single command-line entry point.
 
 `doctor`, `measure step`, `measure generation`, `design check`, `design draw`,
-`data generate`, `data check` and `data gallery` exist so far. The spec's
-later verbs (`renderer check`, `train`, `evaluate`, `report`) are added by the
+`data generate`, `data check`, `data gallery` and `renderer check` exist so
+far. The spec's later verbs (`train`, `evaluate`, `report`) are added by the
 issues that build them.
 
 `scene export` and `scene compare` (issue #32) write a scene as an editable
@@ -245,6 +245,33 @@ def _parser() -> argparse.ArgumentParser:
     compare.add_argument("--out", type=Path, default=None, metavar="FILE", help="also write the comparison as a JSON record")
     compare.add_argument("--json", action="store_true", help="print the comparison as JSON instead of text")
     compare.set_defaults(run=_scene_compare)
+
+    renderer = verbs.add_parser(
+        "renderer",
+        help="check the training renderer and write its support matrix",
+        description="The training renderer: the PyTorch renderer a render loss is taken through.",
+    )
+    actions = renderer.add_subparsers(dest="what", required=True, metavar="WHAT")
+    renderer_check = actions.add_parser(
+        "check",
+        help="verify the training renderer's gradients and write the support matrix",
+        description=(
+            "Draw the known scenes of a check configuration with the training renderer and verify it: "
+            "gradients against finite differences on the CPU in 64-bit floats; forward and backward, "
+            "separately, on the Apple GPU path in 32-bit floats against the CPU, with unsupported "
+            "operations and CPU fallbacks listed; a moving element lowering the render loss; zero "
+            "gradients told apart from a disconnected computation; and the difference from the runtime "
+            "renderer on the same scenes. Saves the record, which holds the support matrix, with the "
+            "doctor record it is tied to. Exits 1 when a check fails or a cell of a drawn primitive is "
+            "not verified, and 2 when the configuration cannot be used or the record exists."
+        ),
+    )
+    renderer_check.add_argument(
+        "--config", type=Path, default=None, metavar="PATH", help="check configuration (default: configs/renderer/check-v1.json)"
+    )
+    renderer_check.add_argument("--records", type=Path, default=None, metavar="DIR", help="folder the records are written under (default: records)")
+    renderer_check.add_argument("--json", action="store_true", help="print the record as JSON instead of text")
+    renderer_check.set_defaults(run=_renderer_check)
     return parser
 
 
@@ -547,6 +574,36 @@ def _scene_compare(args: argparse.Namespace) -> int:
         # With --json, stdout stays a single JSON document.
         print(f"Saved record       {args.out}", file=sys.stderr if args.json else sys.stdout)
     return 0
+
+
+def _renderer_check(args: argparse.Namespace) -> int:
+    from core_ultra import doctor, renderer_check
+
+    try:
+        config = renderer_check.load_config(args.config or renderer_check.DEFAULT_CONFIG)
+    except renderer_check.ConfigError as error:
+        print(f"core-ultra: the check configuration cannot be used ({len(error.problems)}):", file=sys.stderr)
+        for problem in error.problems:
+            print(f"  - {problem}", file=sys.stderr)
+        return 2
+
+    report = doctor.collect_report()
+    record = renderer_check.check(config, report, progress=lambda message: print(message, file=sys.stderr, flush=True))
+    try:
+        saved = renderer_check.save(record, report, args.records or renderer_check.DEFAULT_RECORDS_ROOT)
+    except FileExistsError as error:
+        print(f"core-ultra: {error.filename} already exists; records are never overwritten", file=sys.stderr)
+        return 2
+
+    sys.stdout.write(renderer_check.to_json(record) if args.json else renderer_check.to_text(record))
+    # With --json, stdout stays a single JSON document.
+    notice = sys.stderr if args.json else sys.stdout
+    print(file=notice)
+    print(f"Saved record       {saved['check']['path']}", file=notice)
+    print(f"Record SHA-256     {saved['check']['sha256']}", file=notice)
+    print(f"Doctor record      {saved['doctor']['path']}", file=notice)
+    print(f"Doctor SHA-256     {saved['doctor']['sha256']}", file=notice)
+    return 0 if record["passed"] else 1
 
 
 def _write_once(path: Path, data: bytes) -> bool:

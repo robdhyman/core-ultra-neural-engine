@@ -23,7 +23,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
 
-from core_ultra import doctor
+from core_ultra import apple_gpu_path, doctor
 
 SCHEMA_VERSION = 1
 DEFAULT_CONFIG = Path("configs") / "measure" / "training-step-v1.json"
@@ -49,14 +49,6 @@ NOT_MEASURED = [
     "whether the model learns anything: inputs and targets are random numbers",
 ]
 
-# Bits of PYTORCH_MPS_LOG_PROFILE_INFO: CPU fallback info, and operation, copy
-# and CPU fallback statistics at exit.
-_MPS_PROFILE_FLAGS = str((1 << 2) | (1 << 3) | (1 << 4) | (1 << 5) | (1 << 6))
-_UNIMPLEMENTED = re.compile(r"The operator '([^']+)' is not currently implemented for the MPS device")
-_PROFILED_FALLBACK = re.compile(r"^CPU Fallback::((?:\w+::)?[\w.]+)", re.MULTILINE)
-_PROFILED_COPIES = re.compile(
-    r"^\s*(CPU to MPS|MPS to CPU|MPS to MPS)\s+(\d+)\s+([\d.]+\s*\w+)", re.MULTILINE
-)
 _POWER_SOURCE = re.compile(r"Now drawing from '([^']+)'")
 _LOW_POWER_MODE = re.compile(r"^\s*lowpowermode\s+(\d)", re.MULTILINE)
 _REQUIRED_KEYS = (
@@ -411,7 +403,7 @@ def _measure_case(
     # Without the fallback switch an unsupported operation stops the step.
     # Name it, then repeat with the fallback so the step can still be timed.
     if device == "mps" and not result["ok"]:
-        match = _UNIMPLEMENTED.search(result["error"]["message"])
+        match = apple_gpu_path.UNIMPLEMENTED.search(result["error"]["message"])
         if result["error"]["type"] == "NotImplementedError" and match:
             unsupported.append(match.group(1))
             result, _ = _run_child(case, config, fallback=True)
@@ -452,7 +444,6 @@ def _audit_apple_gpu_path(config: dict[str, Any], size: dict[str, Any]) -> dict[
     case = _case(config, size, config["reference_batch_size"], "mps")
     case.update({"warmup_steps": 0, "measured_steps": steps, "phase_steps": 0})
     result, stderr = _run_child(case, config, fallback=True, profile=True)
-    profiler_seen = "MPS Operations Profiling" in stderr
     return {
         "size": size["name"],
         "batch_size": config["reference_batch_size"],
@@ -460,13 +451,7 @@ def _audit_apple_gpu_path(config: dict[str, Any], size: dict[str, Any]) -> dict[
         "ok": result["ok"],
         "error": result.get("error"),
         "warned_fallback_operations": result.get("cpu_fallback_operations", []),
-        "profiler_output_seen": profiler_seen,
-        "profiler_fallback_operations": sorted(set(_PROFILED_FALLBACK.findall(stderr))),
-        "profiler_reported_no_fallbacks": "There are no CPU Fallbacks logged" in stderr,
-        "copies": [
-            {"kind": kind, "count": int(count), "size": " ".join(amount.split())}
-            for kind, count, amount in _PROFILED_COPIES.findall(stderr)
-        ],
+        **apple_gpu_path.profiled(stderr),
     }
 
 
@@ -489,13 +474,7 @@ def _run_child(
     fallback: bool = False,
     profile: bool = False,
 ) -> tuple[dict[str, Any], str]:
-    environment = os.environ.copy()
-    environment.pop("PYTORCH_ENABLE_MPS_FALLBACK", None)
-    environment.pop("PYTORCH_MPS_LOG_PROFILE_INFO", None)
-    if fallback:
-        environment["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
-    if profile:
-        environment["PYTORCH_MPS_LOG_PROFILE_INFO"] = _MPS_PROFILE_FLAGS
+    environment = apple_gpu_path.environment(fallback, profile)
     timeout = config.get("case_timeout_seconds", 900)
     with tempfile.TemporaryDirectory() as folder:
         result_path = Path(folder) / "result.json"

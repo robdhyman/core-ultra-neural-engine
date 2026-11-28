@@ -13,11 +13,11 @@ The spec has six milestones and 23 work issues, and one issue (#32) was added on
 | S0, environment and measurement | Proof that this Mac can train the planned network | #2, #3 | **Done** |
 | S1, kernel, scene and runtime renderer | The documents app, drawn from a scene with no network | #4, #5 | **Done** |
 | S2, generator and pilot | Design system, training data, a pilot gallery, the full dataset | #6 to #11, #32 | **Started.** 5 of 7 done. #10 waits on Rob |
-| S3, training renderer | A second renderer the network can learn through | #12 to #14 | Not started. #12 can start now |
+| S3, training renderer | A second renderer the network can learn through | #12 to #14 | **Started.** 1 of 3 done. #13 can start now |
 | S4, structure-only baseline | The first trained network, and the baseline result | #15 to #17, #19, #20 | Not started. #15 can start now |
 | S5, comparison | The second training method, the hand-written test set, the report | #18, #21 to #24 | Not started. #22 can start now |
 
-Counted by issue: 9 done, 15 not started. No network has been trained yet.
+Counted by issue: 10 done, 14 not started. No network has been trained yet.
 
 ## The map
 
@@ -48,8 +48,8 @@ flowchart TD
         i11["#11 Frozen splits and full dataset"]:::waiting
     end
     subgraph S3["S3 Training renderer"]
-        i12["#12 Stage 1: rounded rectangles"]:::ready
-        i13["#13 Stage 2: borders and text"]:::waiting
+        i12["#12 Stage 1: rounded rectangles"]:::done
+        i13["#13 Stage 2: borders and text"]:::ready
         i14["#14 Stage 3: shadows"]:::waiting
     end
     subgraph S4["S4 Structure-only baseline"]
@@ -100,17 +100,18 @@ Green is done. Blue can start now. Grey is waiting on something. Pink is a decis
 | #32 | `scene export`: any scene written as an SVG of separate named objects, with text as text, made to be opened in a design tool. No design tool has been tried yet. `scene compare` measures the SVG against the runtime renderer: on the tiny dataset the mean difference is 0.43 levels of 255, nearly all of it text. Eight SVGs were handed to Rob with a note for #10 that lists what the scene schema cannot express | [S2 record so far](../records/milestones/S2.md), [hand-off note](../.scratch/scene-export/handoff-scene-as-svg.md) |
 | #8 | Eight layout families, each a different arrangement of the screen, varying in seven layout settings, grouping and alignment among them; designs sampled as whole sets with a window size that fits; six validators that reject broken examples and record why; and a labelled stress-test set of 20 examples that are wrong on purpose. A dataset of 358 examples across all eight families, with 525 tests | [S2 record so far](../records/milestones/S2.md) |
 | #9 | The pilot: 476 examples from 32 sessions, with each of the eight layout families in each of the four presets, none rejected and no coverage gap. `data gallery` builds a local review page from it: every picture labelled, a coverage summary, and the rejected screens and the stress-test set shown apart. `measure generation` measured 22 ms and 69 KiB an example | [S2 record so far](../records/milestones/S2.md), [hand-off note](../.scratch/pilot-gallery/handoff-pilot-gallery.md) |
+| #12 | The training renderer, stage 1: a second renderer, in PyTorch, that draws rounded rectangles so that a picture-based loss can teach the network. `renderer check` proves its learning signal: right against a slow independent calculation for all seven of its numbers, the same on the Mac's GPU as on its CPU, and zero only where it should be. It also found that the runtime renderer draws rounded corners slightly off, which is [#37](https://github.com/robdhyman/core-ultra-neural-engine/issues/37). Borders, text and shadows are not drawn yet | [S3 record so far](../records/milestones/S3.md) |
 
 ## Next
 
 In the order they unlock:
 
 1. **#10, Rob's go.** Ready now that #9 is done: the pilot gallery is built. Nothing is scaled up until Rob has looked at it and said go. He also opens the exported SVGs here and revisits the questions under "After this spec".
-2. **#12, training renderer stage 1.** Ready now. It depends only on #4. The first piece of the renderer the network learns through: rounded rectangles, with proof that its learning signal is correct.
+2. **#12, training renderer stage 1.** Done on 2026-11-27; see the table above. **#13, borders and text**, is ready in its place.
 3. **#15, the scene model fits a tiny set.** Ready now. The first network, taught to reproduce the tiny dataset that #7 left.
 5. **#32, scene export as editable SVG.** Done; see the table above. It trained nothing and changed no schema. It exists so that Rob sees the scene as an editable vector document before #10, and so that the gaps in the scene schema are known before #11 freezes the dataset.
 
-The spec lets S3 proceed alongside S2, so #12 and #15 can run while #10 waits. #22, the hand-authored evaluation set, waited on #9 and can start too.
+The spec lets S3 proceed alongside S2, so #13 and #15 can run while #10 waits. #22, the hand-authored evaluation set, waited on #9 and can start too.
 
 ## Later
 

@@ -14,7 +14,7 @@ uv sync --locked
 
 ## Command line
 
-There is one entry point, `core-ultra` (also `python -m core_ultra`). Its verbs so far are `doctor`, `measure step`, `measure generation`, `design check`, `design draw`, `data generate`, `data check` and `data gallery`.
+There is one entry point, `core-ultra` (also `python -m core_ultra`). Its verbs so far are `doctor`, `measure step`, `measure generation`, `design check`, `design draw`, `data generate`, `data check`, `data gallery` and `renderer check`.
 
 `scene export` and `scene compare` are described under [Scene export](#scene-export).
 
@@ -162,6 +162,22 @@ artifacts/galleries/pilot-v2/
   rejected/<id>.png    every rejected state that can be drawn, drawn again
   stress/<name>.png    the pictures of the stress-test set, byte for byte
 ```
+
+### `renderer check`
+
+```bash
+uv run core-ultra renderer check
+```
+
+`renderer check` verifies the training renderer on the known scenes of a check configuration and writes one record that holds the support matrix. It takes about seven seconds. A stage of the training renderer is used in training only after this passes. See [Training renderer](#training-renderer).
+
+| Option | Effect |
+| --- | --- |
+| `--config PATH` | Check configuration. Default: `configs/renderer/check-v1.json`. |
+| `--records DIR` | Folder the records are written under. Default: `records`. |
+| `--json` | Print the record as JSON instead of text. |
+
+It writes `records/renderer/<time>-stage-<n>-<environment id>.json` and the doctor record it is tied to, and never overwrites either. It exits 1 when a check fails, with the record still written, and 2 when the configuration cannot be used.
 
 ## Design source
 
@@ -418,6 +434,47 @@ Limits of this version:
 - The font is named, not embedded. A machine without Inter draws the text in another font.
 - A character XML cannot hold (a control character other than tab and line feed) is refused, not dropped.
 
+## Training renderer
+
+The training renderer ([training_renderer.py](src/core_ultra/training_renderer.py)) is the second renderer: PyTorch, so that a loss over pixels can pass gradients back to a scene's numbers. It is built in stages, and this is stage 1.
+
+```python
+import torch
+from core_ultra import training_renderer
+
+elements = training_renderer.elements_of(frame.scene)   # box, fill, corner radius and opacity, in drawing order
+image = training_renderer.draw(elements, (960, 540), scale=1.0)   # (540, 960, 4), RGBA premultiplied by alpha
+loss = (image - target_image).abs().mean()               # the render loss; target_image is drawn the same way
+```
+
+| Primitive | Drawn | Gradients reach |
+| --- | --- | --- |
+| Rounded rectangle with fill and opacity | Yes | Position, size, corner radius, fill, opacity |
+| Border | No, stage 2 (#13) | |
+| Text | No, stage 2 (#13) | |
+| Shadow | No, stage 3 (#14) | |
+
+Drawing order is the scene's tree and never receives a gradient. A scene with borders, text or shadows is drawn without them.
+
+`renderer check` verifies what the table claims and writes it as the support matrix, each cell marked verified or not:
+
+- **Finite differences.** On the CPU in 64-bit floats, autograd's gradient for every number of every element against a central difference.
+- **Apple GPU path.** In 32-bit floats, in a process of its own: the forward pass alone against the CPU's image, then the backward pass against the CPU's gradients. Operations PyTorch has not built for the Apple GPU, and any that fall back to the CPU, are listed. There are none.
+- **Moves.** An element moved toward its target in steps: the render loss falls at every step and is zero on the target.
+- **Zero gradients.** Cases where a gradient is rightly zero, such as an element that does not touch its target, each told apart from a computation the number is no part of.
+- **Agreement.** Each scene drawn by the runtime renderer too, and both compared with exact cover counted from sample points.
+
+Measured on 2026-11-27 (`records/renderer/20261127T100441Z-stage-1-6b5d299af418.json`): every cell verified. Without a corner radius the two renderers agree within 2.1 levels of 255. With one they differ by up to 34 levels on a few corner pixels, most of it the runtime renderer's ([#37](https://github.com/robdhyman/core-ultra-neural-engine/issues/37)); the training renderer's own error is up to 17 levels on corners of under about two pixels' radius.
+
+What a caller must know, from `training_renderer.LIMITS`:
+
+- A gradient in position, size or corner radius comes only from pixels the outline crosses. An element that shares no differing pixel with its target is not pulled toward it.
+- A corner radius past half the box's shorter side is drawn as that half and receives no gradient.
+- A box with a width or height at or below zero draws nothing.
+- Colour channels and opacity are used as given; nothing is clamped or refused, because a training step cannot stop to refuse a prediction.
+
+The full account is [records/milestones/S3.md](records/milestones/S3.md).
+
 ## What git keeps
 
 | Location | In git | Holds |
@@ -425,7 +482,7 @@ Limits of this version:
 | `artifacts/` | No | Weights, datasets, run artifacts and anything else that stays on this machine. |
 | `artifacts/**/manifest.json`, `*.manifest.json`, `*.sha256`, `SHA256SUMS` | Yes | The manifests and hashes that describe those artifacts: of each dataset, and of the pilot's review gallery. |
 | `records/` | Yes | Doctor records, measurement records, milestone records and reports. |
-| `configs/` | Yes | Versioned configurations: what was measured, the model size chosen from it, the design the generator draws, the layout families and the dataset configurations. |
+| `configs/` | Yes | Versioned configurations: what was measured, the model size chosen from it, the design the generator draws, the layout families, the dataset configurations and the known scenes the training renderer is checked on. |
 | `src/core_ultra/assets/` | Yes | The font, with its licence. Recorded in `ASSETS.md`. |
 
 Weight and array files (`*.pt`, `*.safetensors`, `*.npz` and similar) are ignored wherever they land.
@@ -436,7 +493,7 @@ Weight and array files (`*.pt`, `*.safetensors`, `*.npz` and similar) are ignore
 uv run pytest
 ```
 
-The tests run the real commands on the machine at hand; `measure step` is run on a configuration small enough to finish in seconds. The kernel tests ([tests/test_kernel.py](tests/test_kernel.py)) run commands against a real SQLite file and assert on what the kernel then reports, including after the store is closed and reopened. The scene session tests ([tests/test_scene_session.py](tests/test_scene_session.py)) build state in a real kernel and assert on the scene, its validity, the drawn image and hit-test answers; drawn text is judged against Qt's own text-to-path and a drawn shadow against its documented formula, not against the renderer's code. The design tests ([tests/test_design.py](tests/test_design.py)) draw one state in every visual preset and compare the scene with the values DESIGN.md writes, read from its YAML and not through the code that loads the configuration; they also change one value at a time in a copy of either file and assert that `design check` names it. The layout family tests ([tests/test_cli_layout_families.py](tests/test_cli_layout_families.py)) run `data generate` on the families configuration and judge it without the generator: the factor values of each scene are read off its boxes, text fit is measured by Qt's own font metrics, every stress test is judged again from what its own record holds, and all 2 187 combinations of factor values must pass the validators. The data tests ([tests/test_cli_data_generate.py](tests/test_cli_data_generate.py)) run `data generate` on the tiny configuration and judge what it wrote without the generator: each record's state is reached again in a kernel of the test's own from the commands the record lists, its scene is asked of the scene session, its image is drawn again, and ten ways of putting the target or diagnostic metadata into the model inputs must each fail `data check`. `test_report_matches_the_tested_platform` asserts the tested platform above and fails on any other machine on purpose.
+The tests run the real commands on the machine at hand; `measure step` is run on a configuration small enough to finish in seconds. The kernel tests ([tests/test_kernel.py](tests/test_kernel.py)) run commands against a real SQLite file and assert on what the kernel then reports, including after the store is closed and reopened. The scene session tests ([tests/test_scene_session.py](tests/test_scene_session.py)) build state in a real kernel and assert on the scene, its validity, the drawn image and hit-test answers; drawn text is judged against Qt's own text-to-path and a drawn shadow against its documented formula, not against the renderer's code. The design tests ([tests/test_design.py](tests/test_design.py)) draw one state in every visual preset and compare the scene with the values DESIGN.md writes, read from its YAML and not through the code that loads the configuration; they also change one value at a time in a copy of either file and assert that `design check` names it. The layout family tests ([tests/test_cli_layout_families.py](tests/test_cli_layout_families.py)) run `data generate` on the families configuration and judge it without the generator: the factor values of each scene are read off its boxes, text fit is measured by Qt's own font metrics, every stress test is judged again from what its own record holds, and all 2 187 combinations of factor values must pass the validators. The data tests ([tests/test_cli_data_generate.py](tests/test_cli_data_generate.py)) run `data generate` on the tiny configuration and judge what it wrote without the generator: each record's state is reached again in a kernel of the test's own from the commands the record lists, its scene is asked of the scene session, its image is drawn again, and ten ways of putting the target or diagnostic metadata into the model inputs must each fail `data check`. The training renderer tests ([tests/test_training_renderer.py](tests/test_training_renderer.py)) call its draw function and nothing else of it, and judge it without it: gradients against finite differences taken by the test, images against the runtime renderer and against cover counted from sample points, and the Apple GPU path against the CPU. The `renderer check` tests ([tests/test_cli_renderer_check.py](tests/test_cli_renderer_check.py)) run the real command and read the record it wrote. `test_report_matches_the_tested_platform` asserts the tested platform above and fails on any other machine on purpose.
 
 The gallery tests ([tests/test_cli_data_gallery.py](tests/test_cli_data_gallery.py)) run `data gallery` on a small dataset in which the validators reject states, and on the pilot. The page is read with the standard library's HTML parser; what each picture should be labelled with and what the coverage summary should count are worked out in the test from the dataset's records; a picture is compared byte for byte with the dataset's file, and a rejected state's picture with the runtime renderer's drawing of the reference layout's scene. They also hold the committed pilot manifest and gallery manifest to what the commands write. The generation measurement tests ([tests/test_cli_measure_generation.py](tests/test_cli_measure_generation.py)) run `measure generation` on the tiny configuration and compare its disk figures with a dataset generated in the test and measured with `os.stat`.
 

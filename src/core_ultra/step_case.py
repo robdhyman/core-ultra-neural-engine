@@ -11,7 +11,6 @@ from __future__ import annotations
 import ctypes
 import json
 import os
-import re
 import resource
 import struct
 import sys
@@ -20,7 +19,8 @@ import warnings
 from pathlib import Path
 from typing import Any
 
-_FALLBACK_WARNING = re.compile(r"The operator '([^']+)' is not currently supported on the MPS backend")
+from core_ultra import apple_gpu_path
+
 _PHASES = ("forward", "loss", "backward", "update")
 
 
@@ -121,7 +121,7 @@ def run_case(case: dict[str, Any]) -> dict[str, Any]:
 
     messages = [_scrub(str(warning.message).splitlines()[0]) for warning in caught]
     fallbacks = sorted(
-        {match.group(1) for message in messages if (match := _FALLBACK_WARNING.search(message))}
+        {match.group(1) for message in messages if (match := apple_gpu_path.FALLBACK_WARNING.search(message))}
     )
     dtypes = sorted({str(parameter.dtype).removeprefix("torch.") for parameter in model.parameters()})
     return {

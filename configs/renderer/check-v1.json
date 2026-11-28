@@ -1,0 +1,220 @@
+{
+  "name": "renderer-check",
+  "version": 1,
+  "stage": 1,
+  "about": "The known scenes and tolerances `renderer check` verifies stage 1 of the training renderer with: the rounded rectangle with fill and opacity. A scene marked on_kinks has edges on pixel boundaries or a value on one of its bounds, where a gradient is one-sided, so finite differences are not taken there. Every other scene's numbers are chosen so that, at each scale, no edge and no centre of a corner's circle falls on a pixel's boundary or centre: a central difference taken exactly where the cover changes from one formula to the next is wrong in proportion to its step, whatever the gradient. A scene marked leaves_viewport is not a valid scene and is never drawn by the runtime renderer.",
+  "seed": 12,
+  "scales": [1, 2],
+  "finite_differences": {"step": 1e-5, "absolute_tolerance": 1e-5, "relative_tolerance": 1e-6},
+  "apple_gpu_path": {"image_tolerance": 1e-4, "gradient_absolute_tolerance": 2e-3, "gradient_relative_tolerance": 2e-3},
+  "zero_tolerance": 1e-12,
+  "exact_cover_samples": 256,
+  "scenes": [
+    {
+      "name": "one-rounded",
+      "about": "One rounded rectangle on nothing.",
+      "viewport": [48, 36],
+      "elements": [
+        {"id": "root", "parent": null, "box": [5.37, 4.21, 36.44, 26.83], "fill": [0.86, 0.42, 0.21, 0.9], "corner_radius": 5.3, "opacity": 0.85}
+      ]
+    },
+    {
+      "name": "overlaps",
+      "about": "Translucent and opaque elements over one another, in drawing order.",
+      "viewport": [64, 48],
+      "elements": [
+        {"id": "root", "parent": null, "box": [1.37, 0.83, 60.21, 45.12], "fill": [0.93, 0.94, 0.9, 0.95], "corner_radius": 3.3, "opacity": 0.97},
+        {"id": "under", "parent": "root", "box": [6.31, 5.72, 30.44, 22.27], "fill": [0.9, 0.4, 0.2, 0.6], "corner_radius": 6.1, "opacity": 0.9},
+        {"id": "over", "parent": "root", "box": [20.53, 12.26, 30.18, 26.09], "fill": [0.2, 0.5, 0.9, 0.5], "corner_radius": 9.2, "opacity": 0.7},
+        {"id": "inside", "parent": "over", "box": [28.42, 18.63, 14.75, 10.36], "fill": [0.15, 0.7, 0.45, 0.96], "corner_radius": 2.4, "opacity": 0.93},
+        {"id": "last", "parent": "root", "box": [38.17, 30.44, 20.3, 12.81], "fill": [0.95, 0.85, 0.2, 0.8], "corner_radius": 4.7, "opacity": 0.6}
+      ]
+    },
+    {
+      "name": "radii",
+      "about": "Corner radii from under a pixel to nearly a circle.",
+      "viewport": [72, 48],
+      "elements": [
+        {"id": "root", "parent": null, "box": [0.61, 0.47, 70.52, 46.88], "fill": [0.1, 0.1, 0.12, 0.98], "corner_radius": 0.63, "opacity": 0.99},
+        {"id": "r1", "parent": "root", "box": [3.28, 3.64, 14.37, 9.21], "fill": [0.95, 0.95, 0.9, 0.97], "corner_radius": 1.1, "opacity": 0.96},
+        {"id": "r2", "parent": "root", "box": [20.71, 3.39, 14.62, 9.48], "fill": [0.3, 0.8, 0.9, 0.95], "corner_radius": 2.2, "opacity": 0.98},
+        {"id": "r3", "parent": "root", "box": [38.43, 3.57, 14.29, 9.73], "fill": [0.9, 0.5, 0.7, 0.97], "corner_radius": 3.4, "opacity": 0.95},
+        {"id": "r6", "parent": "root", "box": [3.66, 16.32, 22.41, 14.57], "fill": [0.8, 0.8, 0.3, 0.96], "corner_radius": 6.3, "opacity": 0.97},
+        {"id": "r12", "parent": "root", "box": [30.24, 16.71, 36.83, 27.42], "fill": [0.4, 0.9, 0.5, 0.98], "corner_radius": 12.4, "opacity": 0.94},
+        {"id": "round", "parent": "root", "box": [5.52, 33.36, 11.27, 11.31], "fill": [0.95, 0.4, 0.3, 0.97], "corner_radius": 5.4, "opacity": 0.96}
+      ]
+    },
+    {
+      "name": "thin",
+      "about": "Dividers thinner than a pixel, and one a pixel thick.",
+      "viewport": [48, 36],
+      "elements": [
+        {"id": "root", "parent": null, "box": [0.43, 0.38, 46.71, 34.92], "fill": [0.96, 0.95, 0.93, 0.98], "corner_radius": 1.7, "opacity": 0.99},
+        {"id": "across", "parent": "root", "type": "divider", "box": [4.27, 9.31, 38.64, 0.42], "fill": [0.1, 0.1, 0.1, 0.9], "corner_radius": 0.1, "opacity": 0.95},
+        {"id": "down", "parent": "root", "type": "divider", "box": [22.36, 12.58, 0.37, 19.44], "fill": [0.1, 0.1, 0.1, 0.9], "corner_radius": 0.1, "opacity": 0.95},
+        {"id": "one", "parent": "root", "type": "divider", "box": [4.63, 20.27, 14.52, 1.04], "fill": [0.2, 0.2, 0.6, 0.94], "corner_radius": 0.3, "opacity": 0.9}
+      ]
+    },
+    {
+      "name": "square-corners",
+      "about": "No corner radius anywhere: translucent boxes over one another and dividers thinner than a pixel, off the pixel grid. A radius of zero is on its bound.",
+      "viewport": [48, 36],
+      "on_kinks": true,
+      "elements": [
+        {"id": "root", "parent": null, "box": [0.43, 0.38, 46.71, 34.92], "fill": [0.95, 0.95, 0.9, 1], "corner_radius": 0, "opacity": 1},
+        {"id": "under", "parent": "root", "box": [5.31, 4.72, 20.44, 12.27], "fill": [0.2, 0.4, 0.8, 0.8], "corner_radius": 0, "opacity": 0.9},
+        {"id": "over", "parent": "root", "box": [10.63, 9.26, 22.38, 14.81], "fill": [0.9, 0.3, 0.2, 0.5], "corner_radius": 0, "opacity": 1},
+        {"id": "across", "parent": "root", "type": "divider", "box": [4.27, 30.31, 30.04, 0.42], "fill": [0, 0, 0, 1], "corner_radius": 0, "opacity": 1},
+        {"id": "down", "parent": "root", "type": "divider", "box": [40.36, 6.58, 0.31, 20.04], "fill": [0, 0, 0, 1], "corner_radius": 0, "opacity": 1}
+      ]
+    },
+    {
+      "name": "past-the-viewport",
+      "about": "Elements that cross each edge of the viewport and one corner, as a prediction may. Not a valid scene.",
+      "viewport": [48, 36],
+      "leaves_viewport": true,
+      "elements": [
+        {"id": "left", "parent": null, "box": [-6.42, 9.37, 16.81, 12.26], "fill": [0.9, 0.3, 0.3, 0.9], "corner_radius": 3.2, "opacity": 0.9},
+        {"id": "top", "parent": null, "box": [16.33, -5.61, 14.72, 12.44], "fill": [0.3, 0.9, 0.3, 0.9], "corner_radius": 2.6, "opacity": 0.9},
+        {"id": "right", "parent": null, "box": [39.27, 10.66, 15.38, 11.73], "fill": [0.3, 0.3, 0.9, 0.9], "corner_radius": 4.1, "opacity": 0.9},
+        {"id": "bottom", "parent": null, "box": [15.72, 29.58, 16.21, 12.67], "fill": [0.9, 0.9, 0.3, 0.9], "corner_radius": 3.7, "opacity": 0.9},
+        {"id": "corner", "parent": null, "box": [40.36, 28.41, 13.57, 12.22], "fill": [0.6, 0.3, 0.8, 0.9], "corner_radius": 5.1, "opacity": 0.9}
+      ]
+    },
+    {
+      "name": "whole-numbers",
+      "about": "As a true scene is written: a surface that fills the viewport, boxes on whole numbers that meet edge to edge and touch the viewport's edges, square corners, a pill, an element of no opacity.",
+      "viewport": [64, 48],
+      "on_kinks": true,
+      "elements": [
+        {"id": "root", "parent": null, "type": "surface", "box": [0, 0, 64, 48], "fill": [0.97, 0.97, 0.95, 1], "corner_radius": 0, "opacity": 1},
+        {"id": "bar", "parent": "root", "box": [0, 0, 64, 10], "fill": [0.16, 0.3, 0.62, 1], "corner_radius": 0, "opacity": 1},
+        {"id": "rail", "parent": "root", "box": [0, 10, 16, 38], "fill": [0.9, 0.91, 0.94, 1], "corner_radius": 0, "opacity": 1},
+        {"id": "rule", "parent": "root", "type": "divider", "box": [16, 10, 1, 38], "fill": [0.7, 0.72, 0.78, 1], "corner_radius": 0, "opacity": 1},
+        {"id": "card", "parent": "root", "box": [22, 16, 36, 20], "fill": [1, 1, 1, 1], "corner_radius": 4, "opacity": 1},
+        {"id": "pill", "parent": "card", "box": [26, 20, 20, 8], "fill": [0.16, 0.3, 0.62, 1], "corner_radius": 4, "opacity": 1},
+        {"id": "hidden", "parent": "card", "box": [48, 20, 6, 6], "fill": [0.9, 0.2, 0.2, 1], "corner_radius": 1, "opacity": 0},
+        {"id": "veil", "parent": "root", "box": [40, 30, 24, 18], "fill": [0, 0, 0, 0.4], "corner_radius": 0, "opacity": 0.5}
+      ]
+    }
+  ],
+  "moves": [
+    {
+      "name": "across",
+      "about": "An element that overlaps its target moves onto it.",
+      "viewport": [48, 36],
+      "steps": 8,
+      "from": {"box": [6.3, 10.2, 18.4, 12.6], "fill": [0.2, 0.4, 0.8, 1], "corner_radius": 3.2, "opacity": 1},
+      "to": {"box": [17.7, 10.2, 18.4, 12.6], "fill": [0.2, 0.4, 0.8, 1], "corner_radius": 3.2, "opacity": 1}
+    },
+    {
+      "name": "diagonal",
+      "about": "It moves on both axes at once.",
+      "viewport": [48, 36],
+      "steps": 8,
+      "from": {"box": [5.4, 4.3, 18.4, 12.6], "fill": [0.2, 0.4, 0.8, 1], "corner_radius": 3.2, "opacity": 1},
+      "to": {"box": [15.9, 11.8, 18.4, 12.6], "fill": [0.2, 0.4, 0.8, 1], "corner_radius": 3.2, "opacity": 1}
+    },
+    {
+      "name": "size",
+      "about": "It grows to its target's size.",
+      "viewport": [48, 36],
+      "steps": 8,
+      "from": {"box": [12.6, 9.4, 9.2, 6.7], "fill": [0.2, 0.4, 0.8, 1], "corner_radius": 2.1, "opacity": 1},
+      "to": {"box": [12.6, 9.4, 24.8, 17.3], "fill": [0.2, 0.4, 0.8, 1], "corner_radius": 2.1, "opacity": 1}
+    },
+    {
+      "name": "corner-radius",
+      "about": "Its corners round to its target's.",
+      "viewport": [48, 36],
+      "steps": 8,
+      "from": {"box": [8.3, 6.6, 28.4, 20.7], "fill": [0.2, 0.4, 0.8, 1], "corner_radius": 0.8, "opacity": 1},
+      "to": {"box": [8.3, 6.6, 28.4, 20.7], "fill": [0.2, 0.4, 0.8, 1], "corner_radius": 9.6, "opacity": 1}
+    },
+    {
+      "name": "fill",
+      "about": "Its colour and alpha change to its target's.",
+      "viewport": [48, 36],
+      "steps": 8,
+      "from": {"box": [8.3, 6.6, 28.4, 20.7], "fill": [0.9, 0.2, 0.3, 0.5], "corner_radius": 4.2, "opacity": 1},
+      "to": {"box": [8.3, 6.6, 28.4, 20.7], "fill": [0.2, 0.6, 0.8, 0.95], "corner_radius": 4.2, "opacity": 1}
+    },
+    {
+      "name": "opacity",
+      "about": "It fades in to its target's opacity.",
+      "viewport": [48, 36],
+      "steps": 8,
+      "from": {"box": [8.3, 6.6, 28.4, 20.7], "fill": [0.2, 0.4, 0.8, 1], "corner_radius": 4.2, "opacity": 0.15},
+      "to": {"box": [8.3, 6.6, 28.4, 20.7], "fill": [0.2, 0.4, 0.8, 1], "corner_radius": 4.2, "opacity": 0.9}
+    },
+    {
+      "name": "everything",
+      "about": "Every value moves at once, over a backdrop that does not. The element starts inside its target, in a colour nearer the target's than the backdrop's.",
+      "viewport": [48, 36],
+      "steps": 8,
+      "backdrop": {"box": [0, 0, 48, 36], "fill": [0.95, 0.94, 0.9, 1], "corner_radius": 0, "opacity": 1},
+      "from": {"box": [17.3, 12.4, 14.2, 9.5], "fill": [0.35, 0.55, 0.7, 0.8], "corner_radius": 1.4, "opacity": 0.8},
+      "to": {"box": [14.8, 10.6, 24.6, 17.9], "fill": [0.2, 0.5, 0.8, 0.95], "corner_radius": 6.3, "opacity": 0.95}
+    }
+  ],
+  "zero_gradients": [
+    {
+      "name": "no-overlap-with-the-target",
+      "about": "A square-cornered element and its target do not touch. Moving it changes which pixels differ and not how much, so position has no gradient. Neither has a corner radius of zero: rounding a square corner a little takes away an area that grows as the radius squared. Size, fill and opacity have one.",
+      "viewport": [64, 36],
+      "elements": [
+        {"box": [5.3, 8.45, 14.6, 12.27], "fill": [0.2, 0.4, 0.8, 1], "corner_radius": 0, "opacity": 0.9}
+      ],
+      "target": [
+        {"box": [40.7, 14.3, 14.6, 12.27], "fill": [0.2, 0.4, 0.8, 1], "corner_radius": 0, "opacity": 0.9}
+      ],
+      "element": 0,
+      "zero": ["x", "y", "corner_radius"],
+      "non_zero": ["width", "height", "fill", "opacity"]
+    },
+    {
+      "name": "rounded-without-overlap",
+      "about": "The same with rounded corners. An arc is drawn as its tangent, so the element's whole cover changes a little with where its corners fall among the pixels, and position has a small gradient that the shape itself does not: a limit of this renderer, measured here.",
+      "viewport": [64, 36],
+      "elements": [
+        {"box": [5.3, 8.45, 14.6, 12.27], "fill": [0.2, 0.4, 0.8, 1], "corner_radius": 3.1, "opacity": 0.9}
+      ],
+      "target": [
+        {"box": [40.7, 14.3, 14.6, 12.27], "fill": [0.2, 0.4, 0.8, 1], "corner_radius": 3.1, "opacity": 0.9}
+      ],
+      "element": 0,
+      "zero": [],
+      "non_zero": ["x", "y", "width", "height", "corner_radius", "fill", "opacity"]
+    },
+    {
+      "name": "under-an-opaque-element",
+      "about": "The element lies wholly under a later opaque one, so nothing about it reaches a pixel.",
+      "viewport": [48, 36],
+      "elements": [
+        {"box": [12.4, 9.3, 14.6, 10.2], "fill": [0.9, 0.3, 0.2, 0.8], "corner_radius": 2.2, "opacity": 0.9},
+        {"box": [6.2, 4.1, 30.5, 24.6], "fill": [0.2, 0.4, 0.8, 1], "corner_radius": 0, "opacity": 1}
+      ],
+      "target": [
+        {"box": [20.7, 14.3, 14.6, 10.2], "fill": [0.9, 0.3, 0.2, 0.8], "corner_radius": 2.2, "opacity": 0.9},
+        {"box": [9.6, 6.3, 30.5, 24.6], "fill": [0.2, 0.4, 0.8, 1], "corner_radius": 0, "opacity": 1}
+      ],
+      "element": 0,
+      "zero": ["x", "y", "width", "height", "corner_radius", "fill", "opacity"],
+      "non_zero": []
+    },
+    {
+      "name": "no-opacity",
+      "about": "The element has no opacity, so nothing about its shape or colour reaches a pixel; its opacity does.",
+      "viewport": [48, 36],
+      "elements": [
+        {"box": [8.4, 7.3, 20.6, 14.2], "fill": [0.9, 0.3, 0.2, 0.8], "corner_radius": 3.2, "opacity": 0}
+      ],
+      "target": [
+        {"box": [12.7, 9.3, 20.6, 14.2], "fill": [0.9, 0.3, 0.2, 0.8], "corner_radius": 3.2, "opacity": 0.9}
+      ],
+      "element": 0,
+      "zero": ["x", "y", "width", "height", "corner_radius", "fill"],
+      "non_zero": ["opacity"]
+    }
+  ]
+}

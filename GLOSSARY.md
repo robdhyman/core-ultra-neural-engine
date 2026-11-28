@@ -26,6 +26,14 @@ _Avoid_: Layout model, design model, generator
 The differentiable renderer that turns a predicted scene into an image so a training loss can compare it with a target image.
 _Avoid_: Rasteriser, differentiable renderer alone
 
+**Support matrix**:
+The table that says, for each primitive of the scene schema, whether the training renderer draws it, which of its attributes receive gradients, and whether each of those claims was verified. `renderer check` writes it.
+_Avoid_: Feature list, coverage table
+
+**Render loss**:
+The per-pixel difference between the training renderer's image of a predicted scene and its image of the true scene. Both sides are drawn by the training renderer, never one by the runtime renderer.
+_Avoid_: Image loss, pixel loss, visual loss
+
 **Runtime renderer**:
 The deterministic renderer that draws a scene as vectors in the running app. Visual results are always measured with it.
 _Avoid_: Rasteriser, compiler, display renderer
