@@ -1,9 +1,9 @@
 """The project's single command-line entry point.
 
-`doctor`, `measure step`, `design check`, `design draw`, `data generate`,
-`data check` and `renderer check` exist so far. The spec's later verbs
-(`data gallery`, `train`, `evaluate`, `report`) are added by the issues that
-build them.
+`doctor`, `measure step`, `measure generation`, `design check`, `design draw`,
+`data generate`, `data check`, `data gallery` and `renderer check` exist so
+far. The spec's later verbs (`train`, `evaluate`, `report`) are added by the
+issues that build them.
 
 `scene export` and `scene compare` (issue #32) write a scene as an editable
 SVG and measure that SVG against the runtime renderer.
@@ -95,6 +95,24 @@ def _parser() -> argparse.ArgumentParser:
         help="print the measurement record as JSON instead of text",
     )
     step.set_defaults(run=_measure_step)
+    generation = kinds.add_parser(
+        "generation",
+        help="time `data generate` and read the disk one example uses",
+        description=(
+            "Run `data generate` on a dataset configuration several times, each as a process of its own "
+            "writing into a new folder that is deleted afterwards, and save a measurement record of the "
+            "time, the peak memory and the disk use, in all and per example, with the doctor record it "
+            "is tied to. The projections it prints for larger datasets are arithmetic, not measurements. "
+            "Exits 1 when doctor lists a problem, another measurement is running or the runs do not "
+            "write the same dataset, and 2 when the configuration cannot be used, the dataset cannot be "
+            "generated or the record already exists."
+        ),
+    )
+    generation.add_argument("--config", type=Path, required=True, metavar="PATH", help="dataset configuration, such as configs/data/pilot-v1.json")
+    generation.add_argument("--runs", type=int, default=None, metavar="N", help="how many times the dataset is generated (default: 3)")
+    generation.add_argument("--records", type=Path, default=None, metavar="DIR", help="folder the records are written under (default: records)")
+    generation.add_argument("--json", action="store_true", help="print the measurement record as JSON instead of text")
+    generation.set_defaults(run=_measure_generation)
 
     design = verbs.add_parser(
         "design",
@@ -133,7 +151,7 @@ def _parser() -> argparse.ArgumentParser:
 
     data = verbs.add_parser(
         "data",
-        help="generate a dataset and check a written one",
+        help="generate a dataset, check a written one and build its review gallery",
         description="Datasets: scripted sessions written as traceable dataset records.",
     )
     actions = data.add_subparsers(dest="what", required=True, metavar="WHAT")
@@ -169,6 +187,25 @@ def _parser() -> argparse.ArgumentParser:
     )
     verify.add_argument("folder", type=Path, metavar="DIR", help="the dataset folder, the one that holds manifest.json")
     verify.set_defaults(run=_data_check)
+    gallery = actions.add_parser(
+        "gallery",
+        help="build the review gallery of a written dataset",
+        description=(
+            "Build a local page of a written dataset for a person to judge: every reference image, "
+            "labelled with its layout family, visual preset, design condition and state; a coverage "
+            "summary by layout family, visual preset, density, content length and element state; and, "
+            "apart from the records, every state the validators rejected and the stress-test set, each "
+            "with its reasons. The page opens from disk and loads nothing from a network. The same "
+            "dataset always gives the same bytes. Exits 2 when the folder is not a dataset whose files "
+            "are the ones its manifest lists, or the gallery folder already holds a different gallery; "
+            "a gallery is never overwritten."
+        ),
+    )
+    gallery.add_argument("folder", type=Path, metavar="DIR", help="the dataset folder, the one that holds manifest.json")
+    gallery.add_argument(
+        "--out", type=Path, default=None, metavar="DIR", help="folder the gallery is written to (default: artifacts/galleries/<name>-v<version>)"
+    )
+    gallery.set_defaults(run=_data_gallery)
 
     scene = verbs.add_parser(
         "scene",
@@ -312,6 +349,61 @@ def _measure_step(args: argparse.Namespace) -> int:
     return 0 if record["selection"]["chosen"] else 1
 
 
+def _measure_generation(args: argparse.Namespace) -> int:
+    from core_ultra import doctor, generation_measurement, generator, step_measurement
+
+    runs = generation_measurement.DEFAULT_RUNS if args.runs is None else args.runs
+    if runs < 1:
+        print("core-ultra: --runs is not a whole number above zero", file=sys.stderr)
+        return 2
+    try:
+        generator.load_config(args.config)
+    except generator.ConfigError as error:
+        print(f"core-ultra: the dataset configuration cannot be used ({len(error.problems)}):", file=sys.stderr)
+        for problem in error.problems:
+            print(f"  - {problem}", file=sys.stderr)
+        return 2
+
+    running = step_measurement.other_measurements()
+    if running:
+        print(
+            "core-ultra: nothing was measured, because another measurement is running "
+            f"(process {', '.join(map(str, running))}); overlapping measurements slow each other",
+            file=sys.stderr,
+        )
+        return 1
+    report = doctor.collect_report()
+    if report["problems"]:
+        print("core-ultra: nothing was measured, because doctor lists a problem:", file=sys.stderr)
+        for problem in report["problems"]:
+            print(f"  - {problem}", file=sys.stderr)
+        return 1
+
+    try:
+        record = generation_measurement.measure(
+            args.config, report, runs, progress=lambda message: print(message, file=sys.stderr, flush=True)
+        )
+    except (generator.ConfigError, RuntimeError) as error:
+        print(f"core-ultra: nothing was measured, because the dataset could not be generated: {error}", file=sys.stderr)
+        return 2
+    root = args.records or generation_measurement.DEFAULT_RECORDS_ROOT
+    try:
+        saved = generation_measurement.save(record, report, root)
+    except FileExistsError as error:
+        print(f"core-ultra: {error.filename} already exists; records are never overwritten", file=sys.stderr)
+        return 2
+
+    sys.stdout.write(generation_measurement.to_json(record) if args.json else generation_measurement.to_text(record))
+    # With --json, stdout stays a single JSON document.
+    notice = sys.stderr if args.json else sys.stdout
+    print(file=notice)
+    print(f"Saved record       {saved['measurement']['path']}", file=notice)
+    print(f"Record SHA-256     {saved['measurement']['sha256']}", file=notice)
+    print(f"Doctor record      {saved['doctor']['path']}", file=notice)
+    print(f"Doctor SHA-256     {saved['doctor']['sha256']}", file=notice)
+    return 0 if record["runs_wrote_the_same_manifest"] else 1
+
+
 def _design_check(args: argparse.Namespace) -> int:
     from core_ultra import design
 
@@ -403,6 +495,35 @@ def _data_check(args: argparse.Namespace) -> int:
             print(f"  - {problem}", file=sys.stderr)
         return 1
     print(f"{args.folder} is the dataset its manifest describes, and generating it again gives the same bytes.")
+    return 0
+
+
+def _data_gallery(args: argparse.Namespace) -> int:
+    import hashlib
+
+    from core_ultra import gallery
+
+    try:
+        dataset = gallery.load(args.folder)
+        out = args.out or gallery.default_out(dataset)
+        manifest = gallery.write(dataset, out)
+    except gallery.SourceError as error:
+        print(f"core-ultra: {args.folder} is not a dataset a gallery can be built from ({len(error.problems)}):", file=sys.stderr)
+        for problem in error.problems[:10]:
+            print(f"  - {problem}", file=sys.stderr)
+        if len(error.problems) > 10:
+            print(f"  - and {len(error.problems) - 10} more; `data check` lists every one", file=sys.stderr)
+        return 2
+    except gallery.GalleryDiffers as error:
+        print(f"core-ultra: {error}; nothing was written", file=sys.stderr)
+        return 2
+
+    sys.stdout.write(gallery.to_text(manifest))
+    manifest_path = out / gallery.MANIFEST_NAME
+    print(f"Written to         {out}")
+    print(f"Open               {out / gallery.PAGE_NAME}")
+    print(f"Manifest           {manifest_path}")
+    print(f"Manifest SHA-256   {hashlib.sha256(manifest_path.read_bytes()).hexdigest()}")
     return 0
 
 

@@ -100,6 +100,14 @@ _Avoid_: Negative examples, bad samples, adversarial set
 A named range of title words and body lines that a scripted session writes with, declared in a dataset configuration.
 _Avoid_: Text size, verbosity
 
+**Pilot**:
+The dataset of 200 to 500 dataset records, across every layout family and every visual preset, that is generated and looked at before anything is scaled.
+_Avoid_: Sample set, trial run, preview
+
+**Review gallery**:
+The local page built from a written dataset for a person to judge: every reference image with its labels, a coverage summary, and what the validators rejected shown apart. It judges nothing and nothing is measured with it.
+_Avoid_: Viewer, dashboard, report, contact sheet
+
 ### Experiments
 
 **Variant**:

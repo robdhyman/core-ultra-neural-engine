@@ -12,12 +12,12 @@ The spec has six milestones and 23 work issues, and one issue (#32) was added on
 | --- | --- | --- | --- |
 | S0, environment and measurement | Proof that this Mac can train the planned network | #2, #3 | **Done** |
 | S1, kernel, scene and runtime renderer | The documents app, drawn from a scene with no network | #4, #5 | **Done** |
-| S2, generator and pilot | Design system, training data, a pilot gallery, the full dataset | #6 to #11, #32 | **Started.** 4 of 7 done. #9 can start now |
+| S2, generator and pilot | Design system, training data, a pilot gallery, the full dataset | #6 to #11, #32 | **Started.** 5 of 7 done. #10 waits on Rob |
 | S3, training renderer | A second renderer the network can learn through | #12 to #14 | **Started.** 1 of 3 done. #13 can start now |
 | S4, structure-only baseline | The first trained network, and the baseline result | #15 to #17, #19, #20 | Not started. #15 can start now |
-| S5, comparison | The second training method, the hand-written test set, the report | #18, #21 to #24 | Not started |
+| S5, comparison | The second training method, the hand-written test set, the report | #18, #21 to #24 | Not started. #22 can start now |
 
-Counted by issue: 9 done, 15 not started. No network has been trained yet.
+Counted by issue: 10 done, 14 not started. No network has been trained yet.
 
 ## The map
 
@@ -42,7 +42,7 @@ flowchart TD
         i6["#6 Design source and presets"]:::done
         i7["#7 Data generate tracer"]:::done
         i8["#8 Layout families and validators"]:::done
-        i9["#9 Pilot dataset and gallery"]:::ready
+        i9["#9 Pilot dataset and gallery"]:::done
         i32["#32 Scene export as editable SVG"]:::done
         i10["#10 Rob reviews the pilot gallery"]:::rob
         i11["#11 Frozen splits and full dataset"]:::waiting
@@ -62,7 +62,7 @@ flowchart TD
     subgraph S5["S5 Comparison"]
         i18["#18 Render loss on the tiny set"]:::waiting
         i21["#21 Structure plus render: three seeds"]:::waiting
-        i22["#22 Hand-authored evaluation set"]:::waiting
+        i22["#22 Hand-authored evaluation set"]:::ready
         i23["#23 Rob reviews the hand-authored set"]:::rob
         i24["#24 Comparison report"]:::waiting
     end
@@ -99,19 +99,19 @@ Green is done. Blue can start now. Grey is waiting on something. Pink is a decis
 | #7 | `data generate`: scripted sessions drive the app and every screen they reach is saved as a traceable training example. A tiny dataset of 82 examples, a check that nothing the network is given contains the answer, and `data check`, with 415 tests | [S2 record so far](../records/milestones/S2.md) |
 | #32 | `scene export`: any scene written as an SVG of separate named objects, with text as text, made to be opened in a design tool. No design tool has been tried yet. `scene compare` measures the SVG against the runtime renderer: on the tiny dataset the mean difference is 0.43 levels of 255, nearly all of it text. Eight SVGs were handed to Rob with a note for #10 that lists what the scene schema cannot express | [S2 record so far](../records/milestones/S2.md), [hand-off note](../.scratch/scene-export/handoff-scene-as-svg.md) |
 | #8 | Eight layout families, each a different arrangement of the screen, varying in seven layout settings, grouping and alignment among them; designs sampled as whole sets with a window size that fits; six validators that reject broken examples and record why; and a labelled stress-test set of 20 examples that are wrong on purpose. A dataset of 358 examples across all eight families, with 525 tests | [S2 record so far](../records/milestones/S2.md) |
+| #9 | The pilot: 476 examples from 32 sessions, with each of the eight layout families in each of the four presets, none rejected and no coverage gap. `data gallery` builds a local review page from it: every picture labelled, a coverage summary, and the rejected screens and the stress-test set shown apart. `measure generation` measured 22 ms and 69 KiB an example | [S2 record so far](../records/milestones/S2.md), [hand-off note](../.scratch/pilot-gallery/handoff-pilot-gallery.md) |
 | #12 | The training renderer, stage 1: a second renderer, in PyTorch, that draws rounded rectangles so that a picture-based loss can teach the network. `renderer check` proves its learning signal: right against a slow independent calculation for all seven of its numbers, the same on the Mac's GPU as on its CPU, and zero only where it should be. It also found that the runtime renderer draws rounded corners slightly off, which is [#37](https://github.com/robdhyman/core-ultra-neural-engine/issues/37). Borders, text and shadows are not drawn yet | [S3 record so far](../records/milestones/S3.md) |
 
 ## Next
 
 In the order they unlock:
 
-1. **#9, pilot dataset and gallery.** Ready now that #8 is done. 200 to 500 examples across every preset and layout family, in a gallery made for review. `configs/data/families-v2.json` is the configuration to scale up.
+1. **#10, Rob's go.** Ready now that #9 is done: the pilot gallery is built. Nothing is scaled up until Rob has looked at it and said go. He also opens the exported SVGs here and revisits the questions under "After this spec".
 2. **#12, training renderer stage 1.** Done on 2026-11-27; see the table above. **#13, borders and text**, is ready in its place.
 3. **#15, the scene model fits a tiny set.** Ready now. The first network, taught to reproduce the tiny dataset that #7 left.
 5. **#32, scene export as editable SVG.** Done; see the table above. It trained nothing and changed no schema. It exists so that Rob sees the scene as an editable vector document before #10, and so that the gaps in the scene schema are known before #11 freezes the dataset.
-6. **#10, Rob's go.** Nothing is scaled up until Rob has looked at the gallery and said go. He also opens the exported SVGs here and revisits the questions under "After this spec".
 
-The spec lets S3 proceed alongside S2, so #9, #12 and #15 can run side by side.
+The spec lets S3 proceed alongside S2, so #13 and #15 can run while #10 waits. #22, the hand-authored evaluation set, waited on #9 and can start too.
 
 ## Later
 
@@ -129,9 +129,9 @@ The spec lets S3 proceed alongside S2, so #9, #12 and #15 can run side by side.
 
 ## The longest chains
 
-With #8 done, the data chain has six issues left and the model chain seven. Both end at #24:
+With #9 done, the data chain has five issues left and the model chain seven. Both end at #24:
 
-- **Data:** #9 → #10 → #11 → #20 → #21 → #24
+- **Data:** #10 → #11 → #20 → #21 → #24
 - **Model:** #15 → #16 → #17 → #19 → #20 → #21 → #24
 
 They meet at #20, the first full training run, which needs both the full dataset (#11) and the smoke test (#19). The second full run (#21) also needs the finished training renderer (#14).
@@ -158,9 +158,10 @@ These come from the S1 and S2 records and are not yet assigned beyond what is no
 - **Nothing scrolls**, and a screen holds at most 32 bound elements (21 list rows). Since #8 the generator stays inside that: its longest scripted list has nine documents, and a longer one is rejected with its reason. The limit itself has not moved.
 - **Text fit is checked since #8**, by the generator's validators. A screen whose text does not fit is never a training example. Nothing wraps or truncates text, so long titles are simply left out of the data.
 - **Roomier presets need larger windows.** Since #8 a session is given a window size in which all its screens pass the validators, and the sizes it was refused are recorded.
-- **Eight layout families since #8**, each sampled in two of the four presets by the small families dataset. The pilot (#9) must cover every family in every preset.
-- **A coverage gap does not fail the generator.** It is recorded and printed. #9 should read `coverage.gaps` in the manifest before the gallery is shown.
+- **Eight layout families since #8.** Since #9 the pilot has every family in every preset, one session for each pairing. Each scenario still meets only four of the eight families.
+- **A coverage gap does not fail the generator.** It is recorded and printed, and the gallery names every declared value no example shows. The pilot has none.
+- **The pilot's lists are short.** Its longest has seven documents, in four of the eight families. #11 decides what the full dataset adds.
 - **The stress-test set's expected reasons belong to one seed.** Another seed writes other titles, and a case can then be rejected for one reason more or fewer, which stops the run until the case is restated.
 - **The network is told a text's width at one font weight.** Text drawn at another weight is not exactly that width scaled, so a small error in such widths is built in.
-- **Whether each preset looks intentional** is judged at #9 and #10.
+- **Whether each preset, and each pairing of preset and layout family, looks intentional** is judged at #10, in the pilot gallery.
 - **The cost of the picture-based training step is unknown** until #18 measures it.
