@@ -1,0 +1,681 @@
+{
+  "kind": "dataset-config",
+  "name": "pilot",
+  "version": 1,
+  "note": "The pilot dataset, version 1: thirty-two scripted sessions, eight scenarios run four times, so that each of the eight layout families of layout version 3 meets each of the four visual presets in exactly one session, across five viewport sizes and three content lengths, with the stress-test set of the families dataset. It exists to be looked at: `data gallery` builds the review gallery from it, in which visual coherence is judged before anything is scaled. The scenarios are short, so that thirty-two sessions stay inside the 200 to 500 examples a pilot has: a session gives one record before its first action and three for each action. A design is dealt whole: a layout family, a visual preset and a content length, then the least used viewport size in which every state of the session passes the validators. A changed dataset is a new version of this file, never an edit to this one.",
+  "seed": 20261128,
+  "design": "configs/design/v1.json",
+  "layout": "configs/layout/v3.json",
+  "layout_families": [
+    "top-bar-list-left",
+    "top-bar-list-right",
+    "top-bar-list-top",
+    "left-rail-list-left",
+    "left-rail-list-right",
+    "left-rail-list-top",
+    "bottom-bar-list-left",
+    "bottom-bar-list-right"
+  ],
+  "visual_presets": [
+    "calm-blue",
+    "warm-paper",
+    "night-teal",
+    "dense-ink"
+  ],
+  "viewports": [
+    [
+      960,
+      540
+    ],
+    [
+      1024,
+      768
+    ],
+    [
+      1120,
+      630
+    ],
+    [
+      1280,
+      720
+    ],
+    [
+      1440,
+      900
+    ]
+  ],
+  "viewport_choice": "fitting",
+  "pixels_per_viewport_unit": 1,
+  "sessions_per_scenario": 4,
+  "scenarios": {
+    "quick-note": [
+      "create",
+      "open",
+      "edit",
+      "save"
+    ],
+    "rename-and-undo": [
+      "create",
+      "open",
+      "rename",
+      "undo"
+    ],
+    "two-documents": [
+      "create",
+      "create",
+      "open",
+      "edit"
+    ],
+    "nothing-found": [
+      "create",
+      "filter-none",
+      "filter-clear"
+    ],
+    "sort-and-find": [
+      "create",
+      "create",
+      "create",
+      "sort",
+      "filter"
+    ],
+    "full-list": [
+      "create",
+      "create",
+      "create",
+      "create",
+      "create",
+      "create",
+      "create",
+      "open"
+    ],
+    "revise-and-save": [
+      "create",
+      "open",
+      "edit",
+      "save",
+      "edit"
+    ],
+    "reorder-and-open": [
+      "create",
+      "create",
+      "sort",
+      "open"
+    ]
+  },
+  "content": {
+    "words": [
+      "plan",
+      "notes",
+      "café",
+      "résumé",
+      "août",
+      "größe",
+      "señal",
+      "jaźń",
+      "façade",
+      "fjord",
+      "budget",
+      "garden",
+      "letter",
+      "recipe",
+      "voyage",
+      "ledger",
+      "atlas",
+      "sketch",
+      "trio",
+      "übung",
+      "inventory",
+      "correspondence",
+      "map",
+      "år"
+    ],
+    "title_words": [
+      1,
+      3
+    ],
+    "lines": [
+      "Première ligne: déjà vu, garçon.",
+      "Zweite Zeile: Größe, Übermut, Äpfel.",
+      "Tercera línea: ¿mañana? ¡Sí!",
+      "Fjärde raden: små åar, öppna fält.",
+      "A plain line with nothing to add.",
+      "Żółta łódź płynie wolno.",
+      "Short.",
+      "A longer line, to see how far a sentence runs before the editor ends.",
+      "Liste: œufs, crème fraîche, piñones.",
+      "Ninth: figures 1 234,50 and 75 %."
+    ],
+    "body_lines": [
+      1,
+      4
+    ],
+    "filter_misses": [
+      "zzz",
+      "qqq"
+    ]
+  },
+  "content_lengths": {
+    "brief": {
+      "title_words": [
+        1,
+        1
+      ],
+      "body_lines": [
+        1,
+        2
+      ]
+    },
+    "medium": {
+      "title_words": [
+        2,
+        3
+      ],
+      "body_lines": [
+        2,
+        4
+      ]
+    },
+    "long": {
+      "title_words": [
+        3,
+        4
+      ],
+      "body_lines": [
+        5,
+        8
+      ]
+    }
+  },
+  "stress_tests": [
+    {
+      "name": "viewport-too-small",
+      "why": "Difficult: the roomiest visual preset in a viewport too small for its toolbar, so buttons fall outside it.",
+      "script": [
+        "create",
+        "create",
+        "open",
+        "edit",
+        "save"
+      ],
+      "layout_family": "top-bar-list-left",
+      "visual_preset": "warm-paper",
+      "viewport": [
+        480,
+        300
+      ],
+      "expect": [
+        "outside_viewport"
+      ]
+    },
+    {
+      "name": "titles-too-long",
+      "why": "Difficult: titles of nine words, which run out of their rows and under the editor.",
+      "script": [
+        "create",
+        "create",
+        "open"
+      ],
+      "layout_family": "top-bar-list-left",
+      "visual_preset": "calm-blue",
+      "viewport": [
+        960,
+        540
+      ],
+      "content": {
+        "title_words": [
+          9,
+          9
+        ]
+      },
+      "expect": [
+        "text_covered",
+        "text_overflows"
+      ]
+    },
+    {
+      "name": "too-many-documents",
+      "why": "Difficult: twenty-four documents, more bound elements than a scene may hold.",
+      "script": [
+        "create",
+        "create",
+        "create",
+        "create",
+        "create",
+        "create",
+        "create",
+        "create",
+        "create",
+        "create",
+        "create",
+        "create",
+        "create",
+        "create",
+        "create",
+        "create",
+        "create",
+        "create",
+        "create",
+        "create",
+        "create",
+        "create",
+        "create",
+        "create"
+      ],
+      "layout_family": "top-bar-list-left",
+      "visual_preset": "dense-ink",
+      "viewport": [
+        1440,
+        900
+      ],
+      "expect": [
+        "limit_exceeded"
+      ]
+    },
+    {
+      "name": "characters-the-font-lacks",
+      "why": "Difficult: titles in a script Inter has no glyphs for, so the text cannot be measured or drawn.",
+      "script": [
+        "create",
+        "open"
+      ],
+      "layout_family": "top-bar-list-left",
+      "visual_preset": "calm-blue",
+      "viewport": [
+        960,
+        540
+      ],
+      "content": {
+        "words": [
+          "計画",
+          "文書",
+          "覚書"
+        ],
+        "title_words": [
+          1,
+          2
+        ]
+      },
+      "expect": [
+        "text_not_drawable"
+      ]
+    },
+    {
+      "name": "body-taller-than-the-editor",
+      "why": "Difficult: a ten-line body in a viewport whose editor shows fewer lines.",
+      "script": [
+        "create",
+        "open",
+        "edit"
+      ],
+      "layout_family": "bottom-bar-list-right",
+      "visual_preset": "calm-blue",
+      "viewport": [
+        960,
+        300
+      ],
+      "content": {
+        "body_lines": [
+          10,
+          10
+        ]
+      },
+      "expect": [
+        "text_too_tall"
+      ]
+    },
+    {
+      "name": "list-under-the-notification",
+      "why": "Difficult: nine documents in a short viewport, so the notification lies over the last rows of the list.",
+      "script": [
+        "create",
+        "create",
+        "create",
+        "create",
+        "create",
+        "create",
+        "create",
+        "create",
+        "create"
+      ],
+      "layout_family": "left-rail-list-left",
+      "visual_preset": "calm-blue",
+      "viewport": [
+        960,
+        400
+      ],
+      "expect": [
+        "hit_target_covered",
+        "text_covered"
+      ]
+    },
+    {
+      "name": "rail-too-short",
+      "why": "Difficult: the left rail in a viewport too short for its six elements, so its two groups overlap.",
+      "script": [
+        "create",
+        "open"
+      ],
+      "layout_family": "left-rail-list-right",
+      "visual_preset": "calm-blue",
+      "viewport": [
+        1280,
+        240
+      ],
+      "expect": [
+        "panels_overlap"
+      ]
+    },
+    {
+      "name": "missing-button",
+      "why": "Broken: the Save button is left out of the scene.",
+      "script": [
+        "create",
+        "create",
+        "open",
+        "edit"
+      ],
+      "layout_family": "top-bar-list-left",
+      "visual_preset": "calm-blue",
+      "viewport": [
+        960,
+        540
+      ],
+      "break": {
+        "kind": "remove",
+        "element": "toolbar.save"
+      },
+      "expect": [
+        "bound_missing"
+      ]
+    },
+    {
+      "name": "row-written-twice",
+      "why": "Broken: one row of the list is in the scene twice.",
+      "script": [
+        "create",
+        "create",
+        "open",
+        "edit"
+      ],
+      "layout_family": "top-bar-list-left",
+      "visual_preset": "calm-blue",
+      "viewport": [
+        960,
+        540
+      ],
+      "break": {
+        "kind": "duplicate",
+        "element": "document:1"
+      },
+      "expect": [
+        "bound_duplicated"
+      ]
+    },
+    {
+      "name": "changed-text",
+      "why": "Broken: a row's text is not the title the application supplied.",
+      "script": [
+        "create",
+        "create",
+        "open",
+        "edit"
+      ],
+      "layout_family": "top-bar-list-left",
+      "visual_preset": "calm-blue",
+      "viewport": [
+        960,
+        540
+      ],
+      "break": {
+        "kind": "retext",
+        "element": "document:1"
+      },
+      "expect": [
+        "bound_altered"
+      ]
+    },
+    {
+      "name": "broken-binding",
+      "why": "Broken: the Save button carries the binding of another command.",
+      "script": [
+        "create",
+        "create",
+        "open",
+        "edit"
+      ],
+      "layout_family": "top-bar-list-left",
+      "visual_preset": "calm-blue",
+      "viewport": [
+        960,
+        540
+      ],
+      "break": {
+        "kind": "rebind",
+        "element": "toolbar.save",
+        "binding": {
+          "command": "create"
+        }
+      },
+      "expect": [
+        "bound_altered"
+      ]
+    },
+    {
+      "name": "box-without-area",
+      "why": "Broken: the title field's box has no width.",
+      "script": [
+        "create",
+        "create",
+        "open",
+        "edit"
+      ],
+      "layout_family": "top-bar-list-left",
+      "visual_preset": "calm-blue",
+      "viewport": [
+        960,
+        540
+      ],
+      "break": {
+        "kind": "resize",
+        "element": "editor.title",
+        "width": 0
+      },
+      "expect": [
+        "out_of_range"
+      ]
+    },
+    {
+      "name": "pushed-out-of-the-viewport",
+      "why": "Broken: the Undo button is moved past the right edge of the viewport.",
+      "script": [
+        "create",
+        "create",
+        "open",
+        "edit"
+      ],
+      "layout_family": "top-bar-list-left",
+      "visual_preset": "calm-blue",
+      "viewport": [
+        960,
+        540
+      ],
+      "break": {
+        "kind": "move",
+        "element": "toolbar.undo",
+        "dx": 200
+      },
+      "expect": [
+        "outside_viewport"
+      ]
+    },
+    {
+      "name": "button-narrower-than-its-text",
+      "why": "Broken: the create button is half the width its text needs.",
+      "script": [
+        "create",
+        "create",
+        "open",
+        "edit"
+      ],
+      "layout_family": "top-bar-list-left",
+      "visual_preset": "calm-blue",
+      "viewport": [
+        960,
+        540
+      ],
+      "break": {
+        "kind": "resize",
+        "element": "documents.create",
+        "width": 0.5
+      },
+      "expect": [
+        "text_overflows"
+      ]
+    },
+    {
+      "name": "covered-button",
+      "why": "Broken: an opaque structural element is drawn over the sort button, so what is seen there is not what is hit.",
+      "script": [
+        "create",
+        "create",
+        "open",
+        "edit"
+      ],
+      "layout_family": "top-bar-list-left",
+      "visual_preset": "calm-blue",
+      "viewport": [
+        960,
+        540
+      ],
+      "break": {
+        "kind": "cover",
+        "element": "toolbar.sort"
+      },
+      "expect": [
+        "hit_target_covered",
+        "text_covered"
+      ]
+    },
+    {
+      "name": "covered-label",
+      "why": "Broken: an opaque structural element is drawn over the filter's label, which is then not seen.",
+      "script": [
+        "create",
+        "create",
+        "open",
+        "edit"
+      ],
+      "layout_family": "top-bar-list-left",
+      "visual_preset": "calm-blue",
+      "viewport": [
+        960,
+        540
+      ],
+      "break": {
+        "kind": "cover",
+        "element": "toolbar.filter.label"
+      },
+      "expect": [
+        "element_covered",
+        "text_covered"
+      ]
+    },
+    {
+      "name": "stacked-buttons",
+      "why": "Broken: the Undo button is placed on top of the Save button.",
+      "script": [
+        "create",
+        "create",
+        "open",
+        "edit"
+      ],
+      "layout_family": "top-bar-list-left",
+      "visual_preset": "calm-blue",
+      "viewport": [
+        960,
+        540
+      ],
+      "break": {
+        "kind": "move",
+        "element": "toolbar.undo",
+        "onto": "toolbar.save"
+      },
+      "expect": [
+        "elements_overlap",
+        "hit_target_covered",
+        "text_covered"
+      ]
+    },
+    {
+      "name": "disabled-drawn-as-enabled",
+      "why": "Broken: Save is disabled by the application and drawn at full opacity, as if it could be pressed.",
+      "script": [
+        "create",
+        "open"
+      ],
+      "layout_family": "top-bar-list-left",
+      "visual_preset": "calm-blue",
+      "viewport": [
+        960,
+        540
+      ],
+      "break": {
+        "kind": "style",
+        "element": "toolbar.save",
+        "field": "opacity",
+        "value": 1.0
+      },
+      "expect": [
+        "state_style_mismatch"
+      ]
+    },
+    {
+      "name": "row-in-the-wrong-panel",
+      "why": "Broken: a row of the list is made a child of the editor's panel, and so lies outside its parent.",
+      "script": [
+        "create",
+        "create",
+        "open",
+        "edit"
+      ],
+      "layout_family": "top-bar-list-left",
+      "visual_preset": "calm-blue",
+      "viewport": [
+        960,
+        540
+      ],
+      "break": {
+        "kind": "reparent",
+        "element": "document:1",
+        "parent": "s.editor"
+      },
+      "expect": [
+        "outside_parent"
+      ]
+    },
+    {
+      "name": "parent-that-does-not-exist",
+      "why": "Broken: the filter field names a parent that is not in the scene.",
+      "script": [
+        "create",
+        "create",
+        "open",
+        "edit"
+      ],
+      "layout_family": "top-bar-list-left",
+      "visual_preset": "calm-blue",
+      "viewport": [
+        960,
+        540
+      ],
+      "break": {
+        "kind": "reparent",
+        "element": "toolbar.filter",
+        "parent": "s.nowhere"
+      },
+      "expect": [
+        "tree"
+      ]
+    }
+  ]
+}

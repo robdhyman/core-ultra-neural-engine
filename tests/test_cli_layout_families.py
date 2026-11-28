@@ -38,10 +38,12 @@ FAMILIES_V1 = REPO_ROOT / "configs" / "data" / "families-v1.json"
 COMMITTED_MANIFEST = REPO_ROOT / "artifacts" / "datasets" / "families-v2" / "manifest.json"
 COMMITTED_MANIFEST_V1 = REPO_ROOT / "artifacts" / "datasets" / "families-v1" / "manifest.json"
 LAYOUT_V3 = REPO_ROOT / "configs" / "layout" / "v3.json"
+LAYOUT_V4 = REPO_ROOT / "configs" / "layout" / "v4.json"
 DESIGN_CONFIG = REPO_ROOT / "configs" / "design" / "v1.json"
 
 FACTORS = ("navigation_position", "panel_arrangement", "density", "spacing", "notification_location", "grouping", "alignment")
 DENSITY = {0.85: "compact", 1.0: "preset", 1.15: "roomy"}
+DENSITY_FACTOR = {name: factor for factor, name in DENSITY.items()}
 SPACING = {0.75: "tight", 1.0: "preset", 1.25: "loose"}
 STATES = {"default", "hover", "pressed", "focused", "disabled"}
 
@@ -521,6 +523,97 @@ def test_a_layout_declares_the_five_factors_and_may_declare_grouping_and_alignme
     preset = design.load().preset()
     stated = layout_family.DesignCondition(**{**condition.to_json(), "grouping": "parts", "alignment": "justified"})
     assert reference_layout.write_scene(bound, (1280, 720), preset, condition) == reference_layout.write_scene(bound, (1280, 720), preset, stated)
+
+
+# --- the least text inset (layout version 4) ---------------------------------------
+
+
+def test_layout_version_4_is_version_3_with_a_least_text_inset():
+    third, fourth = json.loads(LAYOUT_V3.read_text()), json.loads(LAYOUT_V4.read_text())
+    assert fourth["version"] == 4 and fourth["least_text_inset"] == 6 and "least_text_inset" not in third
+    apart = ("name", "version", "note", "least_text_inset")
+    assert {k: v for k, v in fourth.items() if k not in apart} == {k: v for k, v in third.items() if k not in apart}
+    assert layout_family.load(LAYOUT_V4).least_text_inset == 6.0
+    # A layout that declares none has none, and is drawn as before the rule existed.
+    assert layout_family.load(LAYOUT_V3).least_text_inset == 0.0 and layout_family.load().least_text_inset == 0.0
+
+
+def test_compact_stops_short_of_the_least_text_inset_and_nothing_else_is_drawn_differently():
+    """One state at every density in every visual preset, with the inset of
+    layout version 4 and without. Only `dense-ink` at compact is drawn
+    differently: there an element that holds text keeps 6 units above and
+    below its line, or the visual preset's own height where that leaves less,
+    and is never higher than the preset states."""
+    kernel = a_workspace()
+    bound = documents_adapter.describe(kernel.state())
+    kernel.close()
+    inset = layout_family.load(LAYOUT_V4).least_text_inset
+    tokens = json.loads(DESIGN_CONFIG.read_text())["presets"]
+    holders = {
+        "documents.create": "control-height", "toolbar.filter": "control-height", "document:1": "row-height",
+        "editor.title": "title-height", "notification": "notification-height",
+    }  # fmt: skip
+    changed = set()
+    for name in design.load().presets:
+        preset = design.load().preset(name)
+        for density in ("compact", "preset", "roomy"):
+            condition = layout_family.DesignCondition(
+                navigation_position="top", panel_arrangement="list-left", density=density, spacing="preset", notification_location="bottom-right"
+            )
+            before = reference_layout.write_scene(bound, (1440, 900), preset, condition)
+            after = reference_layout.write_scene(bound, (1440, 900), preset, condition, inset)
+            assert validators.judge(after, bound, (1440, 900), preset)[1] == ()
+            if after != before:
+                changed.add((name, density))
+            for identity, token in holders.items():
+                stated = tokens[name]["density"][token]
+                element = next(e for e in after["elements"] if e.get("bound", {}).get("identity") == identity)
+                high = element["box"]["height"]
+                line = typography.line_height(element["style"]["type_size"], element["style"]["type_weight"])
+                if density != "compact":
+                    assert high == pytest.approx(stated * {"preset": 1.0, "roomy": 1.15}[density])
+                    continue
+                # Never lower than compact makes it, never higher than the preset states.
+                assert stated * 0.85 - 1e-9 <= high <= stated + 1e-9
+                # The inset, or all the room the preset's own height has.
+                assert (high - line) / 2 >= min(inset, (stated - line) / 2) - 1e-9
+                if (stated * 0.85 - line) / 2 >= inset:
+                    assert high == pytest.approx(stated * 0.85)
+            # An element without text is scaled as before: the toolbar's bar.
+            assert box(after, "s.toolbar")["height"] == pytest.approx(tokens[name]["density"]["toolbar-height"] * DENSITY_FACTOR[density])
+    assert changed == {("dense-ink", "compact")}
+    # What it was: without the inset, dense-ink at compact has text 3.2 units from the edge of its filter field.
+    dense = design.load().preset("dense-ink")
+    compact = layout_family.DesignCondition(
+        navigation_position="top", panel_arrangement="list-left", density="compact", spacing="preset", notification_location="bottom-right"
+    )
+    field = next(e for e in reference_layout.write_scene(bound, (1440, 900), dense, compact)["elements"] if e.get("bound", {}).get("identity") == "toolbar.filter")
+    assert (field["box"]["height"] - typography.line_height(field["style"]["type_size"], field["style"]["type_weight"])) / 2 < 3.5
+
+
+def test_a_scene_session_draws_a_layout_with_its_least_text_inset():
+    kernel = a_workspace()
+    state = kernel.state()
+    kernel.close()
+    family = "top-bar-list-top"
+    heights = {}
+    for path in (LAYOUT_V3, LAYOUT_V4):
+        layout = layout_family.load(path)
+        assert layout.family(family).design_condition.density == "compact"
+        conditioning = Conditioning(1440, 900, visual_preset="dense-ink", design_condition=layout.family(family).design_condition.to_json())
+        frame = SceneSession(layout).frame(state, conditioning, RenderingMode.A_REFERENCE)
+        heights[path] = next(e.height for e in frame.scene.elements if e.bound is not None and e.bound.identity == "document:1")
+    assert heights[LAYOUT_V3] == pytest.approx(28 * 0.85) and heights[LAYOUT_V4] > heights[LAYOUT_V3] + 3
+
+
+@pytest.mark.parametrize("stated", [-1, "6", True, float("nan")], ids=["below zero", "text", "true", "not a number"])
+def test_a_least_text_inset_that_is_not_a_number_at_or_above_zero_is_refused(tmp_path, stated):
+    raw = json.loads(LAYOUT_V4.read_text())
+    raw["least_text_inset"] = stated
+    path = tmp_path / "layout.json"
+    path.write_text(json.dumps(raw))
+    with pytest.raises(layout_family.LayoutError, match="least_text_inset is not a number at or above zero"):
+        layout_family.load(path)
 
 
 def test_one_state_is_a_different_arrangement_in_every_family():
@@ -1041,8 +1134,8 @@ def test_the_generator_rejects_a_state_whose_scene_moves_a_box(monkeypatch):
     rest."""
     written = reference_layout.write_scene
 
-    def moving(bound_elements, viewport, preset, condition):
-        scene = written(bound_elements, viewport, preset, condition)
+    def moving(bound_elements, viewport, preset, condition, *more):
+        scene = written(bound_elements, viewport, preset, condition, *more)
         for element in scene["elements"]:
             if element.get("bound", {}).get("state") == "hover":
                 element["box"]["x"] += 1.0

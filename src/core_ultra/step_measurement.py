@@ -84,7 +84,8 @@ class ConfigError(ValueError):
 
 
 def other_measurements() -> list[int]:
-    """Process ids of training-step measurements already running on this machine.
+    """Process ids of measurements already running on this machine: `measure
+    step` and `measure generation`.
 
     Two measurements that overlap share the GPU and the CPU, and neither
     reports an error: the steps are only slower. So a second one is refused.
@@ -105,7 +106,7 @@ def other_measurements() -> list[int]:
         is_case = "core_ultra.step_case" in arguments
         is_command = any(
             Path(argument).name in ("core-ultra", "core_ultra") for argument in arguments
-        ) and any(pair == ("measure", "step") for pair in zip(arguments, arguments[1:]))
+        ) and any(pair in (("measure", "step"), ("measure", "generation")) for pair in zip(arguments, arguments[1:]))
         if is_case or is_command:
             found.append(process.info["pid"])
     return sorted(found)
@@ -523,6 +524,13 @@ def _run_child(
 
 def _failure(kind: str, message: str) -> dict[str, Any]:
     return {"ok": False, "error": {"type": kind, "message": message}}
+
+
+def conditions() -> dict[str, Any]:
+    """The state of the machine at this moment, as every measurement records
+    it before it starts: free memory, swap in use, the power source and Low
+    Power Mode. Unknown is null, never guessed."""
+    return _conditions()
 
 
 def _conditions() -> dict[str, Any]:

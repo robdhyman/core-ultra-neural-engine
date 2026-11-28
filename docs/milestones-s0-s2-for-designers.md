@@ -6,7 +6,7 @@ Written 2026-11-26. This merges the three milestone records ([S0](../records/mil
 
 - **S0 (done).** We checked that one MacBook can train the planned neural network. It can, with room to spare, so nothing was rented in the cloud.
 - **S1 (done).** We built a small documents app and a way to draw its whole interface from a structured description, with no neural network involved yet. This hand-built version is the answer key the network will later be graded against.
-- **S2 (started, not finished).** We wrote an original design system as tokens, kept it in sync with the code automatically, and drew the same screen in four different looks. We then built the first working path for training data: simulated sessions use the app, and every screen they reach is saved as a training example. Then came eight different arrangements of the screen, checks that throw out broken examples and say why, and a labelled set of examples that are broken on purpose. The rest of S2 (a pilot gallery, Rob's review, the full dataset) is still to come.
+- **S2 (started, not finished).** We wrote an original design system as tokens, kept it in sync with the code automatically, and drew the same screen in four different looks. We then built the first working path for training data: simulated sessions use the app, and every screen they reach is saved as a training example. Then came eight different arrangements of the screen, checks that throw out broken examples and say why, and a labelled set of examples that are broken on purpose. Then a pilot of 476 examples, with every arrangement in every look, and a gallery page to review it in. The rest of S2 (Rob's review of that gallery, then the full dataset) is still to come.
 
 No neural network has been trained yet. Everything here is groundwork.
 
@@ -377,6 +377,55 @@ They are saved in their own folder with a label that says they are never a train
 - **Compact changes heights, not type size.** Whether compact on the already dense preset still looks intentional is a question for the gallery.
 - **Nothing scrolls, wraps or truncates**, still. The list of what the generator does not vary is in the layout configuration and in every manifest.
 
+## S2, continued: the pilot and its review gallery
+
+*Covers issue #9.*
+
+Before thousands of examples are made, a few hundred are made and looked at. That is the pilot, and the page it is looked at in is the review gallery. It is the step where a person, not a test, decides whether the examples look like designed screens.
+
+### The pilot
+
+- **476 examples**, from 32 simulated sessions. The spec asks for 200 to 500.
+- **Every arrangement in every look.** There are eight layout families and four presets, so 32 pairings, and each pairing is one session. The earlier dataset had 16 of the 32.
+- **Short sessions.** Each session is three to eight actions, such as create, open, edit, save. That keeps 32 sessions under 500 examples. One scenario fills the list with seven documents.
+- **Nothing was thrown out.** Two sessions were first offered a window too small for their text and were given a larger one. Both refusals are in the gallery, with pictures.
+- **The 20 broken-on-purpose examples** from issue #8 come along, still kept apart.
+
+### The gallery
+
+One command builds it, and it opens as a page from disk with no network:
+
+```bash
+uv run core-ultra data gallery artifacts/datasets/pilot-v2
+open artifacts/galleries/pilot-v2/index.html
+```
+
+- **Every example is a picture with four labels**: its layout family, its preset, its design condition (the seven layout settings) and its state (what the pointer is on, and which element states the screen shows).
+- **Grouped the way a designer would compare them**: by layout family, then preset, then session, so a session reads left to right like a storyboard. Three filters narrow the page, and a picture opens larger when chosen.
+- **A coverage summary at the top** counts the examples by layout family, preset, density, content length, element state and window size, and by each pairing. Anything the configuration promised and no example shows is named. In the pilot nothing is missing.
+- **Rejected screens are at the end, apart**, each with the reason it was rejected, and the broken-on-purpose set is marked as never a training target.
+
+The gallery only shows. It does not judge anything, and no result is ever measured from it.
+
+### What an example costs
+
+Measured on this Mac, three runs: the pilot takes 10.5 seconds to generate, which is 22 ms an example, and uses 33 MiB of disk, about 69 KiB an example. Multiplied out, and not measured, 20,000 examples would take about seven and a half minutes and 1.3 GiB. So neither time nor disk decides how large the full dataset should be. What decides it is how much real variety the generator can produce, which is worked out in issue #11.
+
+### How it was checked
+
+- **56 new tests.** They read the page with a plain HTML parser and work out from the dataset itself what every label and every count should be.
+- **44 deliberate breakages** of the new code, one at a time. 43 made a test fail at once; the other now has a test that does.
+- **An independent review** read the code and checked every number in the write-up against the files. It found one wrong count and a few ways a hand-altered dataset could crash the gallery; all are fixed.
+- **The page was opened and used** in a browser: filters, the larger view, the rejected part.
+
+### Known limits
+
+- **Lists are mostly short.** 28 of the 32 sessions never have more than three documents. The seven-document list appears in four of the eight layout families.
+- **Each scenario meets four of the eight families**, so not every kind of session is seen in every arrangement.
+- **A title can repeat in one list.** Short titles are a single word drawn from 24.
+- **Text was cramped in one pairing, and that is fixed.** A second check of all 476 pictures, pixel by pixel, found no text that overflows. It did find text 3 to 4 units from the edge of its field or row in `dense-ink` at compact density. Rob chose a floor: compact may not bring text closer than 6 units to its edge. That is layout version 4, and the pilot is now version 2. Only the 36 `dense-ink` compact examples changed. One field there keeps the preset's own height, which leaves 5.1 units.
+- **Only the hand-built drawing is shown.** There is no network yet, so nothing in the gallery was predicted.
+
 ## Where a designer's eye is needed
 
 These come straight from the limits above. They are the open questions closest to design work:
@@ -387,11 +436,11 @@ These come straight from the limits above. They are the open questions closest t
 4. **Long lists have no rule yet.** Nothing scrolls, and the screen tops out at 21 rows.
 5. **Narrow windows have no rule yet.** There are eight arrangements now, and none of them reflows: a design that does not fit a window is given a larger one.
 6. **The notification cannot be dismissed.** It stays until the next action replaces or clears it.
-7. **Do the eight layout families each read as intentional**, in each preset, at each density? The checks only say nothing is broken.
+7. **Do the eight layout families each read as intentional**, in each preset, at each density? The checks only say nothing is broken. The pilot gallery is where to look: all 32 pairings are in it.
 
 ## What comes next
 
-- **Issue #9.** A pilot dataset of 200 to 500 examples across every preset and layout family, in a gallery made for review, with the stress-test set shown apart.
-- **Issue #12** can run alongside it: the first stage of the training renderer, covering rounded rectangles.
+- **Issue #10.** Rob's go or no-go on the pilot gallery. Nothing is scaled up before it.
+- **Issue #11**, after a go: the rules for splitting the data are frozen and the full dataset is generated.
+- **Issue #12** can run alongside: the first stage of the training renderer, covering rounded rectangles.
 - **Issue #15** can also start: the first network, taught to reproduce the tiny set.
-- **After that:** Rob's go or no-go on that gallery (#10).

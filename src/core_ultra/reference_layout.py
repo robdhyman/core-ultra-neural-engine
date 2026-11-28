@@ -18,7 +18,7 @@ refused, never drawn as something else.
 | panel arrangement | `list-left` | The document list as a column on the left of the area the navigation leaves free, the editor filling the rest. |
 | | `list-right` | The same column on the right, the editor on the left. |
 | | `list-top` | The list across the top as a grid: as many columns of rows as fit at the narrowest list's width, filled row by row. The editor fills the rest below. |
-| density | `compact`, `preset`, `roomy` | The visual preset's heights (toolbar, control, row, title, notification) times `DENSITY`. |
+| density | `compact`, `preset`, `roomy` | The visual preset's heights (toolbar, control, row, title, notification) times `DENSITY`. Where the layout declares a least text inset, `compact` stops short of it: see below. |
 | spacing | `tight`, `preset`, `loose` | The visual preset's distances (margin, gap and the paddings) times `SPACING`. |
 | notification location | `bottom-right`, `bottom-left`, `bottom-centre` | The notification three margins up from the lower edge of the area the navigation leaves free: three margins in from that corner, or centred. |
 | grouping | `parts` | One container for each part of the workspace: the toolbar's, a panel for the list and a panel for the editor. |
@@ -38,6 +38,16 @@ those factors existed.
 Every style value and every size comes from the visual preset
 (`core_ultra.design`); density and spacing scale a whole group of its tokens
 by one factor and decide nothing else.
+
+The least text inset. The runtime renderer starts a text as far from the left
+edge of its box as the line is from the top, so a low box sets its text near
+its edge. A layout may declare `least_text_inset`, in viewport units. Then
+`compact` lowers an element that holds text only as far as leaves that much
+above and below its line, and so that much before it, and never makes it
+higher than the visual preset states: a preset already tighter than the
+inset is drawn at its own heights. An element without text, the toolbar's bar
+among them, is scaled as before, and so are `preset` and `roomy`. A layout
+that declares none is drawn as before the rule existed.
 
 The layout knows the bound elements only by what the adapter says of them: the
 part of the workspace each belongs to, its role and the command its binding
@@ -121,9 +131,11 @@ def write_scene(
     viewport: tuple[float, float],
     preset: VisualPreset,
     condition: DesignCondition,
+    least_text_inset: float = 0.0,
 ) -> dict[str, Any]:
     """The true scene for these bound elements at this viewport size, in this
-    visual preset, under this design condition."""
+    visual preset, under this design condition. `least_text_inset` is the
+    layout's (`Layout.least_text_inset`); zero is a layout that declares none."""
     values = {}
     for factor in FACTORS:
         value = getattr(condition, factor)
@@ -135,7 +147,7 @@ def write_scene(
             )
         values[factor] = value
     width, height = viewport
-    writer = _Writer(preset, values)
+    writer = _Writer(preset, values, least_text_inset)
     parts = _Parts(bound_elements)
 
     elements = [writer.structural("s.root", "surface", None, "page", 0, 0, width, height)]
@@ -186,9 +198,10 @@ class _Writer:
     """Writes the workspace's elements in one visual preset, at one density
     and spacing, in one grouping and alignment."""
 
-    def __init__(self, preset: VisualPreset, values: Mapping[str, str]) -> None:
+    def __init__(self, preset: VisualPreset, values: Mapping[str, str], least_text_inset: float = 0.0) -> None:
         """`values` is a value for each of `FACTORS`, every one of them drawn."""
         self.preset = preset
+        self.least_text_inset = least_text_inset
         self.density = DENSITY[values["density"]]
         self.spacing = SPACING[values["spacing"]]
         self.grouping = values["grouping"]
@@ -201,8 +214,15 @@ class _Writer:
         return self.preset.spacing[name] * self.spacing
 
     def high(self, component: Component) -> float:
-        """A component's height at this density."""
-        return component.height * self.density
+        """A component's height at this density. Under a least text inset, a
+        component that holds text is lowered no further than leaves that much
+        above and below its line, and is never made higher than the preset
+        states."""
+        high = component.height * self.density
+        if self.least_text_inset > 0 and self.density < 1 and component.type is not None:
+            floor = typography.line_height(*component.type) + 2 * self.least_text_inset
+            high = max(high, min(component.height, floor))
+        return high
 
     def aligned(self, start: float, room: float, width: float) -> float:
         """Where something `width` wide begins in `room`: at its start, or in
